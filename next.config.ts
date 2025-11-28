@@ -2,12 +2,11 @@ import {withSentryConfig} from "@sentry/nextjs";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // TODO Change me when deleting /sessionInfo demo page
   async redirects() {
     return [
       {
         source: "/",
-        destination: "/sessioninfo",
+        destination: "/words",
         permanent: false
       }
     ]
@@ -21,7 +20,7 @@ export default withSentryConfig(nextConfig, {
 
   org: "merten-dieckmann",
 
-  project: "next-starter",
+  project: "language-learning",
 
   // Only print logs for uploading source maps in CI
   silent: !process.env.CI,

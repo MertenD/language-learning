@@ -25,7 +25,7 @@ export const auth = betterAuth({
                     // TODO Change these products to your products from polar
                     products: [
                         {
-                            productId: "54473369-ea20-4d3b-90de-16f7883e7be2",
+                            productId: "6dc851b5-6bcf-46da-91f6-3c7a5066466a",
                             slug: "pro"
                         }
                     ],

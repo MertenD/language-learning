@@ -1,11 +1,14 @@
 "use client"
 
-import {CreditCardIcon, InfoIcon, LogOutIcon, StarIcon} from "lucide-react";
+import {BookAIcon, CreditCardIcon, LogOutIcon, StarIcon} from "lucide-react";
 import {
     Sidebar,
-    SidebarContent, SidebarFooter,
+    SidebarContent,
+    SidebarFooter,
     SidebarGroup,
-    SidebarGroupContent, SidebarHeader, SidebarMenu,
+    SidebarGroupContent,
+    SidebarHeader,
+    SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem
 } from "@/components/ui/sidebar";
@@ -13,32 +16,17 @@ import Link from "next/link";
 import Image from "next/image";
 import {usePathname, useRouter} from "next/navigation";
 import {authClient} from "@/lib/auth-client";
-import {useHasActiveSubscription} from "@/hooks/subscriptions/use-subscription";
+import {useHasActiveSubscription} from "@/features/subscriptions/hooks/use-subscription";
 
 const menuItems = [
     {
         title: "Demo",
         items: [
             {
-                title: "Session Info",
-                icon: InfoIcon,
-                url: "/sessioninfo"
+                title: "Vocabulary",
+                icon: BookAIcon,
+                url: "/words"
             },
-            {
-                title: "User Info",
-                icon: InfoIcon,
-                url: "/userinfo"
-            },
-            {
-                title: "Inngest Demo",
-                icon: InfoIcon,
-                url: "/inngest"
-            },
-            {
-                title: "AI Demo (Premium)",
-                icon: InfoIcon,
-                url: "/ai"
-            }
         ]
     }
 ]
@@ -54,7 +42,7 @@ export default function AppSidebar() {
                 <SidebarMenuButton asChild className="gap-x-4 h-10 px-4">
                     <Link href="/" prefetch>
                         <Image src="/logos/logo.svg" alt="App Icon" width={20} height={20} />
-                        <span className="font-semibold text-sm">Next Starter</span>
+                        <span className="font-semibold text-sm">Language Learning</span>
                     </Link>
                 </SidebarMenuButton>
             </SidebarMenuItem>

@@ -7,7 +7,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode}) {
         <div className="flex w-full max-w-sm flex-col gap-6">
             <Link href="/" className="flex items-center gap-2 self-center font-medium">
                 <Image src="/logos/logo.svg" alt="App Logo" width={20} height={20} />
-                Next Starter
+                Language Learning
             </Link>
             {children}
         </div>
