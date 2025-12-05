@@ -3,11 +3,12 @@ import {prefetchWords} from "@/features/words/servers/prefetch";
 import {HydrateClient} from "@/trpc/server";
 import {ErrorBoundary} from "react-error-boundary";
 import {Suspense} from "react";
-import {Spinner} from "@/components/ui/spinner";
 import WordsList from "@/features/words/components/words-list";
 import WordsContainer from "@/features/words/components/words-container";
 import type {SearchParams} from "nuqs/server";
 import {wordsParamsLoader} from "@/features/words/servers/params-loader";
+import WordsLoading from "@/features/words/components/words-loading";
+import WordsError from "@/features/words/components/words-error";
 
 type WordsPageProps = {
     searchParams: Promise<SearchParams>
@@ -21,8 +22,8 @@ export default async function WordsPage({ searchParams }: WordsPageProps) {
 
     return <WordsContainer>
         <HydrateClient>
-            <ErrorBoundary fallback={<p>Error!</p>}>
-                <Suspense fallback={<Spinner />}>
+            <ErrorBoundary fallback={<WordsError />}>
+                <Suspense fallback={<WordsLoading />}>
                     <WordsList />
                 </Suspense>
             </ErrorBoundary>
