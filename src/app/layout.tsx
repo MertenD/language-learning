@@ -5,6 +5,7 @@ import {TRPCReactProvider} from "@/trpc/client";
 import {ReactQueryDevtools} from "@tanstack/react-query-devtools";
 import {Toaster} from "sonner";
 import React from "react";
+import {NuqsAdapter} from "nuqs/adapters/next/app";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,9 +34,11 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <TRPCReactProvider>
-          {children}
-          <Toaster />
-          { process.env.NODE_ENV !== "production" && <ReactQueryDevtools /> }
+          <NuqsAdapter>
+            {children}
+            <Toaster />
+            { process.env.NODE_ENV !== "production" && <ReactQueryDevtools /> }
+          </NuqsAdapter>
         </TRPCReactProvider>
       </body>
     </html>

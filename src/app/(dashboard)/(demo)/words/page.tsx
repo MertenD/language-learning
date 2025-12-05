@@ -6,11 +6,18 @@ import {Suspense} from "react";
 import {Spinner} from "@/components/ui/spinner";
 import WordsList from "@/features/words/components/words-list";
 import WordsContainer from "@/features/words/components/words-container";
+import type {SearchParams} from "nuqs/server";
+import {wordsParamsLoader} from "@/features/words/servers/params-loader";
 
-export default async function WordsPage() {
+type WordsPageProps = {
+    searchParams: Promise<SearchParams>
+}
+
+export default async function WordsPage({ searchParams }: WordsPageProps) {
     await requireAuth()
 
-    prefetchWords()
+    const params = await wordsParamsLoader(searchParams)
+    prefetchWords(params)
 
     return <WordsContainer>
         <HydrateClient>
