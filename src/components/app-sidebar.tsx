@@ -1,6 +1,14 @@
 "use client"
 
-import {BookAIcon, BookOpenTextIcon, CreditCardIcon, LogOutIcon, StarIcon} from "lucide-react";
+import {
+    BookAIcon,
+    BookOpenTextIcon,
+    BotMessageSquareIcon,
+    CreditCardIcon,
+    LogOutIcon,
+    MessageSquareIcon,
+    StarIcon
+} from "lucide-react";
 import {
     Sidebar,
     SidebarContent,
@@ -31,6 +39,11 @@ const menuItems = [
                 title: "Grammar",
                 icon: BookOpenTextIcon,
                 url: "/grammar"
+            },
+            {
+                title: "Chat",
+                icon: BotMessageSquareIcon,
+                url: "/chat"
             }
         ]
     }

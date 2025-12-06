@@ -14,7 +14,7 @@ type WordsPageProps = {
     searchParams: Promise<SearchParams>
 }
 
-export default async function WordsPage({ searchParams }: WordsPageProps) {
+export default async function GrammarPage({ searchParams }: WordsPageProps) {
     await requireAuth()
 
     const params = await grammarParamsLoader(searchParams)
