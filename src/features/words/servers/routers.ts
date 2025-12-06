@@ -2,15 +2,11 @@ import {createTRPCRouter, premiumProcedure, protectedProcedure} from "@/trpc/ini
 import prisma from "@/lib/db";
 import {z} from "zod";
 import {PAGINATION} from "@/config/constants";
+import {createWordSchema} from "@/features/words/schema/word-crud-schema";
 
 export const wordsRouter = createTRPCRouter({
     create: premiumProcedure
-        .input(z.object({
-            german: z.string().min(1),
-            germanInfo: z.string().min(1).optional(),
-            serbian: z.string().min(1),
-            serbianInfo: z.string().min(1).optional()
-        }))
+        .input(createWordSchema)
         .mutation(({ ctx, input }) => {
             return prisma.word.create({
                 data: {

@@ -1,3 +1,5 @@
+"use client"
+
 import {Button} from "@/components/ui/button";
 import {
     AlertTriangleIcon,
@@ -236,90 +238,113 @@ export function EntityList<T>({
     </div>
 }
 
-interface EntityItemProps {
-    href: string
-    title: string
-    subTitle?: React.ReactNode
-    image?: React.ReactNode
+interface VocabularyEntityItemProps {
+    primaryLanguage: string
+    primaryInfo?: string | null
+    secondaryLanguage: string
+    secondaryInfo?: string | null
+    primaryFlag: React.ReactNode
+    secondaryFlag: React.ReactNode
     actions?: React.ReactNode
     onRemove?: () => void | Promise<void>
     isRemoving?: boolean
+    onClick?: () => void
     className?: string
 }
 
-export function EntityItem({
-    href,
-    title,
-    subTitle,
-    image,
+export function VocabularyEntityItem({
+    primaryLanguage,
+    primaryInfo,
+    secondaryLanguage,
+    secondaryInfo,
+    primaryFlag,
+    secondaryFlag,
     actions,
     onRemove,
     isRemoving,
+    onClick,
     className
-}: EntityItemProps) {
+}: VocabularyEntityItemProps) {
     const handleRemove = async (e: React.MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
+        e.preventDefault()
+        e.stopPropagation()
 
         if (isRemoving) {
-            return;
+            return
         }
 
         if (onRemove) {
-            await onRemove();
+            await onRemove()
         }
     }
 
-    return <Link href={href} prefetch>
-        <Card
-            className={cn(
-                "p-4 shadow-none hover:shadow cursor-pointer",
-                isRemoving && "opacity-50 cursor-not-allowed",
-                className
-            )}
-        >
-            <CardContent className="flex flex-row items-center justify-between p-0">
-                <div className="flex items-center gap-3">
-                    {image}
-                    <div>
-                        <CardTitle className="text-base font-medium">
-                            {title}
-                        </CardTitle>
-                        {!!subTitle && (
-                            <CardDescription className="text-xs">
-                                {subTitle}
-                            </CardDescription>
+    return <Card
+        className={cn(
+            "p-4 shadow-none hover:shadow cursor-pointer transition-shadow",
+            isRemoving && "opacity-50 cursor-not-allowed",
+            className,
+        )}
+        onClick={() => !isRemoving && onClick?.()}
+    >
+        <CardContent className="flex flex-row items-center justify-between p-0">
+            <div className="flex items-center gap-4 flex-1 min-w-0">
+                <div className="flex items-start gap-2 flex-1 min-w-0">
+                    <div className="flex-shrink-0 mt-1">{primaryFlag}</div>
+                    <div className="min-w-0 flex-1">
+                        <CardTitle className="text-base font-medium truncate">{primaryLanguage}</CardTitle>
+                        {primaryInfo && (
+                            <CardDescription className="text-xs mt-0.5 line-clamp-1">{primaryInfo}</CardDescription>
                         )}
                     </div>
                 </div>
-                {(actions || onRemove) && (
-                    <div className="flex gap-x-4 items-center">
-                        {actions}
-                        {onRemove && (
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button
-                                        size="icon"
-                                        variant="ghost"
-                                        onClick={(e) => e.stopPropagation()}
-                                    >
-                                        <MoreVerticalIcon className="size-4" />
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent
-                                    align="end"
-                                    onClick={(e) => e.stopPropagation()}
-                                >
-                                    <DropdownMenuItem onClick={handleRemove}>
-                                        <TrashIcon className="size-4" />
-                                        Delete
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
+
+                <div className="flex-shrink-0 text-muted-foreground">↔</div>
+
+                <div className="flex items-start gap-2 flex-1 min-w-0">
+                    <div className="flex-shrink-0 mt-1">{secondaryFlag}</div>
+                    <div className="min-w-0 flex-1">
+                        <CardTitle className="text-base font-medium truncate">{secondaryLanguage}</CardTitle>
+                        {secondaryInfo && (
+                            <CardDescription className="text-xs mt-0.5 line-clamp-1">{secondaryInfo}</CardDescription>
                         )}
                     </div>
-                )}
-            </CardContent>
-        </Card>
-    </Link>
+                </div>
+            </div>
+
+            {(actions || onRemove) && (
+                <div className="flex gap-x-2 items-center ml-4 flex-shrink-0">
+                    {actions}
+                    {onRemove && (
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    onClick={(e) => {
+                                        e.preventDefault()
+                                        e.stopPropagation()
+                                    }}
+                                    disabled={isRemoving}
+                                >
+                                    <MoreVerticalIcon className="size-4" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent
+                                align="end"
+                                onClick={(e) => {
+                                    e.preventDefault()
+                                    e.stopPropagation()
+                                }}
+                            >
+                                <DropdownMenuItem onClick={handleRemove} disabled={isRemoving}>
+                                    <TrashIcon className="size-4" />
+                                    Delete
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    )}
+                </div>
+            )}
+        </CardContent>
+    </Card>
 }
