@@ -81,7 +81,7 @@ export function WordEditDialog({ word, open, onOpenChange, onSave }: WordEditDia
                                 <Button variant="outline" onClick={handleCancel}>
                                     Cancel
                                 </Button>
-                                <Button onClick={handleSave}>Save</Button>
+                                <Button onClick={handleSave} disabled={editedWord === word}>Save</Button>
                             </div>
                         </div>
                     ) : (

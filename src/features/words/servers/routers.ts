@@ -38,9 +38,9 @@ export const wordsRouter = createTRPCRouter({
                 where: { id: input.id, userId: ctx.auth.user.id },
                 data: {
                     german: input.german,
-                    germanInfo: input.germanInfo,
+                    germanInfo: input.germanInfo || null,
                     serbian: input.serbian,
-                    serbianInfo: input.serbianInfo,
+                    serbianInfo: input.serbianInfo || null,
                 }
             })
         }),

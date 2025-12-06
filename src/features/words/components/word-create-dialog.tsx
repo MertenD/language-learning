@@ -12,12 +12,18 @@ interface WordCreateDialogProps {
 }
 
 export function WordCreateDialog({ open, onOpenChange, onCreate }: WordCreateDialogProps) {
-    const [newWord, setNewWord] = useState<CreateWordInput>({
+    const emptyWord: CreateWordInput = {
         german: "",
         germanInfo: undefined,
         serbian: "",
         serbianInfo: undefined
-    })
+    }
+    const [newWord, setNewWord] = useState<CreateWordInput>(emptyWord)
+
+    function handleCreate() {
+        onCreate(newWord)
+        setNewWord(emptyWord)
+    }
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -77,7 +83,7 @@ export function WordCreateDialog({ open, onOpenChange, onCreate }: WordCreateDia
                             <Button variant="outline" onClick={() => onOpenChange(false)}>
                                 Cancel
                             </Button>
-                            <Button onClick={() => onCreate(newWord)}>Save</Button>
+                            <Button onClick={handleCreate}>Create</Button>
                         </div>
                     </div>
                 </div>
