@@ -1,11 +1,13 @@
 "use client"
 
-import {useState} from "react"
+import React, {useState} from "react"
 import {Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle} from "@/components/ui/dialog"
 import {Button} from "@/components/ui/button"
 import {Grammar} from "@/generated/prisma/client";
 import {Input} from "@/components/ui/input";
 import {Textarea} from "@/components/ui/textarea";
+import ReactMarkdown from "react-markdown";
+import {BookOpenTextIcon} from "lucide-react";
 
 interface GrammarEditDialogProps {
     grammar: Grammar
@@ -31,9 +33,16 @@ export function GrammarEditDialog({ grammar, open, onOpenChange, onSave }: Gramm
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[600px]">
-                <DialogHeader>
-                    <DialogTitle>Grammar Details</DialogTitle>
-                    <DialogDescription>View and edit grammar.</DialogDescription>
+                <DialogHeader className="flex flex-row">
+                    <div className="flex-shrink-0 pr-2">
+                        <div className="flex size-10 items-center justify-center rounded-lg bg-primary">
+                            <BookOpenTextIcon className="size-5 text-white"/>
+                        </div>
+                    </div>
+                    <div>
+                        <DialogTitle>Grammar Details</DialogTitle>
+                        <DialogDescription>View and edit grammar.</DialogDescription>
+                    </div>
                 </DialogHeader>
 
                 <div className="space-y-6 mt-4">
@@ -43,19 +52,20 @@ export function GrammarEditDialog({ grammar, open, onOpenChange, onSave }: Gramm
                                 <label className="text-sm font-medium flex items-center gap-2">
                                     Title
                                 </label>
-                                <Input
+                                <input
                                     type="text"
                                     value={grammar.title}
                                     onChange={(e) => setEditedGrammar({...grammar, title: e.target.value})}
-
+                                    className="w-full px-3 py-2 border rounded-md"
                                 />
                                 <label className="text-sm font-medium flex items-center gap-2">
                                     Grammar Rule
                                 </label>
-                                <Textarea
+                                <textarea
                                     value={grammar.content}
                                     cols={10}
                                     onChange={(e) => setEditedGrammar({...grammar, content: e.target.value})}
+                                    className="w-full h-[200px] px-3 py-2 border rounded-md"
                                 />
                             </div>
 
@@ -68,9 +78,11 @@ export function GrammarEditDialog({ grammar, open, onOpenChange, onSave }: Gramm
                         </div>
                     ) : (
                         <>
-                            <div className="space-y-4">
-                                <h3 className="text-xl font-semibold">{grammar.title}</h3>
-                                <p>{grammar.content}</p>
+                            <div className="flex-1 min-w-0 space-y-2">
+                                <h3 className="text-lg font-semibold text-foreground text-balance">{grammar.title}</h3>
+                                <div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground">
+                                    <ReactMarkdown>{grammar.content}</ReactMarkdown>
+                                </div>
                             </div>
 
                             <div

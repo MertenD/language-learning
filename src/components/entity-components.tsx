@@ -3,6 +3,7 @@
 import {Button} from "@/components/ui/button";
 import {
     AlertTriangleIcon,
+    BookOpenTextIcon,
     Loader2Icon,
     MoreVerticalIcon,
     PackageOpenIcon,
@@ -17,6 +18,7 @@ import {Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle} from "@/co
 import {cn} from "@/lib/utils";
 import {Card, CardContent, CardDescription, CardTitle} from "@/components/ui/card";
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "@/components/ui/dropdown-menu";
+import ReactMarkdown from "react-markdown"
 
 type EntityHeaderProps = {
     title: string
@@ -389,46 +391,56 @@ export function MarkdownEntityItem({
         )}
         onClick={() => !isRemoving && onClick?.()}
     >
-        <CardContent className="flex flex-row items-center justify-between p-0">
-            <div className="flex flex-col gap-4 flex-1 min-w-0">
-                <h3 className="text-xl font-semibold">{title}</h3>
-                <p>{content}</p>
-            </div>
+        <CardContent className="p-0">
+            <div className="flex items-start gap-4 p-4">
+                <div className="flex-shrink-0 mt-1">
+                    <div className="flex size-10 items-center justify-center rounded-lg bg-primary">
+                        <BookOpenTextIcon className="size-5 text-white" />
+                    </div>
+                </div>
 
-            {(actions || onRemove) && (
-                <div className="flex gap-x-2 items-center ml-4 flex-shrink-0">
-                    {actions}
-                    {onRemove && (
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button
-                                    size="icon"
-                                    variant="ghost"
+                <div className="flex-1 min-w-0 space-y-2">
+                    <h3 className="text-lg font-semibold text-foreground text-balance">{title}</h3>
+                    <div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground">
+                        <ReactMarkdown>{content}</ReactMarkdown>
+                    </div>
+                </div>
+
+                {(actions || onRemove) && (
+                    <div className="flex gap-x-2 items-center ml-4 flex-shrink-0">
+                        {actions}
+                        {onRemove && (
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button
+                                        size="icon"
+                                        variant="ghost"
+                                        onClick={(e) => {
+                                            e.preventDefault()
+                                            e.stopPropagation()
+                                        }}
+                                        disabled={isRemoving}
+                                    >
+                                        <MoreVerticalIcon className="size-4" />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent
+                                    align="end"
                                     onClick={(e) => {
                                         e.preventDefault()
                                         e.stopPropagation()
                                     }}
-                                    disabled={isRemoving}
                                 >
-                                    <MoreVerticalIcon className="size-4" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent
-                                align="end"
-                                onClick={(e) => {
-                                    e.preventDefault()
-                                    e.stopPropagation()
-                                }}
-                            >
-                                <DropdownMenuItem onClick={handleRemove} disabled={isRemoving}>
-                                    <TrashIcon className="size-4" />
-                                    Delete
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    )}
-                </div>
-            )}
+                                    <DropdownMenuItem onClick={handleRemove} disabled={isRemoving}>
+                                        <TrashIcon className="size-4" />
+                                        Delete
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        )}
+                    </div>
+                )}
+            </div>
         </CardContent>
     </Card>
 }
