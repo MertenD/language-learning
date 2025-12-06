@@ -13,5 +13,6 @@ export default function WordsList() {
         getKey={(word) => word.id}
         renderItem={(word) => <WordItem data={word} />}
         emptyView={<WordsEmpty />}
+        className="grid xl:grid-cols-2"
     />
 }

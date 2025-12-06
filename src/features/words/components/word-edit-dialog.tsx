@@ -33,7 +33,7 @@ export function WordEditDialog({ word, open, onOpenChange, onSave }: WordEditDia
             <DialogContent className="sm:max-w-[600px]">
                 <DialogHeader>
                     <DialogTitle>Vocabulary Details</DialogTitle>
-                    <DialogDescription>View and editor vocabulary.</DialogDescription>
+                    <DialogDescription>View and edit vocabulary.</DialogDescription>
                 </DialogHeader>
 
                 <div className="space-y-6 mt-4">

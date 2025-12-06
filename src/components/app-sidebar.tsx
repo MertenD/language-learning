@@ -1,6 +1,6 @@
 "use client"
 
-import {BookAIcon, CreditCardIcon, LogOutIcon, StarIcon} from "lucide-react";
+import {BookAIcon, BookOpenTextIcon, CreditCardIcon, LogOutIcon, StarIcon} from "lucide-react";
 import {
     Sidebar,
     SidebarContent,
@@ -20,13 +20,18 @@ import {useHasActiveSubscription} from "@/features/subscriptions/hooks/use-subsc
 
 const menuItems = [
     {
-        title: "Demo",
+        title: "Language Learning",
         items: [
             {
                 title: "Vocabulary",
                 icon: BookAIcon,
                 url: "/words"
             },
+            {
+                title: "Grammar",
+                icon: BookOpenTextIcon,
+                url: "/grammar"
+            }
         ]
     }
 ]

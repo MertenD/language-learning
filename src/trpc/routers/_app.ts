@@ -1,8 +1,10 @@
 import {createTRPCRouter} from '../init';
-import {wordsRouter} from "@/features/words/servers/routers";
+import {wordsRouter} from "@/features/words/server/routers";
+import {grammarRouter} from "@/features/grammar/server/routers";
 
 export const appRouter = createTRPCRouter({
-    words: wordsRouter
+    words: wordsRouter,
+    grammar: grammarRouter
 });
 
 // export type definition of API

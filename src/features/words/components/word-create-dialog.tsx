@@ -1,5 +1,7 @@
 "use client"
 
+// TODO Der Dialog soll ein Form sein, genau wie bei login und sign up, damit ich direkt gegen das Schema validieren kann und dem Benutzer passende Fehlermeldungen in den Eingabefeldern anzeigen kann; nicht erst nach abschicken der Request
+
 import {useState} from "react"
 import {Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle} from "@/components/ui/dialog"
 import {Button} from "@/components/ui/button"
@@ -30,7 +32,7 @@ export function WordCreateDialog({ open, onOpenChange, onCreate }: WordCreateDia
             <DialogContent className="sm:max-w-[600px]">
                 <DialogHeader>
                     <DialogTitle>Vocabulary Details</DialogTitle>
-                    <DialogDescription>View and editor vocabulary.</DialogDescription>
+                    <DialogDescription>Create new vocabulary.</DialogDescription>
                 </DialogHeader>
 
                 <div className="space-y-6 mt-4">

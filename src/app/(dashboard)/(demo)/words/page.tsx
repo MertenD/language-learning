@@ -1,12 +1,12 @@
 import {requireAuth} from "@/lib/auth-utils";
-import {prefetchWords} from "@/features/words/servers/prefetch";
+import {prefetchWords} from "@/features/words/server/prefetch";
 import {HydrateClient} from "@/trpc/server";
 import {ErrorBoundary} from "react-error-boundary";
 import {Suspense} from "react";
 import WordsList from "@/features/words/components/words-list";
 import WordsContainer from "@/features/words/components/words-container";
 import type {SearchParams} from "nuqs/server";
-import {wordsParamsLoader} from "@/features/words/servers/params-loader";
+import {wordsParamsLoader} from "@/features/words/server/params-loader";
 import WordsLoading from "@/features/words/components/words-loading";
 import WordsError from "@/features/words/components/words-error";
 

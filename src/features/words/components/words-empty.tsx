@@ -6,6 +6,7 @@ export default function WordsEmpty() {
     const createWord = useCreateWord()
     const { handleError, modal } = useUpgradeModal()
 
+    // TODO Create real word item
     const handleCreate = () => {
         createWord.mutate({
             german: "Brot",

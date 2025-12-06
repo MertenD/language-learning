@@ -227,7 +227,7 @@ export function EntityList<T>({
     }
 
     return <div className={cn(
-        "flex flex-col gap-y-4",
+        "flex flex-col gap-4",
         className
     )}>
         {items.map((item, index) => (
@@ -309,6 +309,90 @@ export function VocabularyEntityItem({
                         )}
                     </div>
                 </div>
+            </div>
+
+            {(actions || onRemove) && (
+                <div className="flex gap-x-2 items-center ml-4 flex-shrink-0">
+                    {actions}
+                    {onRemove && (
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    onClick={(e) => {
+                                        e.preventDefault()
+                                        e.stopPropagation()
+                                    }}
+                                    disabled={isRemoving}
+                                >
+                                    <MoreVerticalIcon className="size-4" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent
+                                align="end"
+                                onClick={(e) => {
+                                    e.preventDefault()
+                                    e.stopPropagation()
+                                }}
+                            >
+                                <DropdownMenuItem onClick={handleRemove} disabled={isRemoving}>
+                                    <TrashIcon className="size-4" />
+                                    Delete
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    )}
+                </div>
+            )}
+        </CardContent>
+    </Card>
+}
+
+interface MarkdownEntityItemProps {
+    title: string
+    content: string
+    actions?: React.ReactNode
+    onRemove?: () => void | Promise<void>
+    isRemoving?: boolean
+    onClick?: () => void
+    className?: string
+}
+
+export function MarkdownEntityItem({
+   title,
+   content,
+   actions,
+   onRemove,
+   isRemoving,
+   onClick,
+   className
+}: MarkdownEntityItemProps) {
+    const handleRemove = async (e: React.MouseEvent) => {
+        e.preventDefault()
+        e.stopPropagation()
+
+        if (isRemoving) {
+            return
+        }
+
+        if (onRemove) {
+            await onRemove()
+        }
+    }
+
+    return <Card
+        className={cn(
+            "p-4 shadow-none hover:shadow cursor-pointer transition-shadow",
+            isRemoving && "opacity-50 cursor-not-allowed",
+            className,
+        )}
+        onClick={() => !isRemoving && onClick?.()}
+    >
+        <CardContent className="flex flex-row items-center justify-between p-0">
+            <div className="flex flex-col gap-4 flex-1 min-w-0">
+                <h3 className="text-xl font-semibold">{title}</h3>
+                <p>{content}</p>
             </div>
 
             {(actions || onRemove) && (
