@@ -6,8 +6,8 @@ import {Button} from "@/components/ui/button"
 import {Grammar} from "@/generated/prisma/client";
 import {Input} from "@/components/ui/input";
 import {Textarea} from "@/components/ui/textarea";
-import ReactMarkdown from "react-markdown";
 import {BookOpenTextIcon} from "lucide-react";
+import {MarkdownContent} from "@/components/markdown-content";
 
 interface GrammarEditDialogProps {
     grammar: Grammar
@@ -52,7 +52,7 @@ export function GrammarEditDialog({ grammar, open, onOpenChange, onSave }: Gramm
                                 <label className="text-sm font-medium flex items-center gap-2">
                                     Title
                                 </label>
-                                <input
+                                <Input
                                     type="text"
                                     value={grammar.title}
                                     onChange={(e) => setEditedGrammar({...grammar, title: e.target.value})}
@@ -61,7 +61,7 @@ export function GrammarEditDialog({ grammar, open, onOpenChange, onSave }: Gramm
                                 <label className="text-sm font-medium flex items-center gap-2">
                                     Grammar Rule
                                 </label>
-                                <textarea
+                                <Textarea
                                     value={grammar.content}
                                     cols={10}
                                     onChange={(e) => setEditedGrammar({...grammar, content: e.target.value})}
@@ -81,7 +81,7 @@ export function GrammarEditDialog({ grammar, open, onOpenChange, onSave }: Gramm
                             <div className="flex-1 min-w-0 space-y-2">
                                 <h3 className="text-lg font-semibold text-foreground text-balance">{grammar.title}</h3>
                                 <div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground">
-                                    <ReactMarkdown>{grammar.content}</ReactMarkdown>
+                                    <MarkdownContent content={grammar.content} />
                                 </div>
                             </div>
 

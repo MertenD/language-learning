@@ -46,7 +46,7 @@ export function GrammarCreateDialog({ open, onOpenChange, onCreate }: GrammarCre
                                 type="text"
                                 value={newGrammar.title}
                                 onChange={(e) => setNewGrammar({...newGrammar, title: e.target.value})}
-
+                                className="w-full px-3 py-2 border rounded-md"
                             />
                             <label className="text-sm font-medium flex items-center gap-2">
                                 Grammar Rule
@@ -55,6 +55,7 @@ export function GrammarCreateDialog({ open, onOpenChange, onCreate }: GrammarCre
                                 value={newGrammar.content}
                                 cols={10}
                                 onChange={(e) => setNewGrammar({...newGrammar, content: e.target.value})}
+                                className="w-full h-[200px] px-3 py-2 border rounded-md"
                             />
                         </div>
 

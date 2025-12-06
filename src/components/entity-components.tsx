@@ -18,7 +18,7 @@ import {Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle} from "@/co
 import {cn} from "@/lib/utils";
 import {Card, CardContent, CardDescription, CardTitle} from "@/components/ui/card";
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "@/components/ui/dropdown-menu";
-import ReactMarkdown from "react-markdown"
+import {MarkdownContent} from "@/components/markdown-content";
 
 type EntityHeaderProps = {
     title: string
@@ -402,7 +402,7 @@ export function MarkdownEntityItem({
                 <div className="flex-1 min-w-0 space-y-2">
                     <h3 className="text-lg font-semibold text-foreground text-balance">{title}</h3>
                     <div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground">
-                        <ReactMarkdown>{content}</ReactMarkdown>
+                        <MarkdownContent content={content}/>
                     </div>
                 </div>
 
