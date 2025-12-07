@@ -26,6 +26,7 @@ model User {
   accounts      Account[]
   words         Word[]
   grammar       Grammar[]
+  chats         Chat[]
 
   @@unique([email])
   @@map("user")
@@ -98,4 +99,19 @@ model Grammar {
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Chat {
+  id             String   @id @default(cuid())
+  title          String?
+  messages       Json     @default("[]")
+  activeStreamId String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("chat")
 }
