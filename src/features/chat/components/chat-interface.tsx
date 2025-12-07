@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Send, User, Bot } from "lucide-react"
+import MessageBubble from "@/features/chat/components/message-bubble";
 
 type Props = {
     chatId: string
@@ -89,51 +90,18 @@ export function ChatInterface({ chatId, initialMessages }: Props) {
                                         .join("") ?? ""
 
                                 const isUser = m.role === "user"
+                                const isLastAssistant = !isUser && m.id === messages[messages.length - 1]?.id
 
                                 return (
-                                    <div
+                                    <MessageBubble
                                         key={m.id}
-                                        className={`flex gap-3 ${
-                                            isUser ? "flex-row-reverse" : "flex-row"
-                                        }`}
-                                    >
-                                        <Avatar className="h-8 w-8">
-                                            {isUser ? (
-                                                <>
-                                                    <AvatarImage src="/diverse-user-avatars.png" />
-                                                    <AvatarFallback>
-                                                        <User className="h-4 w-4" />
-                                                    </AvatarFallback>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <AvatarImage src="/ai-assistant-concept.png" />
-                                                    <AvatarFallback>
-                                                        <Bot className="h-4 w-4" />
-                                                    </AvatarFallback>
-                                                </>
-                                            )}
-                                        </Avatar>
-                                        <div
-                                            className={`flex max-w-[75%] flex-col gap-1 ${
-                                                isUser ? "items-end" : "items-start"
-                                            }`}
-                                        >
-                                            <div
-                                                className={`rounded-lg px-4 py-2 ${
-                                                    isUser
-                                                        ? "bg-primary text-primary-foreground"
-                                                        : "bg-muted"
-                                                }`}
-                                            >
-                                                <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                                                    {text}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
+                                        text={text}
+                                        isUser={isUser}
+                                        isStreaming={isLastAssistant && isLoading}
+                                    />
                                 )
                             })}
+
 
                         {isLoading && (
                             <div className="flex gap-3">
