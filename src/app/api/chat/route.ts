@@ -3,10 +3,14 @@ import {convertToModelMessages, createIdGenerator, streamText, type UIMessage,} 
 import {loadChat, saveChat} from "@/features/chat/server/chat-store"
 import {createResumableStreamContext} from "resumable-stream"
 import {requirePremiumUserFromRequest} from "@/lib/auth-utils";
-import {createGoogleGenerativeAI} from "@ai-sdk/google";
+import {createOpenRouter} from "@openrouter/ai-sdk-provider";
 
 export const maxDuration = 60
-const google = createGoogleGenerativeAI()
+// const google = createGoogleGenerativeAI()
+//const openai = createOpenAI()
+const openrouter = createOpenRouter({
+  apiKey: process.env.OPENROUTER_API_KEY,
+});
 
 export async function POST(req: NextRequest) {
   try {
@@ -27,7 +31,7 @@ export async function POST(req: NextRequest) {
     })
 
     const result = streamText({
-      model: google("gemini-2.5-flash"),
+      model: openrouter("openai/gpt-oss-20b"),
       messages: convertToModelMessages(messages),
     })
     
