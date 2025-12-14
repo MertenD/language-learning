@@ -1,6 +1,7 @@
 import {useSmoothText} from "@/features/chat/hooks/use-scmooth-text";
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 import {BotIcon, UserIcon} from "lucide-react";
+import {MarkdownContent} from "@/components/markdown-content";
 
 export default function MessageBubble({
    text,
@@ -48,8 +49,8 @@ export default function MessageBubble({
                             : "bg-muted"
                     }`}
                 >
-                    <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                        {displayedText}
+                    <p className="text-sm">
+                        <MarkdownContent content={displayedText} />
                     </p>
                 </div>
             </div>

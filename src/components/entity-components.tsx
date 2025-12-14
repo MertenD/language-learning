@@ -23,13 +23,12 @@ import {MarkdownContent} from "@/components/markdown-content";
 type EntityHeaderProps = {
     title: string
     description?: string
-    newButtonLabel: string
     disabled?: boolean
     isCreating?: boolean
 } & (
-    | { onNew: () => void; newButtonHref?: never }
-    | { newButtonHref: string; onNew?: never }
-    | { onNew?: never; newButtonHref?: never }
+    | { onNew: () => void; newButtonHref?: never; newButtonLabel: string }
+    | { newButtonHref: string; onNew?: never; newButtonLabel: string }
+    | { onNew?: never; newButtonHref?: never; newButtonLabel?: never }
 )
 
 export function EntityHeader({
@@ -229,7 +228,7 @@ export function EntityList<T>({
     }
 
     return <div className={cn(
-        "flex flex-col gap-4",
+        "flex flex-col gap-4 overflow-y-auto",
         className
     )}>
         {items.map((item, index) => (

@@ -1,33 +1,33 @@
-import {redirect} from "next/navigation"
-import {createChat, loadChat} from "@/features/chat/server/chat-store"
-import {ChatInterface} from "@/features/chat/components/chat-interface"
 import {requireAuth} from "@/lib/auth-utils";
+import {HydrateClient} from "@/trpc/server";
+import {ErrorBoundary} from "react-error-boundary";
+import {Suspense} from "react";
+import type {SearchParams} from "nuqs/server";
+import {chatsParamsLoader} from "@/features/chat/server/params-loader";
+import {prefetchChats} from "@/features/chat/server/prefetch";
+import ChatsContainer from "@/features/chat/components/chats-container";
+import ChatsError from "@/features/chat/components/chats-error";
+import ChatsLoading from "@/features/chat/components/chats-loading";
+import ChatsList from "@/features/chat/components/chats-list";
 
-export default async function ChatPage({
-    searchParams,
-}: {
-    searchParams: Promise<{ id?: string }>
-}) {
-    const session = await requireAuth()
-    const { id } = await searchParams
+type ChatPageProps = {
+    searchParams: Promise<SearchParams>
+}
 
-    let chat
+export default async function ChatPage({ searchParams }: ChatPageProps) {
+    await requireAuth()
 
-    if (!id || id === "new") {
-        const chatId = await createChat(session.user.id)
-        redirect(`/chat?id=${chatId}`)
-    } else {
-        try {
-            chat = await loadChat(id, session.user.id)
-        } catch {
-            redirect("/chat?id=new")
-        }
-    }
+    const params = await chatsParamsLoader(searchParams)
+    prefetchChats(params)
 
-    return (
-        <main className="h-full p-4">
-            <ChatInterface chatId={chat.id} initialMessages={chat.messages} />
-        </main>
-    )
+    return <ChatsContainer>
+        <HydrateClient>
+            <ErrorBoundary fallback={<ChatsError />}>
+                <Suspense fallback={<ChatsLoading />}>
+                    <ChatsList />
+                </Suspense>
+            </ErrorBoundary>
+        </HydrateClient>
+    </ChatsContainer>
 }
 

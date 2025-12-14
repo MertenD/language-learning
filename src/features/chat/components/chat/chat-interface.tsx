@@ -11,7 +11,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Send, User, Bot } from "lucide-react"
-import MessageBubble from "@/features/chat/components/message-bubble";
+import MessageBubble from "@/features/chat/components/chat/message-bubble";
+import {Textarea} from "@/components/ui/textarea";
 
 type Props = {
     chatId: string
@@ -131,9 +132,10 @@ export function ChatInterface({ chatId, initialMessages }: Props) {
 
             <div className="border-t p-4 shrink-0">
                 <form className="flex gap-2 max-w-4xl mx-auto" onSubmit={handleSubmit}>
-                    <Input
+                    <Textarea
                         placeholder="Schreibe eine Nachricht..."
                         value={input}
+                        rows={Math.min(5, input.split("\n").length)}
                         onChange={(e) => setInput(e.target.value)}
                         disabled={isLoading}
                         className="flex-1"

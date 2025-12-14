@@ -1,0 +1,34 @@
+import {useTRPC} from "@/trpc/client";
+import {useChatsParams} from "@/features/chat/hooks/use-chats-params";
+import {useMutation, useQueryClient, useSuspenseQuery} from "@tanstack/react-query";
+import {toast} from "sonner";
+
+/**
+ * Hook to fetch all chats using suspense
+ */
+export const useSuspenseChats = () => {
+    const trpc = useTRPC()
+    const [params] = useChatsParams()
+    return useSuspenseQuery(trpc.chats.getMany.queryOptions(params))
+}
+
+/**
+ * Hook to remove a chat
+ */
+export const useRemoveChat = () => {
+    const queryClient = useQueryClient()
+    const trpc = useTRPC()
+
+    return useMutation(trpc.chats.remove.mutationOptions({
+        onSuccess: (data) => {
+            // TODO Replace id with chat title when available
+            toast.success(`Chat "${data.id}" deleted`)
+            queryClient.invalidateQueries(
+                trpc.chats.getMany.queryOptions({})
+            )
+        },
+        onError: (error) => {
+            toast.error(`Failed to delete chat: ${error.message}`)
+        }
+    }))
+}
