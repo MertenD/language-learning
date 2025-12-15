@@ -12,7 +12,7 @@ export default function MessageBubble({
     isUser: boolean
     isStreaming: boolean
 }) {
-    const displayedText = useSmoothText(text, isStreaming ? 1 : 0)
+    const displayedText = useSmoothText(text, isStreaming, 1)
 
     return (
         <div
