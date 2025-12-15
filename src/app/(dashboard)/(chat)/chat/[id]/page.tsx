@@ -21,7 +21,7 @@ export default async function ChatPage({ params }: { params: { id: string } }) {
     }
 
     return (
-        <main className="h-full p-4">
+        <main className="h-full">
             <ChatInterface chatId={chat.id} initialMessages={chat.messages} />
         </main>
     )

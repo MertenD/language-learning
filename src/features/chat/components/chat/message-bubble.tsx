@@ -43,10 +43,10 @@ export default function MessageBubble({
                 }`}
             >
                 <div
-                    className={`rounded-lg px-4 py-2 ${
+                    className={`rounded-lg px-4 py-2 max-w-3xl overflow-x-auto ${
                         isUser
                             ? "bg-primary text-primary-foreground"
-                            : "bg-muted"
+                            : "bg-card"
                     }`}
                 >
                     <p className="text-sm">

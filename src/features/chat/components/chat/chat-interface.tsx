@@ -62,8 +62,7 @@ export function ChatInterface({ chatId, initialMessages }: Props) {
         setInput("")
     }
 
-    return (
-        <Card className="flex h-full w-full flex-col shadow-lg overflow-hidden">
+    return <div className="flex h-full w-full flex-col overflow-hidden">
             <div className="flex items-center gap-3 border-b bg-muted/50 p-4 shrink-0">
                 <Avatar>
                     <AvatarImage src="/ai-assistant-concept.png" />
@@ -138,7 +137,7 @@ export function ChatInterface({ chatId, initialMessages }: Props) {
                         rows={Math.min(5, input.split("\n").length)}
                         onChange={(e) => setInput(e.target.value)}
                         disabled={isLoading}
-                        className="flex-1"
+                        className="flex-1 bg-background"
                     />
                     <Button type="submit" disabled={!input.trim() || isLoading} size="icon">
                         <Send className="h-4 w-4" />
@@ -146,6 +145,5 @@ export function ChatInterface({ chatId, initialMessages }: Props) {
                     </Button>
                 </form>
             </div>
-        </Card>
-    )
+    </div>
 }
