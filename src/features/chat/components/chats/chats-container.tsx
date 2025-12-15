@@ -1,8 +1,8 @@
 import React from "react";
 import {EntityContainer} from "@/components/entity-components";
-import ChatsHeader from "@/features/chat/components/chats-header";
-import ChatsSearch from "@/features/chat/components/chats-search";
-import ChatsPagination from "@/features/chat/components/chats-pagination";
+import ChatsHeader from "@/features/chat/components/chats/chats-header";
+import ChatsSearch from "@/features/chat/components/chats/chats-search";
+import ChatsPagination from "@/features/chat/components/chats/chats-pagination";
 
 type ChatsContainerProps = {
     children: React.ReactNode

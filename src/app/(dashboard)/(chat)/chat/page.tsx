@@ -5,10 +5,10 @@ import {Suspense} from "react";
 import type {SearchParams} from "nuqs/server";
 import {chatsParamsLoader} from "@/features/chat/server/params-loader";
 import {prefetchChats} from "@/features/chat/server/prefetch";
-import ChatsContainer from "@/features/chat/components/chats-container";
-import ChatsError from "@/features/chat/components/chats-error";
-import ChatsLoading from "@/features/chat/components/chats-loading";
-import ChatsList from "@/features/chat/components/chats-list";
+import ChatsContainer from "@/features/chat/components/chats/chats-container";
+import ChatsError from "@/features/chat/components/chats/chats-error";
+import ChatsLoading from "@/features/chat/components/chats/chats-loading";
+import ChatsList from "@/features/chat/components/chats/chats-list";
 
 type ChatPageProps = {
     searchParams: Promise<SearchParams>
