@@ -3,9 +3,9 @@ import {createChat, loadChat} from "@/features/chat/server/chat-store";
 import {redirect} from "next/navigation";
 import {ChatInterface} from "@/features/chat/components/chat/chat-interface";
 
-export default async function ChatPage({ params }: { params: { id: string } }) {
+export default async function ChatPage({ params }: { params: Promise<{ id: string }> }) {
     const session = await requireAuth()
-    const { id } = params
+    const { id } = await params
 
     let chat
 

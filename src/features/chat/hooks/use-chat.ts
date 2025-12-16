@@ -32,3 +32,23 @@ export const useRemoveChat = () => {
         }
     }))
 }
+
+/**
+ * Hook to create a new chat from scenarios
+ */
+export const useCreateChatFromScenario = () => {
+    const queryClient = useQueryClient()
+    const trpc = useTRPC()
+
+    return useMutation(trpc.chats.createChatFromScenario.mutationOptions({
+        onSuccess: () => {
+            toast.success("Created chat from scenario")
+            queryClient.invalidateQueries(
+                trpc.chats.getMany.queryOptions({})
+            )
+        },
+        onError: (error) => {
+            toast.error(`Failed to create grammar: ${error.message}`)
+        }
+    }))
+}

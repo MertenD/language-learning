@@ -1,7 +1,9 @@
-import { Prisma } from "@/generated/prisma/client"
+import {Prisma} from "@/generated/prisma/client"
 import prisma from "@/lib/db"
-import type { UIMessage } from "ai"
+import type {UIMessage} from "ai"
 import {v4 as uuidv4} from "uuid";
+
+// TODO Den gesamten Chat Store in trpc procedures umwandeln (chat/server/routers.ts)
 
 export async function createChat(userId: string) {
   const chat = await prisma.chat.create({

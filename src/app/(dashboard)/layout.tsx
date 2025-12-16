@@ -8,7 +8,7 @@ export default async function Layout({ children}: { children: React.ReactNode })
 
     return <SidebarProvider>
         <AppSidebar />
-        <SidebarInset className="bg-accent/20">
+        <SidebarInset className="bg-accent/20 overflow-y-auto">
             {children}
         </SidebarInset>
     </SidebarProvider>

@@ -10,7 +10,7 @@ type ChatsContainerProps = {
 
 export default function ChatsContainer({ children }: ChatsContainerProps) {
 
-    return <div className="h-100">
+    return <div className="h-full">
         <EntityContainer
             header={<ChatsHeader />}
             search={<ChatsSearch />}
