@@ -1,6 +1,6 @@
 "use client"
 
-import {Scenario} from "@/features/chat/components/scenarios/scenarios-data";
+import {Scenario} from "@/config/scenarios-data";
 import React from "react";
 import {Card, CardContent} from "@/components/ui/card";
 import {cn} from "@/lib/utils";
@@ -17,7 +17,7 @@ export default function ScenariosListItem({ data }: { data: Scenario }) {
     const handleCreateChat = () => {
         createChat.mutate({
             title: data.title,
-            systemMessage: data.systemMessage,
+            systemMessage: data.assistantInstructions,
             firstAssistantMessage: data.firstAssistantMessage
         }, {
             onSuccess: (chatId) => {

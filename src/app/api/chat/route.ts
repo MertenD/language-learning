@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
     })
 
     const result = streamText({
-      model: openrouter("openai/gpt-oss-20b"),
+      model: openrouter("google/gemini-2.5-flash-lite"),
       messages: convertToModelMessages(messages),
     })
     

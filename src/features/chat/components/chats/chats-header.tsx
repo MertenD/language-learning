@@ -9,6 +9,7 @@ import {CreateWordInput} from "@/features/words/schema/word-crud-schema";
 import {useCreateEmptyChat} from "@/features/chat/hooks/use-chat";
 import {useRouter} from "next/navigation";
 import {toast} from "sonner";
+import {createChatSystemMessage} from "@/config/prompts";
 
 type ChatsHeaderProps = {
     disabled?: boolean
@@ -22,9 +23,8 @@ export default function ChatsHeader({ disabled }: ChatsHeaderProps) {
 
     const handleNewChat = async () => {
         createEmptyChat.mutate({
-            // TODO Make this customizable or use centralized default
             title: "New Chat",
-            systemMessage: "Help the user learn serbian"
+            systemMessage: createChatSystemMessage()
         }, {
             onSuccess: (chatId) => {
                 router.push(`/chat/${chatId}`)

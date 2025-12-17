@@ -52,7 +52,6 @@ export function ChatInterface({ chatId, initialMessages }: Props) {
 
     useEffect(() => {
         scrollToBottom()
-        console.log("messages", messages)
     }, [messages, isLoading])
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -60,6 +59,13 @@ export function ChatInterface({ chatId, initialMessages }: Props) {
         if (!input.trim() || isLoading) return
         sendMessage({ text: input })
         setInput("")
+    }
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault()
+            handleSubmit(e as unknown as React.FormEvent)
+        }
     }
 
     return <div className="flex h-full w-full flex-col overflow-hidden">
@@ -71,7 +77,7 @@ export function ChatInterface({ chatId, initialMessages }: Props) {
                     </AvatarFallback>
                 </Avatar>
                 <div>
-                    <h2 className="font-semibold text-lg">Chat Assistent</h2>
+                    <h2 className="font-semibold text-lg">Vesna</h2>
                     <p className="text-sm text-muted-foreground">
                         {isLoading ? "Antwort wird generiert..." : "Online"}
                     </p>
@@ -136,6 +142,7 @@ export function ChatInterface({ chatId, initialMessages }: Props) {
                         value={input}
                         rows={Math.min(5, input.split("\n").length)}
                         onChange={(e) => setInput(e.target.value)}
+                        onKeyDown={handleKeyDown}
                         disabled={isLoading}
                         className="flex-1 bg-background"
                     />

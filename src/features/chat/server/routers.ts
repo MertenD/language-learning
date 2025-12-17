@@ -2,10 +2,11 @@ import {createTRPCRouter, premiumProcedure, protectedProcedure} from "@/trpc/ini
 import prisma from "@/lib/db";
 import {z} from "zod";
 import {PAGINATION} from "@/config/constants";
-import {SCENARIOS} from "@/features/chat/components/scenarios/scenarios-data";
+import {SCENARIOS} from "@/config/scenarios-data";
 import {v4 as uuidv4} from "uuid";
 import type {UIMessage} from "ai";
 import {createEmptyChat, loadChat} from "@/features/chat/server/chat-store";
+import {createChatSystemMessage} from "@/config/prompts";
 
 export const chatsRouter = createTRPCRouter({
     createEmptyChat: premiumProcedure
@@ -34,7 +35,11 @@ export const chatsRouter = createTRPCRouter({
                             parts: [
                                 {
                                     type: "text",
-                                    text: input.systemMessage
+                                    text: createChatSystemMessage({
+                                        scenarioTitle: input.title,
+                                        scenarioDescription: input.systemMessage,
+                                        scenarioAssistantInstructions: input.systemMessage
+                                    })
                                 }
                             ]
                         },

@@ -1,10 +1,10 @@
 "use client"
 
 import {EmptyView} from "@/components/entity-components";
-import {toast} from "sonner";
 import {useCreateEmptyChat} from "@/features/chat/hooks/use-chat";
 import {useRouter} from "next/navigation";
 import {useUpgradeModal} from "@/hooks/use-upgrade-modal";
+import {createChatSystemMessage} from "@/config/prompts";
 
 export default function ChatsEmpty() {
     const createEmptyChat = useCreateEmptyChat()
@@ -13,9 +13,8 @@ export default function ChatsEmpty() {
 
     const handleNewChat = async () => {
         createEmptyChat.mutate({
-            // TODO Make this customizable or use centralized default
             title: "New Chat",
-            systemMessage: "Help the user learn serbian"
+            systemMessage: createChatSystemMessage()
         }, {
             onSuccess: (chatId) => {
                 router.push(`/chat/${chatId}`)
