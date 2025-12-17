@@ -4,8 +4,18 @@ import {z} from "zod";
 import {PAGINATION} from "@/config/constants";
 import {SCENARIOS} from "@/features/chat/components/scenarios/scenarios-data";
 import {v4 as uuidv4} from "uuid";
+import type {UIMessage} from "ai";
+import {createEmptyChat, loadChat} from "@/features/chat/server/chat-store";
 
 export const chatsRouter = createTRPCRouter({
+    createEmptyChat: premiumProcedure
+        .input(z.object({
+            title: z.string().optional(),
+            systemMessage: z.string().optional()
+        }))
+        .mutation(async ({ ctx, input }) => {
+            return createEmptyChat(ctx.auth.user.id, input.title, input.systemMessage)
+        }),
     createChatFromScenario: premiumProcedure
         .input(z.object({
             title: z.string(),
@@ -50,6 +60,11 @@ export const chatsRouter = createTRPCRouter({
                 where: { id: input.id, userId: ctx.auth.user.id }
             })
         }),
+    loadChat: protectedProcedure
+        .input(z.object({ chatId: z.string() }))
+        .query(async ({ ctx, input }) => {
+            return loadChat(input.chatId, ctx.auth.user.id)
+        }),
     getMany: protectedProcedure
         .input(z.object({
             page: z.number().min(1).default(PAGINATION.DEFAULT_PAGE),
@@ -64,7 +79,11 @@ export const chatsRouter = createTRPCRouter({
                     skip: (page - 1) * pageSize,
                     take: pageSize,
                     where: {
-                        userId: ctx.auth.user.id
+                        userId: ctx.auth.user.id,
+                        title: {
+                            contains: search,
+                            mode: "insensitive"
+                        }
                     },
                     orderBy: {
                         updatedAt: "desc"
@@ -72,7 +91,11 @@ export const chatsRouter = createTRPCRouter({
                 }),
                 prisma.chat.count({
                     where: {
-                        userId: ctx.auth.user.id
+                        userId: ctx.auth.user.id,
+                        title: {
+                            contains: search,
+                            mode: "insensitive"
+                        }
                     },
                 })
             ])

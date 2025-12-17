@@ -1,6 +1,6 @@
 import {useTRPC} from "@/trpc/client";
 import {useChatsParams} from "@/features/chat/hooks/use-chats-params";
-import {useMutation, useQueryClient, useSuspenseQuery} from "@tanstack/react-query";
+import {useMutation, useQuery, useQueryClient, useSuspenseQuery} from "@tanstack/react-query";
 import {toast} from "sonner";
 
 /**
@@ -49,6 +49,26 @@ export const useCreateChatFromScenario = () => {
         },
         onError: (error) => {
             toast.error(`Failed to create grammar: ${error.message}`)
+        }
+    }))
+}
+
+/**
+ * Hook to create an empty chat
+ */
+export const useCreateEmptyChat = () => {
+    const queryClient = useQueryClient()
+    const trpc = useTRPC()
+
+    return useMutation(trpc.chats.createEmptyChat.mutationOptions({
+        onSuccess: () => {
+            toast.success("Created new empty chat")
+            queryClient.invalidateQueries(
+                trpc.chats.getMany.queryOptions({})
+            )
+        },
+        onError: (error) => {
+            toast.error(`Failed to create chat: ${error.message}`)
         }
     }))
 }

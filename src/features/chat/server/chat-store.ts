@@ -3,24 +3,23 @@ import prisma from "@/lib/db"
 import type {UIMessage} from "ai"
 import {v4 as uuidv4} from "uuid";
 
-// TODO Den gesamten Chat Store in trpc procedures umwandeln (chat/server/routers.ts)
-
-export async function createChat(userId: string) {
+export async function createEmptyChat(userId: string, title?: string, systemMessage?: string) {
   const chat = await prisma.chat.create({
     data: {
       userId,
+      title: title,
       messages: [
-          {
-              id: uuidv4(),
-              role: "system",
-              parts: [
-                  {
-                      type: "text",
-                      text: "You are a helpful serbian learning assistant. Help the user learn Serbian by engaging in conversations, answering questions, and providing explanations about the Serbian language and culture. Always provide a serbian message and after that its german translation and some explanation."
-                  }
-              ]
-          }
-      ],
+        ...(systemMessage ? [{
+          id: uuidv4(),
+          role: "system",
+          parts: [
+            {
+              type: "text",
+              text: systemMessage
+            }
+          ]
+        }] : []),
+      ]
     },
   })
   return chat.id
@@ -28,10 +27,12 @@ export async function createChat(userId: string) {
 
 export async function loadChat(chatId: string, userId: string) {
   const chat = await prisma.chat.findFirst({
-    where: { id: chatId, userId },
+    where: { id: chatId, userId: userId },
   })
 
-  if (!chat) throw new Error("Chat not found")
+  if (!chat) {
+    throw new Error("Chat not found")
+  }
 
   return {
     id: chat.id,

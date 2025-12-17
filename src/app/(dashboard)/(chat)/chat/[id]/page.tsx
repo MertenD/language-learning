@@ -1,16 +1,16 @@
-import {requireAuth} from "@/lib/auth-utils";
-import {createChat, loadChat} from "@/features/chat/server/chat-store";
+import {requireAuthAndPremium} from "@/lib/auth-utils";
+import {createEmptyChat, loadChat} from "@/features/chat/server/chat-store";
 import {redirect} from "next/navigation";
 import {ChatInterface} from "@/features/chat/components/chat/chat-interface";
 
 export default async function ChatPage({ params }: { params: Promise<{ id: string }> }) {
-    const session = await requireAuth()
+    const session = await requireAuthAndPremium("/chat")
     const { id } = await params
 
     let chat
 
     if (id === "new") {
-        const chatId = await createChat(session.user.id)
+        const chatId = await createEmptyChat(session.user.id)
         redirect(`/chat/${chatId}`)
     } else {
         try {

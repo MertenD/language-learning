@@ -16,6 +16,26 @@ export const requireAuth = async () => {
     return session
 }
 
+export const requireAuthAndPremium = async (nonPremiumRedirectUrl: string = "/") => {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+
+    if (!session) {
+        redirect("/login")
+    }
+
+    const customer = await polarClient.customers.getStateExternal({
+        externalId: session.user.id
+    })
+
+    if (!customer.activeSubscriptions || customer.activeSubscriptions.length === 0) {
+        redirect(nonPremiumRedirectUrl)
+    }
+
+    return session
+}
+
 export const requireUnauth = async () => {
     const session = await auth.api.getSession({
         headers: await headers()
