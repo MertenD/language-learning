@@ -16,10 +16,11 @@ import {Textarea} from "@/components/ui/textarea";
 
 type Props = {
     chatId: string
+    assistantName?: string
     initialMessages: UIMessage[]
 }
 
-export function ChatInterface({ chatId, initialMessages }: Props) {
+export function ChatInterface({ chatId, assistantName, initialMessages }: Props) {
     const scrollAreaRef = useRef<HTMLDivElement>(null)
     const [input, setInput] = useState("")
 
@@ -77,7 +78,7 @@ export function ChatInterface({ chatId, initialMessages }: Props) {
                     </AvatarFallback>
                 </Avatar>
                 <div>
-                    <h2 className="font-semibold text-lg">Vesna</h2>
+                    <h2 className="font-semibold text-lg">{assistantName || "Assistant"}</h2>
                     <p className="text-sm text-muted-foreground">
                         {isLoading ? "Antwort wird generiert..." : "Online"}
                     </p>

@@ -102,16 +102,36 @@ model Grammar {
 }
 
 model Chat {
-  id             String   @id @default(cuid())
+  id             String  @id @default(cuid())
   title          String?
-  messages       Json     @default("[]")
+  messages       Json    @default("[]")
+  assistantName  String  @default("Assistant")
+  assistantIcon  String?
   activeStreamId String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+
+  scenarioId String?
+  scenario   Scenario? @relation(fields: [scenarioId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@map("chat")
+}
+
+model Scenario {
+  id                    String   @id @default(cuid())
+  title                 String
+  description           String
+  image                 String
+  assistantName         String   @default("Assistant")
+  assistantInstructions String
+  firstAssistantMessage String
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @default(now()) @updatedAt
+
+  chats Chat[]
 }

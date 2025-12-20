@@ -2,9 +2,7 @@ import {createTRPCRouter, premiumProcedure, protectedProcedure} from "@/trpc/ini
 import prisma from "@/lib/db";
 import {z} from "zod";
 import {PAGINATION} from "@/config/constants";
-import {SCENARIOS} from "@/config/scenarios-data";
 import {v4 as uuidv4} from "uuid";
-import type {UIMessage} from "ai";
 import {createEmptyChat, loadChat} from "@/features/chat/server/chat-store";
 import {createChatSystemMessage} from "@/config/prompts";
 
@@ -19,15 +17,21 @@ export const chatsRouter = createTRPCRouter({
         }),
     createChatFromScenario: premiumProcedure
         .input(z.object({
-            title: z.string(),
-            systemMessage: z.string(),
-            firstAssistantMessage: z.string()
+            scenarioId: z.string()
         }))
         .mutation(async ({ ctx, input }) => {
+            const scenario = await prisma.scenario.findUnique({
+                where: { id: input.scenarioId }
+            })
+            if (!scenario) {
+                throw new Error("Scenario not found")
+            }
             const chat = await prisma.chat.create({
                 data: {
                     userId: ctx.auth.user.id,
-                    title: input.title,
+                    scenarioId: scenario.id,
+                    title: scenario.title,
+                    assistantName: scenario.assistantName,
                     messages: [
                         {
                             id: uuidv4(),
@@ -36,9 +40,9 @@ export const chatsRouter = createTRPCRouter({
                                 {
                                     type: "text",
                                     text: createChatSystemMessage({
-                                        scenarioTitle: input.title,
-                                        scenarioDescription: input.systemMessage,
-                                        scenarioAssistantInstructions: input.systemMessage
+                                        scenarioTitle: scenario.title,
+                                        scenarioDescription: scenario.description,
+                                        scenarioAssistantInstructions: scenario.assistantInstructions
                                     })
                                 }
                             ]
@@ -49,7 +53,7 @@ export const chatsRouter = createTRPCRouter({
                             parts: [
                                 {
                                     type: "text",
-                                    text: input.firstAssistantMessage
+                                    text: scenario.firstAssistantMessage
                                 }
                             ]
                         }
@@ -130,28 +134,43 @@ export const scenariosRouter = createTRPCRouter({
         }))
         .query(async ({ ctx, input }) => {
             const { scenariosPage: page, scenariosPageSize: pageSize, scenariosSearch: search } = input;
-            const allScenarios = [...SCENARIOS]
 
-            const filteredScenarios = allScenarios.filter(scenario =>
-                scenario.title.toLowerCase().includes(search.toLowerCase()) ||
-                scenario.description.toLowerCase().includes(search.toLowerCase())
-            )
+            const [items, totalCount] = await Promise.all([
+                prisma.scenario.findMany({
+                    skip: (page - 1) * pageSize,
+                    take: pageSize,
+                    where: {
+                        title: {
+                            contains: search,
+                            mode: "insensitive"
+                        }
+                    },
+                    orderBy: {
+                        updatedAt: "desc"
+                    }
+                }),
+                prisma.scenario.count({
+                    where: {
+                        title: {
+                            contains: search,
+                            mode: "insensitive"
+                        }
+                    },
+                })
+            ])
 
-            const totalCount = filteredScenarios.length;
             const totalPages = Math.ceil(totalCount / pageSize);
-            const currentPage = Math.min(page, totalPages) || 1;
-            const startIndex = (currentPage - 1) * pageSize;
-            const endIndex = startIndex + pageSize;
-            const paginatedScenarios = filteredScenarios.slice(startIndex, endIndex);
+            const hasNextPage = page < totalPages;
+            const hasPreviousPage = page > 1;
 
             return {
-                items: paginatedScenarios,
-                page: currentPage,
+                items,
+                page,
                 pageSize,
                 totalCount,
                 totalPages,
-                hasNextPage: currentPage < totalPages,
-                hasPreviousPage: currentPage > 1
+                hasNextPage,
+                hasPreviousPage
             }
         })
 })

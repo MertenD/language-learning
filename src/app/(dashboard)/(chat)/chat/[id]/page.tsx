@@ -22,7 +22,7 @@ export default async function ChatPage({ params }: { params: Promise<{ id: strin
 
     return (
         <main className="h-full">
-            <ChatInterface chatId={chat.id} initialMessages={chat.messages} />
+            <ChatInterface assistantName={chat.assistantName} chatId={chat.id} initialMessages={chat.messages} />
         </main>
     )
 }

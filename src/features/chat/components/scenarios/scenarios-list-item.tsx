@@ -1,12 +1,12 @@
 "use client"
 
-import {Scenario} from "@/config/scenarios-data";
 import React from "react";
 import {Card, CardContent} from "@/components/ui/card";
 import {cn} from "@/lib/utils";
 import {useRouter} from "next/navigation";
 import {useCreateChatFromScenario} from "@/features/chat/hooks/use-chat";
 import {useUpgradeModal} from "@/hooks/use-upgrade-modal";
+import {Scenario} from "@/generated/prisma/client";
 
 export default function ScenariosListItem({ data }: { data: Scenario }) {
     const createChat = useCreateChatFromScenario()
@@ -16,9 +16,7 @@ export default function ScenariosListItem({ data }: { data: Scenario }) {
 
     const handleCreateChat = () => {
         createChat.mutate({
-            title: data.title,
-            systemMessage: data.assistantInstructions,
-            firstAssistantMessage: data.firstAssistantMessage
+            scenarioId: data.id
         }, {
             onSuccess: (chatId) => {
                 router.push(`/chat/${chatId}`)

@@ -3,8 +3,8 @@ import {HydrateClient} from "@/trpc/server";
 import {ErrorBoundary} from "react-error-boundary";
 import {Suspense} from "react";
 import type {SearchParams} from "nuqs/server";
-import {chatsParamsLoader} from "@/features/chat/server/params-loader";
-import {prefetchChats} from "@/features/chat/server/prefetch";
+import {chatsParamsLoader, scenariosParamsLoader} from "@/features/chat/server/params-loader";
+import {prefetchChats, prefetchScenarios} from "@/features/chat/server/prefetch";
 import ChatsContainer from "@/features/chat/components/chats/chats-container";
 import ChatsError from "@/features/chat/components/chats/chats-error";
 import ChatsLoading from "@/features/chat/components/chats/chats-loading";
@@ -21,8 +21,11 @@ type ChatPageProps = {
 export default async function ChatPage({ searchParams }: ChatPageProps) {
     await requireAuth()
 
-    const params = await chatsParamsLoader(searchParams)
-    prefetchChats(params)
+    const chatsParams = await chatsParamsLoader(searchParams)
+    prefetchChats(chatsParams)
+
+    const scenariosParams = await scenariosParamsLoader(searchParams)
+    prefetchScenarios(scenariosParams)
 
     return <div className="flex flex-col">
         <ChatsContainer>

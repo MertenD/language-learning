@@ -36,6 +36,7 @@ export async function loadChat(chatId: string, userId: string) {
 
   return {
     id: chat.id,
+    assistantName: chat.assistantName,
     messages: (chat.messages as unknown as UIMessage[]) ?? [],
     activeStreamId: chat.activeStreamId ?? null,
   }
