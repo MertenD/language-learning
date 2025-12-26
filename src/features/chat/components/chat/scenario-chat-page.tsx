@@ -14,8 +14,8 @@ interface ScenarioChatPageProps {
 export default function ScenarioChatPage({ chat, scenario }: ScenarioChatPageProps) {
 
     const targets = scenario.targets
-    const [targetsStatus, setTargetsStatus] = useState<boolean[]>()
-
+    const [targetsStatus, setTargetsStatus] = useState<boolean[]>(chat.targetsStatus)
+    
     return <div className="flex flex-row items-center gap-2 h-full w-full">
         <ChatInterface
             assistantName={chat.assistantName}
