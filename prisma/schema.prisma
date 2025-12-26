@@ -109,8 +109,9 @@ model Chat {
   assistantIcon  String?
   activeStreamId String?
 
-  scenarioId String?
-  scenario   Scenario? @relation(fields: [scenarioId], references: [id])
+  scenarioId    String?
+  scenario      Scenario? @relation(fields: [scenarioId], references: [id])
+  targetsStatus Boolean[] @default([])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -130,6 +131,7 @@ model Scenario {
   assistantName         String   @default("Assistant")
   assistantInstructions String
   firstAssistantMessage String
+  targets               String[]
   createdAt             DateTime @default(now())
   updatedAt             DateTime @default(now()) @updatedAt
 

@@ -4,7 +4,7 @@ import {z} from "zod";
 import {PAGINATION} from "@/config/constants";
 import {v4 as uuidv4} from "uuid";
 import {createEmptyChat, loadChat} from "@/features/chat/server/chat-store";
-import {createChatSystemMessage} from "@/config/prompts";
+import {createChatSystemMessage} from "@/features/chat/utils/prompts";
 
 export const chatsRouter = createTRPCRouter({
     createEmptyChat: premiumProcedure
@@ -42,7 +42,8 @@ export const chatsRouter = createTRPCRouter({
                                     text: createChatSystemMessage({
                                         scenarioTitle: scenario.title,
                                         scenarioDescription: scenario.description,
-                                        scenarioAssistantInstructions: scenario.assistantInstructions
+                                        scenarioAssistantInstructions: scenario.assistantInstructions,
+                                        scenarioTargets: scenario.targets
                                     })
                                 }
                             ]
@@ -57,7 +58,7 @@ export const chatsRouter = createTRPCRouter({
                                 }
                             ]
                         }
-                    ],
+                    ]
                 },
             })
             return chat.id

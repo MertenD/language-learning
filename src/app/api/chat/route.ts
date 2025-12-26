@@ -4,6 +4,7 @@ import {loadChat, saveChat} from "@/features/chat/server/chat-store"
 import {createResumableStreamContext} from "resumable-stream"
 import {requirePremiumUserFromRequest} from "@/lib/auth-utils";
 import {createOpenRouter} from "@openrouter/ai-sdk-provider";
+import parseChatAiAnswer from "@/features/chat/utils/prompts-utils";
 
 export const maxDuration = 60
 // const google = createGoogleGenerativeAI()
@@ -44,10 +45,26 @@ export async function POST(req: NextRequest) {
       originalMessages: messages,
       generateMessageId,
       async onFinish({ messages }) {
+        const lastAiAssistantMessage = messages
+          .slice()
+          .reverse()
+          .find((msg) => msg.role === "assistant")
+
+        if (!lastAiAssistantMessage) {
+          throw new Error("No assistant message found after streaming")
+        }
+
+        const lastAiMessageText = lastAiAssistantMessage.parts
+          .map((part) => (part.type === "text" ? part.text : ""))
+          .join("")
+
+        const { targetsStatus } = parseChatAiAnswer(lastAiMessageText)
+
         await saveChat({
           chatId: id,
           userId: user.id,
           messages,
+          targetsStatus: targetsStatus,
           activeStreamId: null,
         })
       },

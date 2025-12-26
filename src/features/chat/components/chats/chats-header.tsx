@@ -9,7 +9,7 @@ import {CreateWordInput} from "@/features/words/schema/word-crud-schema";
 import {useCreateEmptyChat} from "@/features/chat/hooks/use-chat";
 import {useRouter} from "next/navigation";
 import {toast} from "sonner";
-import {createChatSystemMessage} from "@/config/prompts";
+import {createChatSystemMessage} from "@/features/chat/utils/prompts";
 
 type ChatsHeaderProps = {
     disabled?: boolean

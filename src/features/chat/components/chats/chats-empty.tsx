@@ -4,7 +4,7 @@ import {EmptyView} from "@/components/entity-components";
 import {useCreateEmptyChat} from "@/features/chat/hooks/use-chat";
 import {useRouter} from "next/navigation";
 import {useUpgradeModal} from "@/hooks/use-upgrade-modal";
-import {createChatSystemMessage} from "@/config/prompts";
+import {createChatSystemMessage} from "@/features/chat/utils/prompts";
 
 export default function ChatsEmpty() {
     const createEmptyChat = useCreateEmptyChat()

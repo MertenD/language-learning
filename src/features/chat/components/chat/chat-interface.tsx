@@ -1,26 +1,27 @@
 "use client"
 
 import type React from "react"
-import { useEffect, useRef, useState } from "react"
-import { useChat } from "@ai-sdk/react"
-import { DefaultChatTransport, type UIMessage } from "ai"
-
-import { Card } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Send, User, Bot } from "lucide-react"
-import MessageBubble from "@/features/chat/components/chat/message-bubble";
+import {useEffect, useRef, useState} from "react"
+import {useChat} from "@ai-sdk/react"
+import {DefaultChatTransport, type UIMessage} from "ai"
+import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar"
+import {Button} from "@/components/ui/button"
+import {ScrollArea} from "@/components/ui/scroll-area"
+import {Bot, Send} from "lucide-react"
+import MessageBubbleUser from "@/features/chat/components/chat/message-bubble-user";
 import {Textarea} from "@/components/ui/textarea";
+import MessageBubbleAi from "@/features/chat/components/chat/message-bubble-ai";
+import {getTextFromMessage} from "@/features/chat/utils/chat-utils";
+import parseChatAiAnswer from "@/features/chat/utils/prompts-utils";
 
 type Props = {
     chatId: string
     assistantName?: string
     initialMessages: UIMessage[]
+    onTargetsStatusChange?: (targetsStatus: boolean[]) => void
 }
 
-export function ChatInterface({ chatId, assistantName, initialMessages }: Props) {
+export function ChatInterface({ chatId, assistantName, initialMessages, onTargetsStatusChange }: Props) {
     const scrollAreaRef = useRef<HTMLDivElement>(null)
     const [input, setInput] = useState("")
 
@@ -53,6 +54,14 @@ export function ChatInterface({ chatId, assistantName, initialMessages }: Props)
 
     useEffect(() => {
         scrollToBottom()
+        if (!isLoading && messages[messages.length - 1]?.role === "assistant" && onTargetsStatusChange) {
+            const lastAssistantMessage = messages[messages.length - 1]
+            const text = getTextFromMessage(lastAssistantMessage)
+            const { targetsStatus } = parseChatAiAnswer(text)
+            if (targetsStatus) {
+                onTargetsStatusChange(targetsStatus)
+            }
+        }
     }, [messages, isLoading])
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -89,24 +98,22 @@ export function ChatInterface({ chatId, assistantName, initialMessages }: Props)
                 <ScrollArea ref={scrollAreaRef} className="h-full">
                     <div className="space-y-4 p-4 max-w-5xl mx-auto">
                         {messages
-                            .filter((m) => m.role === "user" || m.role === "assistant")
-                            .map((m) => {
-                                const text =
-                                    m.parts
-                                        ?.map((p) => (p.type === "text" ? p.text : ""))
-                                        .join("") ?? ""
+                            .filter((message) => message.role === "user" || message.role === "assistant")
+                            .map((message) => {
+                                const text = getTextFromMessage(message)
 
-                                const isUser = m.role === "user"
-                                const isLastAssistant = !isUser && m.id === messages[messages.length - 1]?.id
+                                const isUser = message.role === "user"
+                                const isLastAssistant = !isUser && message.id === messages[messages.length - 1]?.id
 
-                                return (
-                                    <MessageBubble
-                                        key={m.id}
+                                if (isUser) {
+                                    return <MessageBubbleUser key={message.id} text={text}/>
+                                } else {
+                                    return <MessageBubbleAi
+                                        key={message.id}
                                         text={text}
-                                        isUser={isUser}
                                         isStreaming={isLastAssistant && isLoading}
                                     />
-                                )
+                                }
                             })}
 
 

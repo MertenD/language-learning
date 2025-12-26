@@ -1,7 +1,8 @@
-import {Prisma} from "@/generated/prisma/client"
+import {Prisma, Chat} from "@/generated/prisma/client"
 import prisma from "@/lib/db"
 import type {UIMessage} from "ai"
 import {v4 as uuidv4} from "uuid";
+import {ChatWithUIMessages} from "@/features/chat/model/chat-model";
 
 export async function createEmptyChat(userId: string, title?: string, systemMessage?: string) {
   const chat = await prisma.chat.create({
@@ -25,8 +26,8 @@ export async function createEmptyChat(userId: string, title?: string, systemMess
   return chat.id
 }
 
-export async function loadChat(chatId: string, userId: string) {
-  const chat = await prisma.chat.findFirst({
+export async function loadChat(chatId: string, userId: string): Promise<ChatWithUIMessages> {
+  const chat: Chat | null = await prisma.chat.findFirst({
     where: { id: chatId, userId: userId },
   })
 
@@ -35,10 +36,8 @@ export async function loadChat(chatId: string, userId: string) {
   }
 
   return {
-    id: chat.id,
-    assistantName: chat.assistantName,
-    messages: (chat.messages as unknown as UIMessage[]) ?? [],
-    activeStreamId: chat.activeStreamId ?? null,
+    ...chat,
+    messages: (chat.messages as unknown as UIMessage[]) ?? []
   }
 }
 
@@ -46,9 +45,10 @@ export async function saveChat(args: {
   chatId: string
   userId: string
   messages: UIMessage[]
+  targetsStatus?: boolean[]
   activeStreamId?: string | null
 }) {
-  const { chatId, userId, messages, activeStreamId = null } = args
+  const { chatId, userId, messages, targetsStatus, activeStreamId = null } = args
 
   await prisma.chat.update({
     where: {
@@ -58,6 +58,7 @@ export async function saveChat(args: {
     data: {
       messages: messages as unknown as Prisma.JsonArray,
       activeStreamId,
+      targetsStatus: targetsStatus,
     },
   })
 }

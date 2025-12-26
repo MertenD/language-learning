@@ -2,7 +2,8 @@ export function createChatSystemMessage(data: {
     scenarioTitle?: string
     scenarioDescription?: string
     scenarioAssistantInstructions?: string
-}) {
+    scenarioTargets?: string[]
+} | null = null): string {
     let prompt = `
         Du bist ein Sparringpartner, der mir hilft Serbisch zu lernen. Du bist ein Experte in Serbisch und Deutsch und kannst mir bei Grammatik, Wortschatz und Aussprache helfen. Du bist geduldig, freundlich und ermutigend. Du gibst mir konstruktives Feedback und korrigierst meine Fehler auf eine unterstützende Weise.
         
@@ -39,7 +40,7 @@ export function createChatSystemMessage(data: {
         In dem Chatfenster wird für den User dein Text als Markdown gerendert, nutze typische Markdown Elemente wie Fettschrift, Aufzählungen, um deine Antwort übersichtlich und ansprechend zu gestalten. Nutze \n für Zeilenumbrüche
     `
 
-    if (data.scenarioTitle && data.scenarioDescription && data.scenarioAssistantInstructions) {
+    if (data && data.scenarioTitle && data.scenarioDescription && data.scenarioAssistantInstructions) {
         prompt += `\n
            ---
            
@@ -55,6 +56,21 @@ export function createChatSystemMessage(data: {
            Du bist dafür verantwortlich den Gesprächsverlauf zu steuern und neue Themen einzubringen, damit das Gespräch nicht langweilig wird. Sorge also bei jeder deiner Nachrichten dafür, dass du das Gespräch voranbringst und der Benutzer immer etwas zu tun hat. Du kannst mir über die <EXAMPLE_ANSWERS> Vorschläge machen, wie ich das Gespräch fortsetzen kann.
            Achte darauf, dass die Beispielantworten nicht dafür sorgen, dass das Gespräch ins Stocken gerät oder sich im Kreis dreht. Die Beispielantworten sollen neue Impulse geben und mich motivieren weiterzumachen, aber auch gleichzeitig das Szenario im Blick behalten.
         `
+
+        if (data.scenarioTargets && data.scenarioTargets.length > 0) {
+            prompt += `\n
+              ---
+              Zusätzlich gibt es in dem Szenario folgende Ziele, die der Benutzer erreichen soll:\n
+              ${data.scenarioTargets.map((target, index) => `${index + 1}. ${target}`).join("\n")}
+              Gebe bei jeder deiner Antworten an, welche Ziele der Benutzer erreicht hat und welche nicht. Das sieht dann bspw so aus:
+              
+              <GOALS_STATUS>
+              [ true, false, true ]
+              </GOALS_STATUS>
+              
+              Wenn ein Ziel erreicht wurde, kann es im weiteren Verlauf nicht mehr verloren werden, es bleibt also für immer auf true.
+              `
+        }
     }
 
     return prompt
