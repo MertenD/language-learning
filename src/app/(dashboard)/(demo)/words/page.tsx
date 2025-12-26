@@ -1,5 +1,5 @@
 import {requireAuth} from "@/lib/auth-utils";
-import {prefetchWords} from "@/features/words/server/prefetch";
+import {prefetchCategories, prefetchWords} from "@/features/words/server/prefetch";
 import {HydrateClient} from "@/trpc/server";
 import {ErrorBoundary} from "react-error-boundary";
 import {Suspense} from "react";
@@ -19,6 +19,9 @@ export default async function WordsPage({ searchParams }: WordsPageProps) {
 
     const params = await wordsParamsLoader(searchParams)
     prefetchWords(params)
+    prefetchCategories({
+        parentId: params.categoryId || null
+    })
 
     return <WordsContainer>
         <HydrateClient>

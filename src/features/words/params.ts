@@ -11,4 +11,7 @@ export const wordsParams = {
     search: parseAsString
         .withDefault("")
         .withOptions({ clearOnDefault: true }),
+    categoryId: parseAsString
+        .withDefault("")
+        .withOptions({ clearOnDefault: true }),
 }

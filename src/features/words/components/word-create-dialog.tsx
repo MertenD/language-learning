@@ -11,14 +11,16 @@ interface WordCreateDialogProps {
     open: boolean
     onOpenChange: (open: boolean) => void
     onCreate: (newWord: CreateWordInput) => void | Promise<void>
+    categoryId?: string
 }
 
-export function WordCreateDialog({ open, onOpenChange, onCreate }: WordCreateDialogProps) {
+export function WordCreateDialog({ open, onOpenChange, onCreate, categoryId }: WordCreateDialogProps) {
     const emptyWord: CreateWordInput = {
         german: "",
         germanInfo: undefined,
         serbian: "",
-        serbianInfo: undefined
+        serbianInfo: undefined,
+        categoryId: !categoryId || categoryId === "" ? undefined : categoryId
     }
     const [newWord, setNewWord] = useState<CreateWordInput>(emptyWord)
 

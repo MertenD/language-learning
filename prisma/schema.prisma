@@ -15,18 +15,19 @@ datasource db {
 }
 
 model User {
-  id            String    @id
-  name          String
-  email         String
-  emailVerified Boolean   @default(false)
-  image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @default(now()) @updatedAt
-  sessions      Session[]
-  accounts      Account[]
-  words         Word[]
-  grammar       Grammar[]
-  chats         Chat[]
+  id             String         @id
+  name           String
+  email          String
+  emailVerified  Boolean        @default(false)
+  image          String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @default(now()) @updatedAt
+  sessions       Session[]
+  accounts       Account[]
+  words          Word[]
+  wordCategories WordCategory[]
+  grammar        Grammar[]
+  chats          Chat[]
 
   @@unique([email])
   @@map("user")
@@ -88,6 +89,26 @@ model Word {
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  categoryId String?
+  category   WordCategory? @relation(fields: [categoryId], references: [id])
+}
+
+model WordCategory {
+  id   String @id @default(cuid())
+  name String
+
+  parentId String?
+  parent   WordCategory?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children WordCategory[] @relation("CategoryHierarchy")
+
+  words Word[]
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Grammar {
