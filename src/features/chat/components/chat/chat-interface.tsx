@@ -24,6 +24,7 @@ type Props = {
 export function ChatInterface({ chatId, assistantName, initialMessages, onTargetsStatusChange }: Props) {
     const scrollAreaRef = useRef<HTMLDivElement>(null)
     const [input, setInput] = useState("")
+    const [isOneMessageSent, setIsOneMessageSent] = useState(false)
 
     const { messages, sendMessage, status, error } = useChat({
         id: chatId,
@@ -54,7 +55,7 @@ export function ChatInterface({ chatId, assistantName, initialMessages, onTarget
 
     useEffect(() => {
         scrollToBottom()
-        if (!isLoading && messages[messages.length - 1]?.role === "assistant" && onTargetsStatusChange) {
+        if (isOneMessageSent && !isLoading && messages[messages.length - 1]?.role === "assistant" && onTargetsStatusChange) {
             const lastAssistantMessage = messages[messages.length - 1]
             const text = getTextFromMessage(lastAssistantMessage)
             const { targetsStatus } = parseChatAiAnswer(text)
@@ -69,6 +70,7 @@ export function ChatInterface({ chatId, assistantName, initialMessages, onTarget
         if (!input.trim() || isLoading) return
         sendMessage({ text: input })
         setInput("")
+        setIsOneMessageSent(true)
     }
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
