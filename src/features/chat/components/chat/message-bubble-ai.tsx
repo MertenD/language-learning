@@ -43,9 +43,9 @@ export default function MessageBubbleAi({
             </Avatar>
             { !chatAiAnswer.conversation && !chatAiAnswer.explanation && renderBubble(displayedText) }
             <div className="flex flex-col max-w-4xl gap-2">
-                { chatAiAnswer.conversation && chatAiAnswer.mistakes && renderBubble(chatAiAnswer.mistakes, "bg-red-100") }
                 { chatAiAnswer.conversation && renderBubble(chatAiAnswer.conversation) }
                 { chatAiAnswer.explanation && renderBubble(chatAiAnswer.explanation, "bg-yellow-100") }
+                { chatAiAnswer.conversation && chatAiAnswer.mistakes && renderBubble(chatAiAnswer.mistakes, "bg-red-100") }
                 { chatAiAnswer.conversation && chatAiAnswer.exampleAnswers && renderBubble(chatAiAnswer.exampleAnswers, "bg-green-100") }
             </div>
         </div>

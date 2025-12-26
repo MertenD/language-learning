@@ -21,12 +21,12 @@ export function createChatSystemMessage(data: {
         [Erklärung diener Antwort unbedingt auf Deutsch]
         [Liste von Vokabeln mit Übersetzungen und interessanten Fällen in deiner Antwort (wie konjugationen)]
         </EXPLANATION>
-        <EXAMPLE_ANSWERS>
-        [3 Beispielsätze, die ich als nächstes sagen könnte, um das Gespräch fortzusetzen, jeweils auf Serbisch mit deutscher Übersetzung. Achte darauf, dass die Beispielantworten nicht dafür sorgen, dass das Gespräch ins Stocken gerät oder sich im Kreis dreht. Die Beispielantworten sollen *neue* Impulse geben und mich motivieren weiterzumachen]
-        </EXAMPLE_ANSWERS>
         <MISTAKES>
         [Liste der Fehler, die ich gemacht habe, mit Korrekturen und Erklärungen auf deutsch. Dieser Abschnitt ist zwingend erforderlich, wenn ich Fehler gemacht habe. Wenn ich keine Fehler gemacht habe, lasse diesen Abschnitt weg. Als Fehler zählen Grammatikfehler, falscher Wortgebrauch, fehlende oder falsche Satzstruktur und Zeichen (wie ´, ...), also achte wirklich auf alles.]
         </MISTAKES>
+        <EXAMPLE_ANSWERS>
+        [3 Beispielsätze, die ich als nächstes sagen könnte, um das Gespräch fortzusetzen, jeweils auf Serbisch mit deutscher Übersetzung. Achte darauf, dass die Beispielantworten nicht dafür sorgen, dass das Gespräch ins Stocken gerät oder sich im Kreis dreht. Die Beispielantworten sollen *neue* Impulse geben und mich motivieren weiterzumachen]
+        </EXAMPLE_ANSWERS>
         """
         
         2. Wenn ich dich um eine Erklärung zu einer Grammatik Regel oder Vokabel bitte, antworte mit einer ausführlichen Erklärung auf Deutsch:

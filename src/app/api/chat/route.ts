@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
     })
 
     const result = streamText({
-      model: openrouter("google/gemini-2.5-flash-lite"),
+      model: openrouter("deepseek/deepseek-v3.2"),
       messages: convertToModelMessages(messages),
     })
     
