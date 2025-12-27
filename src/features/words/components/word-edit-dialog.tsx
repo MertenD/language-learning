@@ -1,9 +1,16 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import {Word} from "@/generated/prisma/client";
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { CreateWordInput, createWordSchema } from "@/features/words/schema/word-crud-schema"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useSuspenseAllCategories } from "@/features/words/hooks/use-categories"
 
 interface WordEditDialogProps {
     word: Word
@@ -14,18 +21,49 @@ interface WordEditDialogProps {
 
 export function WordEditDialog({ word, open, onOpenChange, onSave }: WordEditDialogProps) {
     const [isEditing, setIsEditing] = useState(false)
-    const [editedWord, setEditedWord] = useState(word)
+    const categories = useSuspenseAllCategories()
 
-    const handleSave = async () => {
+    const form = useForm<CreateWordInput>({
+        resolver: zodResolver(createWordSchema),
+        defaultValues: {
+            german: word.german,
+            germanInfo: word.germanInfo || "",
+            serbian: word.serbian,
+            serbianInfo: word.serbianInfo || "",
+            categoryId: word.categoryId || undefined
+        }
+    })
+
+    useEffect(() => {
+        if (isEditing) {
+            form.reset({
+                german: word.german,
+                germanInfo: word.germanInfo || "",
+                serbian: word.serbian,
+                serbianInfo: word.serbianInfo || "",
+                categoryId: word.categoryId || undefined
+            })
+        }
+    }, [isEditing, word, form])
+
+    const onSubmit = async (data: CreateWordInput) => {
         if (onSave) {
-            await onSave(editedWord)
+            console.log("Submitting updated word data:", data)
+            const updatedWord: Word = {
+                ...word,
+                ...data,
+                germanInfo: data.germanInfo || null,
+                serbianInfo: data.serbianInfo || null,
+                categoryId: data.categoryId === "root" ? null : (data.categoryId || null)
+            }
+            await onSave(updatedWord)
         }
         setIsEditing(false)
     }
 
     const handleCancel = () => {
-        setEditedWord(word)
         setIsEditing(false)
+        form.reset()
     }
 
     return (
@@ -38,52 +76,98 @@ export function WordEditDialog({ word, open, onOpenChange, onSave }: WordEditDia
 
                 <div className="space-y-6 mt-4">
                     {isEditing ? (
-                        <div className="space-y-4">
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium flex items-center gap-2">
-                                    <span className="text-2xl">🇩🇪</span> German
-                                </label>
-                                <input
-                                    type="text"
-                                    value={editedWord.german}
-                                    onChange={(e) => setEditedWord({ ...editedWord, german: e.target.value })}
-                                    className="w-full px-3 py-2 border rounded-md"
+                        <Form {...form}>
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                                <FormField
+                                    control={form.control}
+                                    name="german"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel className="flex items-center gap-2">
+                                                <span className="text-2xl">🇩🇪</span> German
+                                            </FormLabel>
+                                            <FormControl>
+                                                <Input {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
                                 />
-                                <input
-                                    type="text"
-                                    value={editedWord.germanInfo || ""}
-                                    onChange={(e) => setEditedWord({ ...editedWord, germanInfo: e.target.value })}
-                                    placeholder="Additional info (optional)"
-                                    className="w-full px-3 py-2 border rounded-md text-sm"
+                                <FormField
+                                    control={form.control}
+                                    name="germanInfo"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormControl>
+                                                <Input placeholder="Additional info (optional)" {...field} value={field.value || ""} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
                                 />
-                            </div>
 
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium flex items-center gap-2">
-                                    <span className="text-2xl">🇷🇸</span> Serbian
-                                </label>
-                                <input
-                                    type="text"
-                                    value={editedWord.serbian}
-                                    onChange={(e) => setEditedWord({ ...editedWord, serbian: e.target.value })}
-                                    className="w-full px-3 py-2 border rounded-md"
+                                <FormField
+                                    control={form.control}
+                                    name="serbian"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel className="flex items-center gap-2">
+                                                <span className="text-2xl">🇷🇸</span> Serbian
+                                            </FormLabel>
+                                            <FormControl>
+                                                <Input {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
                                 />
-                                <input
-                                    type="text"
-                                    value={editedWord.serbianInfo || ""}
-                                    onChange={(e) => setEditedWord({ ...editedWord, serbianInfo: e.target.value })}
-                                    placeholder="Additional info (optional)"
-                                    className="w-full px-3 py-2 border rounded-md text-sm"
+                                <FormField
+                                    control={form.control}
+                                    name="serbianInfo"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormControl>
+                                                <Input placeholder="Additional info (optional)" {...field} value={field.value || ""} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
                                 />
-                            </div>
 
-                            <div className="flex gap-2 justify-end">
-                                <Button variant="outline" onClick={handleCancel}>
-                                    Cancel
-                                </Button>
-                                <Button onClick={handleSave} disabled={editedWord === word}>Save</Button>
-                            </div>
-                        </div>
+                                <FormField
+                                    control={form.control}
+                                    name="categoryId"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Category</FormLabel>
+                                            <Select onValueChange={field.onChange} defaultValue={field.value || undefined} value={field.value || undefined}>
+                                                <FormControl>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Select a category" />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    <SelectItem value="root">No Category</SelectItem>
+                                                    {categories.data.map((category) => (
+                                                        <SelectItem key={category.id} value={category.id}>
+                                                            {category.name}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <div className="flex gap-2 justify-end">
+                                    <Button type="button" variant="outline" onClick={handleCancel}>
+                                        Cancel
+                                    </Button>
+                                    <Button type="submit">Save</Button>
+                                </div>
+                            </form>
+                        </Form>
                     ) : (
                         <>
                             <div className="space-y-4">
@@ -104,6 +188,12 @@ export function WordEditDialog({ word, open, onOpenChange, onSave }: WordEditDia
                                         {word.serbianInfo && <p className="text-sm text-muted-foreground mt-1">{word.serbianInfo}</p>}
                                     </div>
                                 </div>
+
+                                {word.categoryId && (
+                                    <div className="text-sm text-muted-foreground">
+                                        Category: {categories.data.find(c => c.id === word.categoryId)?.name || "Unknown"}
+                                    </div>
+                                )}
                             </div>
 
                             <div className="flex items-center justify-between text-xs text-muted-foreground pt-4 border-t">

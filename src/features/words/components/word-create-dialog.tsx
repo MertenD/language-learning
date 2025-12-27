@@ -1,11 +1,15 @@
 "use client"
 
-// TODO Der Dialog soll ein Form sein, genau wie bei login und sign up, damit ich direkt gegen das Schema validieren kann und dem Benutzer passende Fehlermeldungen in den Eingabefeldern anzeigen kann; nicht erst nach abschicken der Request
-
-import {useState} from "react"
 import {Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle} from "@/components/ui/dialog"
 import {Button} from "@/components/ui/button"
-import {CreateWordInput} from "@/features/words/schema/word-crud-schema";
+import {CreateWordInput, createWordSchema} from "@/features/words/schema/word-crud-schema";
+import {useForm} from "react-hook-form";
+import {zodResolver} from "@hookform/resolvers/zod";
+import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
+import {Input} from "@/components/ui/input";
+import {useEffect} from "react";
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
+import {useSuspenseAllCategories} from "@/features/words/hooks/use-categories";
 
 interface WordCreateDialogProps {
     open: boolean
@@ -15,18 +19,41 @@ interface WordCreateDialogProps {
 }
 
 export function WordCreateDialog({ open, onOpenChange, onCreate, categoryId }: WordCreateDialogProps) {
-    const emptyWord: CreateWordInput = {
-        german: "",
-        germanInfo: undefined,
-        serbian: "",
-        serbianInfo: undefined,
-        categoryId: !categoryId || categoryId === "" ? undefined : categoryId
-    }
-    const [newWord, setNewWord] = useState<CreateWordInput>(emptyWord)
+    const categories = useSuspenseAllCategories()
 
-    function handleCreate() {
-        onCreate(newWord)
-        setNewWord(emptyWord)
+    const form = useForm<CreateWordInput>({
+        resolver: zodResolver(createWordSchema),
+        defaultValues: {
+            german: "",
+            germanInfo: "",
+            serbian: "",
+            serbianInfo: "",
+            categoryId: categoryId || undefined
+        }
+    })
+
+    // Reset form when dialog opens/closes or categoryId changes
+    useEffect(() => {
+        if (open) {
+            form.reset({
+                german: "",
+                germanInfo: "",
+                serbian: "",
+                serbianInfo: "",
+                categoryId: categoryId || undefined
+            })
+        }
+    }, [open, categoryId, form])
+
+    function onSubmit(data: CreateWordInput) {
+        const formattedData: CreateWordInput = {
+            ...data,
+            germanInfo: data.germanInfo || undefined,
+            serbianInfo: data.serbianInfo || undefined,
+            categoryId: data.categoryId === "root" ? undefined : (data.categoryId || undefined)
+        }
+
+        onCreate(formattedData)
     }
 
     return (
@@ -37,60 +64,102 @@ export function WordCreateDialog({ open, onOpenChange, onCreate, categoryId }: W
                     <DialogDescription>Create new vocabulary.</DialogDescription>
                 </DialogHeader>
 
-                <div className="space-y-6 mt-4">
-                    <div className="space-y-4">
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium flex items-center gap-2">
-                                <span className="text-2xl">🇩🇪</span> German
-                            </label>
-                            <input
-                                type="text"
-                                value={newWord.german}
-                                onChange={(e) => setNewWord({ ...newWord, german: e.target.value })}
-                                className="w-full px-3 py-2 border rounded-md"
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 mt-4">
+                        <div className="space-y-4">
+                            <FormField
+                                control={form.control}
+                                name="german"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel className="flex items-center gap-2">
+                                            <span className="text-2xl">🇩🇪</span> German
+                                        </FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="German word" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
                             />
-                            <input
-                                type="text"
-                                value={newWord.germanInfo || ""}
-                                onChange={(e) => setNewWord({
-                                    ...newWord,
-                                    germanInfo: e.target.value === "" ? undefined : e.target.value
-                                })}
-                                placeholder="Additional info (optional)"
-                                className="w-full px-3 py-2 border rounded-md text-sm"
-                            />
-                        </div>
 
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium flex items-center gap-2">
-                                <span className="text-2xl">🇷🇸</span> Serbian
-                            </label>
-                            <input
-                                type="text"
-                                value={newWord.serbian}
-                                onChange={(e) => setNewWord({ ...newWord, serbian: e.target.value })}
-                                className="w-full px-3 py-2 border rounded-md"
+                            <FormField
+                                control={form.control}
+                                name="germanInfo"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormControl>
+                                            <Input placeholder="Additional info (optional)" {...field} value={field.value || ""} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
                             />
-                            <input
-                                type="text"
-                                value={newWord.serbianInfo || ""}
-                                onChange={(e) => setNewWord({
-                                    ...newWord,
-                                    serbianInfo: e.target.value === "" ? undefined : e.target.value
-                                })}
-                                placeholder="Additional info (optional)"
-                                className="w-full px-3 py-2 border rounded-md text-sm"
-                            />
-                        </div>
 
-                        <div className="flex gap-2 justify-end">
-                            <Button variant="outline" onClick={() => onOpenChange(false)}>
-                                Cancel
-                            </Button>
-                            <Button onClick={handleCreate}>Create</Button>
+                            <FormField
+                                control={form.control}
+                                name="serbian"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel className="flex items-center gap-2">
+                                            <span className="text-2xl">🇷🇸</span> Serbian
+                                        </FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="Serbian word" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField
+                                control={form.control}
+                                name="serbianInfo"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormControl>
+                                            <Input placeholder="Additional info (optional)" {...field} value={field.value || ""} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField
+                                control={form.control}
+                                name="categoryId"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Category</FormLabel>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value || undefined} value={field.value || undefined}>
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select a category" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                <SelectItem value="root">No Category</SelectItem>
+                                                {categories.data.map((category) => (
+                                                    <SelectItem key={category.id} value={category.id}>
+                                                        {category.name}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <div className="flex gap-2 justify-end">
+                                <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                                    Cancel
+                                </Button>
+                                <Button type="submit">Create</Button>
+                            </div>
                         </div>
-                    </div>
-                </div>
+                    </form>
+                </Form>
             </DialogContent>
         </Dialog>
     )

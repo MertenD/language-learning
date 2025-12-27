@@ -33,7 +33,8 @@ export const wordsRouter = createTRPCRouter({
             german: z.string().min(1).optional(),
             germanInfo: z.string().min(1).optional(),
             serbian: z.string().min(1).optional(),
-            serbianInfo: z.string().min(1).optional()
+            serbianInfo: z.string().min(1).optional(),
+            categoryId: z.string().optional().nullable()
         }))
         .mutation(({ ctx, input }) => {
             return prisma.word.update({
@@ -43,6 +44,7 @@ export const wordsRouter = createTRPCRouter({
                     germanInfo: input.germanInfo || null,
                     serbian: input.serbian,
                     serbianInfo: input.serbianInfo || null,
+                    categoryId: input.categoryId || null
                 }
             })
         }),
@@ -198,5 +200,16 @@ export const categoriesRouter = createTRPCRouter({
             }
 
             return path;
+        }),
+    getAllCategories: protectedProcedure
+        .query(({ ctx }) => {
+            return prisma.wordCategory.findMany({
+                where: {
+                    userId: ctx.auth.user.id
+                },
+                orderBy: {
+                    name: "asc"
+                }
+            })
         })
 })

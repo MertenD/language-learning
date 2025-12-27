@@ -17,7 +17,8 @@ export default function WordItem({ data }: { data: Word }) {
             german: updatedWord.german,
             germanInfo: updatedWord.germanInfo || undefined,
             serbian: updatedWord.serbian,
-            serbianInfo: updatedWord.serbianInfo || undefined
+            serbianInfo: updatedWord.serbianInfo || undefined,
+            categoryId: updatedWord.categoryId || undefined
         })
     }
 

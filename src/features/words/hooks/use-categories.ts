@@ -3,9 +3,9 @@ import {useMutation, useQueryClient, useSuspenseQuery} from "@tanstack/react-que
 import {toast} from "sonner";
 
 /**
- * Hook to fetch categories
+ * Hook to fetch categories by parent
  */
-export const useSuspenseCategories = (parentId?: string | null) => {
+export const useSuspenseCategoriesByParent = (parentId?: string | null) => {
     const trpc = useTRPC()
     return useSuspenseQuery(trpc.categories.getCategories.queryOptions({ parentId }))
 }
@@ -58,4 +58,12 @@ export const useRemoveCategory = () => {
             toast.error(`Failed to delete category: ${error.message}`)
         }
     }))
+}
+
+/**
+ * Hook to fetch all categories
+ */
+export const useSuspenseAllCategories = () => {
+    const trpc = useTRPC()
+    return useSuspenseQuery(trpc.categories.getAllCategories.queryOptions())
 }

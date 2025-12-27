@@ -5,12 +5,12 @@ import WordsEmpty from "@/features/words/components/words-empty";
 import WordItem from "@/features/words/components/word-item";
 import CategoryItem from "@/features/words/components/categories/category-item";
 import {useWordsParams} from "@/features/words/hooks/use-words-params";
-import {useSuspenseCategories} from "@/features/words/hooks/use-categories";
+import {useSuspenseCategoriesByParent} from "@/features/words/hooks/use-categories";
 
 export default function WordsList() {
     const [params] = useWordsParams()
     const words = useSuspenseWords()
-    const categories = useSuspenseCategories(params.categoryId || null)
+    const categories = useSuspenseCategoriesByParent(params.categoryId || null)
 
     if (words.data.items.length === 0 && categories.data.length === 0) {
         return <WordsEmpty />

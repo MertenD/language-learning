@@ -2,9 +2,9 @@ import {z} from "zod";
 
 export const createWordSchema = z.object({
     german: z.string().min(1),
-    germanInfo: z.string().min(1).optional(),
+    germanInfo: z.string().optional(),
     serbian: z.string().min(1),
-    serbianInfo: z.string().min(1).optional(),
+    serbianInfo: z.string().optional(),
     categoryId: z.string().optional().nullable()
 })
 
