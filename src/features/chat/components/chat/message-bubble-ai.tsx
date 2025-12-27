@@ -17,7 +17,11 @@ export default function MessageBubbleAi({ text, isStreaming, onExampleClick }: M
     const displayedText = useSmoothText(text, isStreaming, 1)
     const chatAiAnswer = parseChatAiAnswer(displayedText)
 
-    return (
+    return <div className="flex flex-col">
+        { chatAiAnswer.mistakes && <div className="mt-[-13px] pb-2 flex gap-3 flex-row-reverse animate-in fade-in slide-in-from-right-2 duration-500 mb-4">
+            <div className="h-9 w-9"/>
+            <MessageSection markdownContent={chatAiAnswer.mistakes} variant="mistakes" isCollapsible />
+        </div> }
         <div className="flex gap-3 flex-row animate-in fade-in slide-in-from-left-2 duration-500">
             <Avatar className="h-9 w-9 shadow-sm border-2 border-card">
                 <AvatarImage src="/ai-assistant-concept.png" />
@@ -25,10 +29,9 @@ export default function MessageBubbleAi({ text, isStreaming, onExampleClick }: M
                     <BotIcon className="h-4 w-4 text-primary-foreground" />
                 </AvatarFallback>
             </Avatar>
-            <div className="flex flex-col max-w-4xl gap-3">
-                {chatAiAnswer.conversation && <MessageSection content={chatAiAnswer.conversation} />}
-                {chatAiAnswer.explanation && <MessageSection content={chatAiAnswer.explanation} variant="explanation" />}
-                {chatAiAnswer.mistakes && <MessageSection content={chatAiAnswer.mistakes} variant="mistakes" />}
+            <div className="flex flex-col w-4xl gap-3">
+                {chatAiAnswer.conversation && <MessageSection markdownContent={chatAiAnswer.conversation} />}
+                {chatAiAnswer.explanation && <MessageSection markdownContent={chatAiAnswer.explanation} variant="explanation" isCollapsible />}
                 {chatAiAnswer.exampleAnswers && (
                     <ExampleAnswersSection content={chatAiAnswer.exampleAnswers} onExampleClick={onExampleClick} />
                 )}
@@ -36,8 +39,8 @@ export default function MessageBubbleAi({ text, isStreaming, onExampleClick }: M
                 {!chatAiAnswer.conversation &&
                     !chatAiAnswer.explanation &&
                     !chatAiAnswer.mistakes &&
-                    !chatAiAnswer.exampleAnswers && <MessageSection content={displayedText} />}
+                    !chatAiAnswer.exampleAnswers && <MessageSection markdownContent={displayedText} />}
             </div>
         </div>
-    )
+    </div>
 }

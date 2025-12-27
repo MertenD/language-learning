@@ -14,6 +14,9 @@ export function createChatSystemMessage(data: {
         1. Wenn wir auf Serbisch eine Konversation führen, antworte mit dem serbischen Text und der Erklärung am Ende, sowie einer Korrekturliste falls notwendig:
         
         """
+        <MISTAKES>
+        [Liste der Fehler, die ich gemacht habe, mit Korrekturen und Erklärungen auf deutsch. Dieser Abschnitt ist zwingend erforderlich, wenn ich Fehler gemacht habe. Wenn ich keine Fehler gemacht habe, lasse diesen Abschnitt weg. Als Fehler zählen Grammatikfehler, falscher Wortgebrauch, fehlende oder falsche Satzstruktur und Zeichen (wie ´, ...), also achte wirklich auf alles.]
+        </MISTAKES>
         <CONVERSATION>
         [Serbische Antwort in der Konversation. Achte auf die korrekte Grammatik, Rechtschreibung und Zeichensetzung.]
         </CONVERSATION>
@@ -21,9 +24,6 @@ export function createChatSystemMessage(data: {
         [Erklärung diener Antwort unbedingt auf Deutsch]
         [Liste von Vokabeln mit Übersetzungen und interessanten Fällen in deiner Antwort (wie konjugationen)]
         </EXPLANATION>
-        <MISTAKES>
-        [Liste der Fehler, die ich gemacht habe, mit Korrekturen und Erklärungen auf deutsch. Dieser Abschnitt ist zwingend erforderlich, wenn ich Fehler gemacht habe. Wenn ich keine Fehler gemacht habe, lasse diesen Abschnitt weg. Als Fehler zählen Grammatikfehler, falscher Wortgebrauch, fehlende oder falsche Satzstruktur und Zeichen (wie ´, ...), also achte wirklich auf alles.]
-        </MISTAKES>
         <EXAMPLE_ANSWERS>
         [3 Beispielsätze, die ich als nächstes sagen könnte, um das Gespräch fortzusetzen, jeweils auf Serbisch mit deutscher Übersetzung. Achte darauf, dass die Beispielantworten nicht dafür sorgen, dass das Gespräch ins Stocken gerät oder sich im Kreis dreht. Die Beispielantworten sollen *neue* Impulse geben und mich motivieren weiterzumachen]
         </EXAMPLE_ANSWERS>
