@@ -68,7 +68,7 @@ export function createChatSystemMessage(data: {
               [ true, false, true ]
               </GOALS_STATUS>
               
-              Wenn ein Ziel erreicht wurde, kann es im weiteren Verlauf nicht mehr verloren werden, es bleibt also für immer auf true.
+              Wenn ein Ziel erreicht wurde, kann es im weiteren Verlauf nicht mehr verloren werden, es bleibt also für immer auf true. Die Ziele können in beliebiger Reihenfolge erreicht werden, es muss also nicht das erste Ziel zuerst erreicht werden.
               `
         }
     }

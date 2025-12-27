@@ -2,7 +2,7 @@ import {requireAuthAndPremium} from "@/lib/auth-utils";
 import {createEmptyChat, loadChat} from "@/features/chat/server/chat-store";
 import {redirect} from "next/navigation";
 import {ChatInterface} from "@/features/chat/components/chat/chat-interface";
-import ScenarioChatPage from "@/features/chat/components/chat/scenario-chat-page";
+import ScenarioChatPage from "@/features/chat/components/chat/scenario/scenario-chat-page";
 import prisma from "@/lib/db";
 
 export default async function ChatPage({ params }: { params: Promise<{ id: string }> }) {

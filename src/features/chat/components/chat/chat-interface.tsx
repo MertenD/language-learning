@@ -4,26 +4,25 @@ import type React from "react"
 import {useEffect, useRef, useState} from "react"
 import {useChat} from "@ai-sdk/react"
 import {DefaultChatTransport, type UIMessage} from "ai"
-import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar"
-import {Button} from "@/components/ui/button"
+import {Avatar, AvatarFallback} from "@/components/ui/avatar"
 import {ScrollArea} from "@/components/ui/scroll-area"
-import {Bot, Send} from "lucide-react"
 import MessageBubbleUser from "@/features/chat/components/chat/message-bubble-user";
-import {Textarea} from "@/components/ui/textarea";
 import MessageBubbleAi from "@/features/chat/components/chat/message-bubble-ai";
 import {getTextFromMessage} from "@/features/chat/utils/chat-utils";
 import parseChatAiAnswer from "@/features/chat/utils/prompts-utils";
+import {ChatHeader} from "@/features/chat/components/chat/chat-header";
+import {Bot} from "lucide-react";
+import {ChatInput} from "@/features/chat/components/chat/chat-input";
 
-type Props = {
+type ChatInterfaceProps = {
     chatId: string
     assistantName?: string
     initialMessages: UIMessage[]
     onTargetsStatusChange?: (targetsStatus: boolean[]) => void
 }
 
-export function ChatInterface({ chatId, assistantName, initialMessages, onTargetsStatusChange }: Props) {
+export function ChatInterface({ chatId, assistantName, initialMessages, onTargetsStatusChange }: ChatInterfaceProps) {
     const scrollAreaRef = useRef<HTMLDivElement>(null)
-    const [input, setInput] = useState("")
     const [isOneMessageSent, setIsOneMessageSent] = useState(false)
 
     const { messages, sendMessage, status, error } = useChat({
@@ -65,40 +64,18 @@ export function ChatInterface({ chatId, assistantName, initialMessages, onTarget
         }
     }, [messages, isLoading])
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault()
-        if (!input.trim() || isLoading) return
-        sendMessage({ text: input })
-        setInput("")
+    const handleSendMessage = (text: string) => {
+        sendMessage({ text })
         setIsOneMessageSent(true)
     }
 
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-        if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault()
-            handleSubmit(e as unknown as React.FormEvent)
-        }
-    }
-
-    return <div className="flex h-full w-full flex-col overflow-hidden">
-            <div className="flex items-center gap-3 border-b bg-muted/50 p-4 shrink-0">
-                <Avatar>
-                    <AvatarImage src="/ai-assistant-concept.png" />
-                    <AvatarFallback>
-                        <Bot className="h-5 w-5" />
-                    </AvatarFallback>
-                </Avatar>
-                <div>
-                    <h2 className="font-semibold text-lg">{assistantName || "Assistant"}</h2>
-                    <p className="text-sm text-muted-foreground">
-                        {isLoading ? "Antwort wird generiert..." : "Online"}
-                    </p>
-                </div>
-            </div>
+    return (
+        <div className="flex h-full w-full flex-col overflow-hidden">
+            <ChatHeader assistantName={assistantName || "Assistant"} isLoading={isLoading} />
 
             <div className="flex-1 min-h-0">
                 <ScrollArea ref={scrollAreaRef} className="h-full">
-                    <div className="space-y-4 p-4 max-w-5xl mx-auto">
+                    <div className="space-y-6 p-6 max-w-5xl mx-auto">
                         {messages
                             .filter((message) => message.role === "user" || message.role === "assistant")
                             .map((message) => {
@@ -108,59 +85,48 @@ export function ChatInterface({ chatId, assistantName, initialMessages, onTarget
                                 const isLastAssistant = !isUser && message.id === messages[messages.length - 1]?.id
 
                                 if (isUser) {
-                                    return <MessageBubbleUser key={message.id} text={text}/>
+                                    return <MessageBubbleUser key={message.id} text={text} />
                                 } else {
-                                    return <MessageBubbleAi
-                                        key={message.id}
-                                        text={text}
-                                        isStreaming={isLastAssistant && isLoading}
-                                    />
+                                    return (
+                                        <MessageBubbleAi
+                                            key={message.id}
+                                            text={text}
+                                            isStreaming={isLastAssistant && isLoading}
+                                            onExampleClick={handleSendMessage}
+                                        />
+                                    )
                                 }
                             })}
 
-
                         {isLoading && (
-                            <div className="flex gap-3">
-                                <Avatar className="h-8 w-8">
-                                    <AvatarFallback>
-                                        <Bot className="h-4 w-4"/>
+                            <div className="flex gap-3 animate-in fade-in slide-in-from-left-2 duration-500">
+                                { status !== "streaming" ? <Avatar className="h-9 w-9 shadow-sm border-2 border-white dark:border-slate-800">
+                                    <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80">
+                                        <Bot className="h-4 w-4 text-white" />
                                     </AvatarFallback>
-                                </Avatar>
-                                <div className="flex items-center gap-1 rounded-lg bg-muted px-4 py-2">
-                                    <div className="h-2 w-2 animate-bounce rounded-full bg-foreground/60 [animation-delay:-0.3s]" />
-                                    <div className="h-2 w-2 animate-bounce rounded-full bg-foreground/60 [animation-delay:-0.15s]" />
-                                    <div className="h-2 w-2 animate-bounce rounded-full bg-foreground/60" />
+                                </Avatar> : <div className="h-9 w-9" /> }
+                                <div className="flex items-center gap-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm px-5 py-4">
+                                    <div className="h-2 w-2 animate-bounce rounded-full bg-gradient-to-br from-primary to-primary/80 [animation-delay:-0.3s]" />
+                                    <div className="h-2 w-2 animate-bounce rounded-full bg-gradient-to-br from-primary to-primary/80 [animation-delay:-0.15s]" />
+                                    <div className="h-2 w-2 animate-bounce rounded-full bg-gradient-to-br from-primary to-primary/80" />
                                 </div>
                             </div>
                         )}
 
                         {error && (
-                            <p className="text-xs text-red-500">
-                                {error.message === "Payment required"
-                                    ? "Für diesen Chat benötigst du ein aktives Premium-Abo."
-                                    : "Es ist ein Fehler aufgetreten. Bitte versuche es später erneut."}
-                            </p>
+                            <div className="rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800 px-4 py-3">
+                                <p className="text-sm text-rose-700 dark:text-rose-300">
+                                    {error.message === "Payment required"
+                                        ? "Für diesen Chat benötigst du ein aktives Premium-Abo."
+                                        : "Es ist ein Fehler aufgetreten. Bitte versuche es später erneut."}
+                                </p>
+                            </div>
                         )}
                     </div>
                 </ScrollArea>
             </div>
 
-            <div className="border-t p-4 shrink-0">
-                <form className="flex gap-2 max-w-4xl mx-auto" onSubmit={handleSubmit}>
-                    <Textarea
-                        placeholder="Schreibe eine Nachricht..."
-                        value={input}
-                        rows={Math.min(5, input.split("\n").length)}
-                        onChange={(e) => setInput(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                        disabled={isLoading}
-                        className="flex-1 bg-background"
-                    />
-                    <Button type="submit" disabled={!input.trim() || isLoading} size="icon">
-                        <Send className="h-4 w-4" />
-                        <span className="sr-only">Nachricht senden</span>
-                    </Button>
-                </form>
-            </div>
-    </div>
+            <ChatInput onSend={handleSendMessage} disabled={isLoading} />
+        </div>
+    )
 }

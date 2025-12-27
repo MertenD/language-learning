@@ -28,7 +28,7 @@ export default function ChatsListItem({ data }: { data: Chat }) {
                 <div className="flex items-start gap-4 p-2">
                     <div className="flex-shrink-0 mt-1">
                         <div className="flex size-10 items-center justify-center rounded-lg bg-primary">
-                            <MessageSquare className="size-5 text-white" />
+                            { data.assistantIcon ? data.assistantIcon : <MessageSquare className="size-5 text-white" /> }
                         </div>
                     </div>
 

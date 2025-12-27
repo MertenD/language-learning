@@ -31,6 +31,7 @@ export const chatsRouter = createTRPCRouter({
                     userId: ctx.auth.user.id,
                     scenarioId: scenario.id,
                     title: scenario.title,
+                    assistantIcon: scenario.image,
                     assistantName: scenario.assistantName,
                     messages: [
                         {
