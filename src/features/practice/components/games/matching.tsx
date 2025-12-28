@@ -1,0 +1,118 @@
+"use client"
+
+import { useState, useEffect } from "react";
+import { usePracticeSession } from "../../hooks/use-practice-session";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+
+type MatchItem = {
+    id: string;
+    text: string;
+    type: 'german' | 'serbian';
+    wordId: string;
+    matched: boolean;
+};
+
+export function MatchingGame() {
+    const { selectedWords, endGame, incrementScore } = usePracticeSession();
+    const [items, setItems] = useState<MatchItem[]>([]);
+    const [selectedId, setSelectedId] = useState<string | null>(null);
+    const [wrongPair, setWrongPair] = useState<string[]>([]);
+
+    useEffect(() => {
+        // Take up to 6 pairs at a time to fit on screen
+        const currentBatch = selectedWords.slice(0, 6);
+        
+        const newItems: MatchItem[] = [];
+        currentBatch.forEach((word: any) => {
+            newItems.push({
+                id: `g-${word.id}`,
+                text: word.german,
+                type: 'german',
+                wordId: word.id,
+                matched: false
+            });
+            newItems.push({
+                id: `s-${word.id}`,
+                text: word.serbian,
+                type: 'serbian',
+                wordId: word.id,
+                matched: false
+            });
+        });
+
+        setItems(newItems.sort(() => 0.5 - Math.random()));
+    }, [selectedWords]);
+
+    const handleItemClick = (id: string) => {
+        if (wrongPair.length > 0) {
+            setWrongPair([]);
+            setSelectedId(null);
+        }
+
+        const clickedItem = items.find(i => i.id === id);
+        if (!clickedItem || clickedItem.matched) return;
+
+        if (selectedId === null) {
+            setSelectedId(id);
+        } else if (selectedId === id) {
+            setSelectedId(null);
+        } else {
+            const firstItem = items.find(i => i.id === selectedId);
+            if (!firstItem) return;
+
+            if (firstItem.wordId === clickedItem.wordId && firstItem.type !== clickedItem.type) {
+                // Match found
+                setItems(prev => prev.map(item =>
+                    (item.id === id || item.id === selectedId)
+                        ? { ...item, matched: true }
+                        : item
+                ));
+                incrementScore();
+                setSelectedId(null);
+
+                // Check if all matched
+                const allMatched = items.every(i => i.matched || (i.id === id || i.id === selectedId));
+                if (allMatched) {
+                    setTimeout(() => endGame(), 1000);
+                }
+            } else {
+                // Wrong match
+                setWrongPair([selectedId, id]);
+                setTimeout(() => {
+                    setWrongPair([]);
+                    setSelectedId(null);
+                }, 1000);
+            }
+        }
+    };
+
+    return (
+        <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-8">
+                <h2 className="text-2xl font-bold">Match the pairs</h2>
+                <p className="text-muted-foreground">Select a German word and its Serbian translation</p>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {items.map((item) => (
+                    <Button
+                        key={item.id}
+                        variant="outline"
+                        className={cn(
+                            "h-24 text-lg whitespace-normal p-2",
+                            item.matched && "invisible",
+                            selectedId === item.id && "border-primary bg-primary/10 ring-2 ring-primary",
+                            wrongPair.includes(item.id) && "border-destructive bg-destructive/10 text-destructive animate-shake"
+                        )}
+                        onClick={() => handleItemClick(item.id)}
+                        disabled={item.matched}
+                    >
+                        {item.text}
+                    </Button>
+                ))}
+            </div>
+        </div>
+    );
+}
+

@@ -26,7 +26,7 @@ import {usePathname, useRouter} from "next/navigation";
 import {authClient} from "@/lib/auth-client";
 import {useHasActiveSubscription} from "@/features/subscriptions/hooks/use-subscription";
 
-const menuItems = [
+export const menuItems = [
     {
         title: "Language Learning",
         items: [
@@ -39,6 +39,11 @@ const menuItems = [
                 title: "Grammar",
                 icon: BookOpenTextIcon,
                 url: "/grammar"
+            },
+            {
+                title: "Practice",
+                icon: StarIcon,
+                url: "/practice"
             },
             {
                 title: "Chat",

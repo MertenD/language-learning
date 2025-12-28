@@ -129,6 +129,24 @@ export const wordsRouter = createTRPCRouter({
                 hasNextPage,
                 hasPreviousPage
             }
+        }),
+    getAll: protectedProcedure
+        .input(z.object({
+            categoryId: z.string().optional().nullable()
+        }))
+        .query(async ({ ctx, input }) => {
+            const { categoryId } = input;
+            const effectiveCategoryId = categoryId === "" ? null : categoryId;
+
+            return prisma.word.findMany({
+                where: {
+                    userId: ctx.auth.user.id,
+                    categoryId: effectiveCategoryId
+                },
+                orderBy: {
+                    updatedAt: "desc"
+                }
+            });
         })
 })
 

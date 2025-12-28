@@ -66,6 +66,7 @@
     "date-fns": "^4.1.0",
     "dotenv": "^17.2.3",
     "embla-carousel-react": "^8.6.0",
+    "framer-motion": "^12.23.26",
     "inngest": "^3.46.0",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.553.0",
@@ -89,7 +90,8 @@
     "tailwind-merge": "^3.4.0",
     "uuid": "^13.0.0",
     "vaul": "^1.1.2",
-    "zod": "^4.1.12"
+    "zod": "^4.1.12",
+    "zustand": "^5.0.9"
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",

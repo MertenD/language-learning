@@ -16,7 +16,7 @@ export default function GrammarContainer({ children }: GrammarContainerProps) {
             search={<GrammarSearch />}
             pagination={<GrammarPagination />}
         >
-        {children}
-    </EntityContainer>
-)
+            {children}
+        </EntityContainer>
+    )
 }
