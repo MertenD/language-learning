@@ -1,13 +1,14 @@
 "use client"
 
 import {
-    BookAIcon,
-    BookOpenTextIcon,
+    BookOpenIcon,
     BotMessageSquareIcon,
+    BrainIcon,
     CreditCardIcon,
+    HomeIcon,
     LogOutIcon,
-    MessageSquareIcon,
-    StarIcon
+    StarIcon,
+    TargetIcon
 } from "lucide-react";
 import {
     Sidebar,
@@ -31,18 +32,23 @@ export const menuItems = [
         title: "Language Learning",
         items: [
             {
+                title: "Dashboard",
+                icon: HomeIcon,
+                url: "/dashboard"
+            },
+            {
                 title: "Vocabulary",
-                icon: BookAIcon,
+                icon: BookOpenIcon,
                 url: "/words"
             },
             {
                 title: "Grammar",
-                icon: BookOpenTextIcon,
+                icon: BrainIcon,
                 url: "/grammar"
             },
             {
                 title: "Practice",
-                icon: StarIcon,
+                icon: TargetIcon,
                 url: "/practice"
             },
             {
@@ -60,7 +66,7 @@ export default function AppSidebar() {
     const { hasActiveSubscription, isLoading } = useHasActiveSubscription()
 
     return <Sidebar collapsible="icon">
-        <SidebarHeader>
+        <SidebarHeader className="bg-card">
             <SidebarMenuItem>
                 <SidebarMenuButton asChild className="gap-x-4 h-10 px-4">
                     <Link href="/" prefetch>
@@ -70,7 +76,7 @@ export default function AppSidebar() {
                 </SidebarMenuButton>
             </SidebarMenuItem>
         </SidebarHeader>
-        <SidebarContent>
+        <SidebarContent className="bg-card">
             { menuItems.map(group =>
                 <SidebarGroup key={group.title}>
                     <SidebarGroupContent>
@@ -99,7 +105,7 @@ export default function AppSidebar() {
                 </SidebarGroup>
             )}
         </SidebarContent>
-        <SidebarFooter>
+        <SidebarFooter className="bg-card">
             <SidebarMenu>
                 {!hasActiveSubscription && !isLoading && (
                     <SidebarMenuItem>
