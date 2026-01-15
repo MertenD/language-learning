@@ -29,8 +29,12 @@ export default function MessageBubbleAi({ text, isStreaming, onExampleClick }: M
                     <BotIcon className="h-4 w-4 text-primary-foreground" />
                 </AvatarFallback>
             </Avatar>
-            <div className="flex flex-col w-4xl gap-3">
-                {chatAiAnswer.conversation && <MessageSection markdownContent={chatAiAnswer.conversation} />}
+            <div className="flex flex-col max-w-4xl gap-3 items-start">
+                {chatAiAnswer.conversation && (
+                    <div className="inline-block w-fit max-w-full">
+                        <MessageSection markdownContent={chatAiAnswer.conversation} />
+                    </div>
+                )}
                 {chatAiAnswer.explanation && <MessageSection markdownContent={chatAiAnswer.explanation} variant="explanation" isCollapsible />}
                 {chatAiAnswer.exampleAnswers && (
                     <ExampleAnswersSection content={chatAiAnswer.exampleAnswers} onExampleClick={onExampleClick} />
