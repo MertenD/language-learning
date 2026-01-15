@@ -1,5 +1,9 @@
 import UserStatCard from "@/features/dashboard/components/user-stat-card";
 import {BookOpenIcon, FlameIcon, TrophyIcon, ZapIcon} from "lucide-react";
+import WordProgressCard from "@/features/dashboard/components/word-progress-card";
+import RecentActivityCard from "@/features/dashboard/components/recent-activity-card";
+import ScenarioSuggestionCard from "@/features/dashboard/components/scenario-suggestion-card";
+import QuickActions from "@/features/dashboard/components/quick-actions";
 
 export default function AppDashboard() {
 
@@ -37,6 +41,19 @@ export default function AppDashboard() {
                 icon={<BookOpenIcon />}
                 chartColorNumber={4}
             />
+        </section>
+
+        <section className="grid gap-6 lg:grid-cols-3">
+            <WordProgressCard className="lg:col-span-2" />
+            <RecentActivityCard />
+        </section>
+
+        <section>
+            <ScenarioSuggestionCard />
+        </section>
+
+        <section>
+            <QuickActions />
         </section>
     </div>
 }
