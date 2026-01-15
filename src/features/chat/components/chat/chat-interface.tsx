@@ -19,9 +19,10 @@ type ChatInterfaceProps = {
     assistantName?: string
     initialMessages: UIMessage[]
     onTargetsStatusChange?: (targetsStatus: boolean[]) => void
+    chatHeaderTail?: React.ReactNode
 }
 
-export function ChatInterface({ chatId, assistantName, initialMessages, onTargetsStatusChange }: ChatInterfaceProps) {
+export function ChatInterface({ chatId, assistantName, initialMessages, onTargetsStatusChange, chatHeaderTail }: ChatInterfaceProps) {
     const scrollAreaRef = useRef<HTMLDivElement>(null)
     const [isOneMessageSent, setIsOneMessageSent] = useState(false)
 
@@ -71,7 +72,7 @@ export function ChatInterface({ chatId, assistantName, initialMessages, onTarget
 
     return (
         <div className="flex h-full w-full flex-col overflow-hidden">
-            <ChatHeader assistantName={assistantName || "Assistant"} isLoading={isLoading} />
+            <ChatHeader assistantName={assistantName || "Assistant"} isLoading={isLoading} chatHeaderTail={chatHeaderTail} />
 
             <div className="flex-1 min-h-0">
                 <ScrollArea ref={scrollAreaRef} className="h-full">
