@@ -1,15 +1,6 @@
 "use client"
 
-import {
-    BookOpenIcon,
-    BotMessageSquareIcon,
-    BrainIcon,
-    CreditCardIcon,
-    HomeIcon,
-    LogOutIcon,
-    StarIcon,
-    TargetIcon
-} from "lucide-react";
+import {BookOpenIcon, BotMessageSquareIcon, BrainIcon, HomeIcon, TargetIcon} from "lucide-react";
 import {
     Sidebar,
     SidebarContent,
@@ -17,15 +8,14 @@ import {
     SidebarGroup,
     SidebarGroupContent,
     SidebarHeader,
-    SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem
 } from "@/components/ui/sidebar";
 import Link from "next/link";
 import Image from "next/image";
-import {usePathname, useRouter} from "next/navigation";
-import {authClient} from "@/lib/auth-client";
-import {useHasActiveSubscription} from "@/features/subscriptions/hooks/use-subscription";
+import {usePathname} from "next/navigation";
+import {cn} from "@/lib/utils";
+import UserInfoCard from "@/features/auth/user-info-card";
 
 export const menuItems = [
     {
@@ -60,92 +50,59 @@ export const menuItems = [
     }
 ]
 
-export default function AppSidebar() {
-    const router = useRouter()
-    const pathName = usePathname()
-    const { hasActiveSubscription, isLoading } = useHasActiveSubscription()
+type AppSidebarProps = {
+    username: string
+}
 
-    return <Sidebar collapsible="icon">
+export default function AppSidebar({ username }: AppSidebarProps) {
+    const pathName = usePathname()
+
+    return <Sidebar>
         <SidebarHeader className="bg-card">
             <SidebarMenuItem>
                 <SidebarMenuButton asChild className="gap-x-4 h-10 px-4">
                     <Link href="/" prefetch>
                         <Image src="/logos/logo.svg" alt="App Icon" width={20} height={20} />
-                        <span className="font-semibold text-sm">Language Learning</span>
+                        <span className="font-semibold text-sm">EasyLingu</span>
                     </Link>
                 </SidebarMenuButton>
             </SidebarMenuItem>
         </SidebarHeader>
-        <SidebarContent className="bg-card">
+        <SidebarContent className="bg-card p-1">
             { menuItems.map(group =>
                 <SidebarGroup key={group.title}>
                     <SidebarGroupContent>
-                        <SidebarMenu>
-                            { group.items.map(item =>
-                                <SidebarMenuItem key={item.title}>
-                                    <SidebarMenuButton
-                                        tooltip={item.title}
-                                        isActive={
-                                            item.url === "/"
-                                                ? pathName === "/"
-                                                : pathName.startsWith(item.url)
-                                        }
-                                        asChild
-                                        className="gap-x-4 h-10 px-4"
+                        <nav className="flex-1 space-y-2">
+                            {group.items.map((item) => {
+                                const isActive = item.url === "/"
+                                    ? pathName === "/"
+                                    : pathName.startsWith(item.url)
+                                const Icon = item.icon
+
+                                return (
+                                    <Link
+                                        prefetch
+                                        key={item.url}
+                                        href={item.url}
+                                        className={cn(
+                                            "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                                            isActive
+                                                ? "bg-primary text-primary-foreground shadow-sm"
+                                                : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                                        )}
                                     >
-                                        <Link href={item.url} prefetch>
-                                            <item.icon className="size-4" />
-                                            <span>{item.title}</span>
-                                        </Link>
-                                    </SidebarMenuButton>
-                                </SidebarMenuItem>
-                            )}
-                        </SidebarMenu>
+                                        <Icon className="h-5 w-5" />
+                                        {item.title}
+                                    </Link>
+                                )
+                            })}
+                        </nav>
                     </SidebarGroupContent>
                 </SidebarGroup>
             )}
         </SidebarContent>
-        <SidebarFooter className="bg-card">
-            <SidebarMenu>
-                {!hasActiveSubscription && !isLoading && (
-                    <SidebarMenuItem>
-                        <SidebarMenuButton
-                            tooltip="Upgrade to Pro"
-                            className="gap-x-4 h-10 px-4"
-                            onClick={() => authClient.checkout({ slug: "pro" })}
-                        >
-                            <StarIcon className="h-4 w-4" />
-                            <span>Upgrade to Pro</span>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                )}
-                <SidebarMenuItem>
-                    <SidebarMenuButton
-                        tooltip="Billing Portal"
-                        className="gap-x-4 h-10 px-4"
-                        onClick={() => authClient.customer.portal()}
-                    >
-                        <CreditCardIcon className="h-4 w-4" />
-                        <span>Billing Portal</span>
-                    </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                    <SidebarMenuButton
-                        tooltip="Sign out"
-                        className="gap-x-4 h-10 px-4"
-                        onClick={() => authClient.signOut({
-                            fetchOptions: {
-                                onSuccess: () => {
-                                    router.push("/login")
-                                }
-                            }
-                        })}
-                    >
-                        <LogOutIcon className="h-4 w-4" />
-                        <span>Sign out</span>
-                    </SidebarMenuButton>
-                </SidebarMenuItem>
-            </SidebarMenu>
+        <SidebarFooter className="bg-card p-4">
+            <UserInfoCard username={username} />
         </SidebarFooter>
     </Sidebar>
 }

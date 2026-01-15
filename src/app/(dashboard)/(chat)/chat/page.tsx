@@ -13,6 +13,7 @@ import ScenariosContainer from "@/features/chat/components/scenarios/scenarios-c
 import ScenariosLoading from "@/features/chat/components/scenarios/scenarios-loading";
 import ScenariosError from "@/features/chat/components/scenarios/scenarios-error";
 import ScenariosList from "@/features/chat/components/scenarios/scenarios-list";
+import AppHeader from "@/components/app-header";
 
 type ChatPageProps = {
     searchParams: Promise<SearchParams>
@@ -21,29 +22,38 @@ type ChatPageProps = {
 export default async function ChatPage({ searchParams }: ChatPageProps) {
     await requireAuth()
 
+    const breadcrumbs = [
+        { title: 'Chat', url: '/chat' }
+    ]
+
     const chatsParams = await chatsParamsLoader(searchParams)
     prefetchChats(chatsParams)
 
     const scenariosParams = await scenariosParamsLoader(searchParams)
     prefetchScenarios(scenariosParams)
 
-    return <div className="flex flex-col">
-        <ChatsContainer>
-            <HydrateClient>
-                <ErrorBoundary fallback={<ChatsError />}>
-                    <Suspense fallback={<ChatsLoading />}>
-                        <ChatsList />
-                    </Suspense>
-                </ErrorBoundary>
-            </HydrateClient>
-        </ChatsContainer>
-        <ScenariosContainer>
-            <ErrorBoundary fallback={<ScenariosError />}>
-                <Suspense fallback={<ScenariosLoading />}>
-                    <ScenariosList />
-                </Suspense>
-            </ErrorBoundary>
-        </ScenariosContainer>
-    </div>
+    return <>
+        <AppHeader breadcrumbs={breadcrumbs} />
+        <main className="flex-1 min-h-0">
+            <div className="flex flex-col">
+                <ChatsContainer>
+                    <HydrateClient>
+                        <ErrorBoundary fallback={<ChatsError />}>
+                            <Suspense fallback={<ChatsLoading />}>
+                                <ChatsList />
+                            </Suspense>
+                        </ErrorBoundary>
+                    </HydrateClient>
+                </ChatsContainer>
+                <ScenariosContainer>
+                    <ErrorBoundary fallback={<ScenariosError />}>
+                        <Suspense fallback={<ScenariosLoading />}>
+                            <ScenariosList />
+                        </Suspense>
+                    </ErrorBoundary>
+                </ScenariosContainer>
+            </div>
+        </main>
+    </>
 }
 

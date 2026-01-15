@@ -21,7 +21,7 @@ export default function AppHeader({ breadcrumbs }: AppHeaderProps) {
                         {breadcrumbs.map((crumb, index) => (
                             <React.Fragment key={crumb.url}>
                                 <BreadcrumbItem>
-                                    <BreadcrumbLink href={crumb.url}>
+                                    <BreadcrumbLink href={crumb.url} className="text-lg font-semibold">
                                         {crumb.title}
                                     </BreadcrumbLink>
                                 </BreadcrumbItem>

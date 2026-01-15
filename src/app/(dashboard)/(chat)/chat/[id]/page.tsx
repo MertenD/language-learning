@@ -4,6 +4,7 @@ import {redirect} from "next/navigation";
 import {ChatInterface} from "@/features/chat/components/chat/chat-interface";
 import ScenarioChatPage from "@/features/chat/components/chat/scenario/scenario-chat-page";
 import prisma from "@/lib/db";
+import AppHeader from "@/components/app-header";
 
 export default async function ChatPage({ params }: { params: Promise<{ id: string }> }) {
     const session = await requireAuthAndPremium("/chat")
@@ -34,14 +35,32 @@ export default async function ChatPage({ params }: { params: Promise<{ id: strin
             </div>
         }
 
-        return <main className="h-full">
-            <ScenarioChatPage chat={chat} scenario={scenario} />
-        </main>
+        const breadcrumbs = [
+            { title: 'Chat', url: '/chat' },
+            { title: scenario.title, url: `/chat/${chat.id}` }
+        ]
+
+        return <>
+            <AppHeader breadcrumbs={breadcrumbs} />
+            <main className="flex-1 min-h-0">
+                <div className="h-full">
+                    <ScenarioChatPage chat={chat} scenario={scenario} />
+                </div>
+            </main>
+        </>
     }
 
-    return (
-        <main className="h-full">
-            <ChatInterface assistantName={chat.assistantName} chatId={chat.id} initialMessages={chat.messages} />
+    const breadcrumbs = [
+        { title: 'Chat', url: '/chat' },
+        { title: chat.assistantName, url: `/chat/${chat.id}` }
+    ]
+
+    return <>
+        <AppHeader breadcrumbs={breadcrumbs} />
+        <main className="flex-1 min-h-0">
+            <div className="flex-1 h-full">
+                <ChatInterface assistantName={chat.assistantName} chatId={chat.id} initialMessages={chat.messages} />
+            </div>
         </main>
-    )
+    </>
 }
