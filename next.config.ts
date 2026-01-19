@@ -12,6 +12,7 @@ const nextConfig: NextConfig = {
     ]
   },
   devIndicators: false,
+  output: "standalone"
 };
 
 export default withSentryConfig(nextConfig, {

@@ -1,0 +1,15 @@
+services:
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        INNGEST_APP_ID: ${INNGEST_APP_ID}
+        POLAR_SERVER: ${POLAR_SERVER}
+        POLAR_SUCCESS_URL: ${POLAR_SUCCESS_URL}
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
