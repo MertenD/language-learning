@@ -3,7 +3,7 @@ services:
   app:
     labels:
       - traefik.enable=true
-      - traefik.http.routers.language-learning.rule=Host(`www.easylingu.mertendieckmann.de`) || Host(`easylingu.mertendieckmann.de`)
+      - traefik.http.routers.language-learning.rule=Host(`www.easylingu.de`) || Host(`easylingu.de`)
       - traefik.http.routers.language-learning.entrypoints=websecure
       - traefik.http.routers.language-learning.tls=true
       - traefik.http.routers.language-learning.tls.certresolver=le-merten
