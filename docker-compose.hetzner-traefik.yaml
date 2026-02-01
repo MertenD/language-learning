@@ -3,13 +3,21 @@ services:
   app:
     labels:
       - traefik.enable=true
-      - traefik.http.routers.language-learning.rule=Host(`www.easylingu.de`) || Host(`easylingu.de`)
+      - traefik.http.routers.language-learning.rule=Host(`www.easylingu.com`) || Host(`easylingu.com`)
       - traefik.http.routers.language-learning.entrypoints=websecure
       - traefik.http.routers.language-learning.tls=true
       - traefik.http.routers.language-learning.tls.certresolver=le-merten
       - traefik.docker.network=web
       - traefik.http.services.language-learning.loadbalancer.server.port=3000
       - com.centurylinklabs.watchtower.enable=true
+    networks:
+      - web
+
+  inngest:
+    networks:
+      - web
+
+  redis:
     networks:
       - web
 
