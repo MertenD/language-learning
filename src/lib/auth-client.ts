@@ -1,8 +1,17 @@
 import {createAuthClient} from "better-auth/react";
 import {polarClient} from "@polar-sh/better-auth";
+import {inferAdditionalFields} from "better-auth/client/plugins";
 
 export const authClient = createAuthClient({
     plugins: [
-        polarClient()
+        polarClient(),
+        inferAdditionalFields({
+            user: {
+                nativeLanguage: {
+                    type: "string",
+                    required: true
+                }
+            }
+        })
     ]
 })

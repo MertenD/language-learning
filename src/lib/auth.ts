@@ -16,6 +16,14 @@ export const auth = betterAuth({
         enabled: true,
         autoSignIn: true
     },
+    user: {
+        additionalFields: {
+            nativeLanguage: {
+                type: "string",
+                required: true
+            }
+        }
+    },
     plugins: [
         polar({
             client: polarClient,
