@@ -3,6 +3,7 @@ import {prismaAdapter} from "better-auth/adapters/prisma";
 import prisma from "@/lib/db";
 import { polarClient } from "./polar";
 import {checkout, polar, portal} from "@polar-sh/better-auth";
+import {ActivityType} from "@/generated/prisma/enums";
 
 if (!process.env.POLAR_SUCCESS_URL) {
     throw Error("Environment variable POLAR_SUCCESS_URL must be set!")
@@ -18,7 +19,7 @@ export const auth = betterAuth({
     },
     user: {
         additionalFields: {
-            nativeLanguage: {
+            languageId: {
                 type: "string",
                 required: true
             }
@@ -27,7 +28,7 @@ export const auth = betterAuth({
     plugins: [
         polar({
             client: polarClient,
-            createCustomerOnSignUp: true,
+            createCustomerOnSignUp: false, // Is created manually in the user create hook below
             use: [
                 checkout({
                     // TODO Change these products to your products from polar
@@ -43,5 +44,72 @@ export const auth = betterAuth({
                 portal()
             ]
         })
-    ]
+    ],
+    databaseHooks: {
+        user: {
+            create: {
+                after: async (user) => {
+                    const targetLanguageId = "1" // TODO: Hier die richtige Language Logik einfügen
+                    let polarCustomer = null
+
+                    try {
+                        await prisma.userLanguage.create({
+                            data: {
+                                user: {
+                                    connect: {
+                                        id: user.id
+                                    }
+                                },
+                                language: {
+                                    connect: {
+                                        id: targetLanguageId
+                                    }
+                                },
+                                stats: {
+                                    create: {
+                                        streakStartedAt: new Date(),
+                                        lastActivityAt: new Date(),
+                                    }
+                                },
+                                activities: {
+                                    create: {
+                                        type: ActivityType.LANGUAGE_STARTED,
+                                        timestamp: new Date()
+                                    }
+                                }
+                            }
+                        })
+
+                        polarCustomer = await polarClient.customers.create({
+                            externalId: user.id,
+                            email: user.email,
+                            name: user.name
+                        })
+                    } catch (error) {
+                        console.error("Error creating user language or polar customer:", error)
+
+                        // Rollback: Delete the created user language and polar customer if they were created
+
+                        if (polarCustomer) {
+                            try {
+                                await polarClient.customers.delete({
+                                    id: polarCustomer.id
+                                })
+                            } catch (polarError) {
+                                console.error("Error rolling back polar customer:", polarError)
+                            }
+                        }
+
+                        await prisma.user.delete({
+                            where: {
+                                id: user.id
+                            }
+                        })
+
+                        throw error
+                    }
+                }
+            }
+        }
+    }
 })

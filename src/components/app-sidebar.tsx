@@ -16,6 +16,7 @@ import Image from "next/image";
 import {usePathname} from "next/navigation";
 import {cn} from "@/lib/utils";
 import UserInfoCard from "@/features/auth/user-info-card";
+import {LanguageSwitcher} from "@/components/language-switch";
 
 export const menuItems = [
     {
@@ -67,6 +68,8 @@ export default function AppSidebar({ username }: AppSidebarProps) {
                     </Link>
                 </SidebarMenuButton>
             </SidebarMenuItem>
+
+            <LanguageSwitcher />
         </SidebarHeader>
         <SidebarContent className="bg-card p-1">
             { menuItems.map(group =>

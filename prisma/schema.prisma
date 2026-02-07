@@ -18,14 +18,8 @@ datasource db {
  * Enums
  */
 
-enum Language {
-  GERMAN
-  SERBIAN
-  ENGLISH
-  HUNGARIAN
-}
-
 enum ActivityType {
+  LANGUAGE_STARTED
   VOCABULARY_ADDED
   VOCABULARY_MASTERED
   NEW_VOCABULARY_LEARNED
@@ -36,6 +30,26 @@ enum ActivityType {
   GRAMMAR_ADDED
   LEVEL_UP
   WORD_CATEGORY_CREATED
+}
+
+/**
+ * General
+ */
+
+model Language {
+  id        String   @id @default(cuid())
+  code      String   @unique
+  name      String
+  flagEmoji String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users          User[]
+  userLanguages  UserLanguage[]
+  wordCategories WordCategory[]
+  words          Word[]
+  chats          Chat[]
+  scenarios      Scenario[]
 }
 
 /**
@@ -106,31 +120,33 @@ model User {
   grammar        Grammar[]
   chats          Chat[]
   languages      UserLanguage[]
-  nativeLanguage Language
+  nativeLanguage Language       @relation(fields: [languageId], references: [id])
+  languageId     String
 
   @@unique([email])
   @@map("user")
 }
 
 model UserLanguage {
-  id       String   @id @default(cuid())
-  userId   String
-  language Language
-  statsId  String
+  id         String @id @default(cuid())
+  userId     String
+  languageId String
+  statsId    String
 
   user       User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
   stats      UserLanguageStats      @relation(fields: [statsId], references: [id], onDelete: Cascade)
   activities UserLanguageActivity[]
   words      Word[]
+  language   Language               @relation(fields: [languageId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  @@unique([userId, language])
+  @@unique([userId, languageId])
 }
 
 model UserLanguageStats {
-  id              String         @id
+  id              String         @id @default(cuid())
   streakStartedAt DateTime
   lastActivityAt  DateTime
   xp              Int            @default(0)
@@ -141,7 +157,7 @@ model UserLanguageStats {
 }
 
 model UserLanguageActivity {
-  id             String       @id
+  id             String       @id @default(cuid())
   type           ActivityType
   timestamp      DateTime     @default(now())
   userLanguageId String
@@ -156,14 +172,14 @@ model UserLanguageActivity {
  */
 
 model Word {
-  id            String   @id
+  id            String   @id @default(cuid())
   primary       String
   primaryInfo   String?
   secondary     String
   secondaryInfo String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-  language      Language
+  language      Language @relation(fields: [languageId], references: [id])
   examples      String[] @default([])
 
   userId String
@@ -175,12 +191,13 @@ model Word {
   progress       WordProgress?
   userLanguage   UserLanguage? @relation(fields: [userLanguageId], references: [id])
   userLanguageId String?
+  languageId     String
 }
 
 model WordCategory {
-  id       String   @id
+  id       String   @id @default(cuid())
   name     String
-  language Language
+  language Language @relation(fields: [languageId], references: [id])
 
   parentId String?
   parent   WordCategory?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
@@ -191,12 +208,13 @@ model WordCategory {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  languageId String
 }
 
 model WordProgress {
-  id             String    @id
+  id             String    @id @default(cuid())
   wordId         String    @unique
   level          Int       @default(0)
   intervalDays   Int       @default(0)
@@ -217,7 +235,7 @@ model WordProgress {
  */
 
 model Grammar {
-  id        String   @id
+  id        String   @id @default(cuid())
   title     String
   content   String
   createdAt DateTime @default(now())
@@ -232,13 +250,13 @@ model Grammar {
  */
 
 model Chat {
-  id             String   @id
+  id             String   @id @default(cuid())
   title          String?
   messages       Json     @default("[]")
   assistantName  String   @default("Assistant")
   assistantIcon  String?
   activeStreamId String?
-  language       Language
+  language       Language @relation(fields: [languageId], references: [id])
 
   scenarioId    String?
   scenario      Scenario? @relation(fields: [scenarioId], references: [id])
@@ -247,18 +265,19 @@ model Chat {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  languageId String
 
   @@index([userId])
   @@map("chat")
 }
 
 model Scenario {
-  id                    String   @id
+  id                    String   @id @default(cuid())
   title                 String
   description           String
-  language              Language
+  language              Language @relation(fields: [languageId], references: [id])
   image                 String
   assistantName         String   @default("Assistant")
   assistantInstructions String
@@ -267,5 +286,6 @@ model Scenario {
   createdAt             DateTime @default(now())
   updatedAt             DateTime @default(now()) @updatedAt
 
-  chats Chat[]
+  chats      Chat[]
+  languageId String
 }

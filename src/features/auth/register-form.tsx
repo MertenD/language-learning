@@ -12,7 +12,6 @@ import Link from "next/link";
 import {authClient} from "@/lib/auth-client";
 import {toast} from "sonner";
 import Image from "next/image";
-import {Language} from "@/generated/prisma/enums";
 
 const registerSchema = z.object({
     email: z.email("Please enter a valid email address"),
@@ -44,7 +43,7 @@ export default function RegisterForm() {
             password: values.password,
             callbackURL: "/",
             // TODO Make nativeLanguage selectable in the form
-            nativeLanguage: Language.GERMAN
+            languageId: "0"
         }, {
             onSuccess: () => {
                 // TODO Populate UserLanguage Table and Stats after registration. Therefore the user should select target language as well i registration form

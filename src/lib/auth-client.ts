@@ -7,7 +7,7 @@ export const authClient = createAuthClient({
         polarClient(),
         inferAdditionalFields({
             user: {
-                nativeLanguage: {
+                languageId: {
                     type: "string",
                     required: true
                 }
