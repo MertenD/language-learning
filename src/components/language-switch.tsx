@@ -3,7 +3,7 @@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { ChevronDown, Check } from "lucide-react"
 import { cn } from "@/lib/utils"
-import {useLanguage} from "@/hooks/use-language";
+import {useLanguage} from "@/features/user/hooks/use-language";
 
 export function LanguageSwitcher() {
     const { currentLanguage, availableLanguages, setCurrentLanguage } = useLanguage()

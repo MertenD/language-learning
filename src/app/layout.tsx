@@ -6,7 +6,7 @@ import {ReactQueryDevtools} from "@tanstack/react-query-devtools";
 import {Toaster} from "sonner";
 import React from "react";
 import {NuqsAdapter} from "nuqs/adapters/next/app";
-import {LanguageProvider} from "@/hooks/use-language";
+import {LanguageProvider} from "@/features/user/hooks/use-language";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

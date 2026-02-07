@@ -5,6 +5,7 @@ import {CreditCardIcon, LogOutIcon, StarIcon} from "lucide-react";
 import {authClient} from "@/lib/auth-client";
 import {useRouter} from "next/navigation";
 import {useHasActiveSubscription} from "@/features/subscriptions/hooks/use-subscription";
+import {useSuspenseLanguageStats} from "@/features/user/hooks/use-stats";
 
 type UserInfoCardProps = {
     username: string
@@ -13,6 +14,7 @@ type UserInfoCardProps = {
 export default function UserInfoCard({ username }: UserInfoCardProps) {
     const router = useRouter()
     const { hasActiveSubscription, isLoading } = useHasActiveSubscription()
+    const { data: stats, isFetching } = useSuspenseLanguageStats()
 
     return <div className="rounded-lg border bg-linear-to-br from-chart-1/10 to-chart-2/10 p-4">
         <div className="space-y-3">
@@ -22,7 +24,11 @@ export default function UserInfoCard({ username }: UserInfoCardProps) {
                 </div>
                 <div className="flex-1">
                     <p className="text-sm font-semibold">{username}</p>
-                    <p className="text-xs text-muted-foreground">Level 8</p>
+                    <p className="text-xs text-muted-foreground">Level {
+                        !stats || isFetching ? (
+                            <span className="inline-block h-3 w-6 animate-pulse rounded-xl bg-chart-1/10" />
+                        ) : stats.level
+                    }</p>
                 </div>
             </div>
 

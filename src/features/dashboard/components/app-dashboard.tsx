@@ -1,9 +1,8 @@
-import UserStatCard from "@/features/dashboard/components/user-stat-card";
-import {BookOpenIcon, FlameIcon, TrophyIcon, ZapIcon} from "lucide-react";
 import WordProgressCard from "@/features/dashboard/components/word-progress-card";
 import RecentActivityCard from "@/features/dashboard/components/recent-activity-card";
 import ScenarioSuggestionCard from "@/features/dashboard/components/scenario-suggestion-card";
 import QuickActions from "@/features/dashboard/components/quick-actions";
+import UserStats from "@/features/dashboard/components/user-stats";
 
 export default function AppDashboard() {
 
@@ -13,35 +12,7 @@ export default function AppDashboard() {
             <p className="text-lg text-muted-foreground text-pretty">Du macht großartige Fortschritte. Weiter so!</p>
         </div>
 
-        <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <UserStatCard
-                title="Streak"
-                value="15 Tage"
-                icon={<FlameIcon />}
-                chartColorNumber={1}
-            />
-
-            <UserStatCard
-                title="XP Points"
-                value="3240"
-                icon={<ZapIcon />}
-                chartColorNumber={2}
-            />
-
-            <UserStatCard
-                title="Level"
-                value="3"
-                icon={<TrophyIcon />}
-                chartColorNumber={3}
-            />
-
-            <UserStatCard
-                title="Vocabulary"
-                value="284"
-                icon={<BookOpenIcon />}
-                chartColorNumber={4}
-            />
-        </section>
+        <UserStats />
 
         <section className="grid gap-6 lg:grid-cols-3">
             <WordProgressCard className="lg:col-span-2" />

@@ -131,10 +131,9 @@ model UserLanguage {
   id         String @id @default(cuid())
   userId     String
   languageId String
-  statsId    String
 
   user       User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  stats      UserLanguageStats      @relation(fields: [statsId], references: [id], onDelete: Cascade)
+  stats      UserLanguageStats?
   activities UserLanguageActivity[]
   words      Word[]
   language   Language               @relation(fields: [languageId], references: [id])
@@ -146,14 +145,17 @@ model UserLanguage {
 }
 
 model UserLanguageStats {
-  id              String         @id @default(cuid())
+  id              String   @id @default(cuid())
   streakStartedAt DateTime
   lastActivityAt  DateTime
-  xp              Int            @default(0)
-  level           Int            @default(1)
-  userLanguages   UserLanguage[]
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @default(now()) @updatedAt
+  xp              Int      @default(0)
+  level           Int      @default(1)
+
+  userLanguageId String       @unique
+  userLanguage   UserLanguage @relation(fields: [userLanguageId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model UserLanguageActivity {

@@ -21,7 +21,7 @@ export const useCreateWord = () => {
 
     return useMutation(trpc.words.create.mutationOptions({
         onSuccess: (data) => {
-            toast.success(`Vocabulary "${data.german}" created`)
+            toast.success(`Vocabulary "${data.primary}" created`)
             queryClient.invalidateQueries(
                 trpc.words.getMany.queryOptions({})
             )
@@ -41,7 +41,7 @@ export const useUpdateWord = () => {
 
     return useMutation(trpc.words.update.mutationOptions({
         onSuccess: (data) => {
-            toast.success(`Vocabulary "${data.german}" updated`)
+            toast.success(`Vocabulary "${data.primary}" updated`)
             queryClient.invalidateQueries(
                 trpc.words.getMany.queryOptions({})
             )
@@ -64,7 +64,7 @@ export const useRemoveWord = () => {
 
     return useMutation(trpc.words.remove.mutationOptions({
         onSuccess: (data) => {
-            toast.success(`Vocabulary "${data.german}" deleted`)
+            toast.success(`Vocabulary "${data.primary}" deleted`)
             queryClient.invalidateQueries(
                 trpc.words.getMany.queryOptions({})
             )

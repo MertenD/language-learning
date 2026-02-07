@@ -3,12 +3,13 @@ import React from "react";
 
 type UserStatCardProps = {
     title: string
-    value: string
+    value: string | number | undefined
     icon: React.ReactNode
     chartColorNumber?: 1 | 2 | 3 | 4 | 5
+    isLoading?: boolean
 }
 
-export default function UserStatCard({ title, value, icon, chartColorNumber }: UserStatCardProps) {
+export default function UserStatCard({ title, value, icon, chartColorNumber, isLoading }: UserStatCardProps) {
     const getColorClasses = (colorNumber: number | undefined) => {
         switch (colorNumber) {
             case 1:
@@ -56,7 +57,11 @@ export default function UserStatCard({ title, value, icon, chartColorNumber }: U
         <CardContent className="flex items-center justify-between p-6">
             <div className="space-y-1">
                 <p className="text-sm font-medium text-muted-foreground">{title}</p>
-                <p className={`text-3xl font-bold ${colors.text}`}>{value}</p>
+                {isLoading ? (
+                    <div className="h-8 w-32 bg-muted/50 rounded-md animate-pulse mt-2"></div>
+                ) : (
+                    <p className={`text-3xl font-bold ${colors.text}`}>{value}</p>
+                )}
             </div>
             <div className={`flex h-12 w-12 items-center justify-center rounded-full ${colors.bg}`}>
                 { icon && <span className={`h-6 w-6 ${colors.text}`}>{icon}</span>}
