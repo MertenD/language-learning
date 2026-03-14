@@ -22,9 +22,9 @@ interface LanguageProviderProps {
 
 export function LanguageProvider({ children }: LanguageProviderProps) {
     const trpc = useTRPC()
-    const { data: session, isPending: isSessionLoading } = authClient.useSession()
+    const { data: session, isPending: isSessionLoading, refetch: refetchSession } = authClient.useSession()
 
-    const { data: languages, isLoading: isLanguagesLoading } = useQuery(
+    const { data: languages, isLoading: isLanguagesLoading, refetch: refetchLanguages } = useQuery(
         trpc.user.getLanguages.queryOptions()
     )
 
@@ -38,6 +38,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
 
         let foundLanguage: Language | undefined
 
+        // Try to match session language
         if (session?.user?.currentLanguageId) {
              const sessionLanguage = availableLanguages.find(l => l.id === session.user.currentLanguageId)
              if (sessionLanguage) {
@@ -45,21 +46,40 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
              }
         }
 
+        // Fallback to first available language if session language not found or not set
         if (!foundLanguage && availableLanguages.length > 0) {
             foundLanguage = availableLanguages[0]
         }
 
-        if (foundLanguage && currentLanguage?.id !== foundLanguage.id) {
-            setCurrentLanguageState(foundLanguage)
+        // Only update state if:
+        // 1. We haven't set a language yet (initial load)
+        // 2. The session language has changed and doesn't match our current state (e.g. external update)
+        // We avoid resetting if the user just clicked switch (optimistic update) by relying on session prop update
+        if (foundLanguage && (!currentLanguage || (session?.user?.currentLanguageId && currentLanguage.id !== session.user.currentLanguageId && currentLanguage.id !== foundLanguage.id))) {
+             if (currentLanguage?.id !== foundLanguage.id) {
+                 setCurrentLanguageState(foundLanguage)
+             }
         }
 
-    }, [availableLanguages, session, currentLanguage])
+    }, [availableLanguages, session])
 
-    const setLanguageMutation = useMutation(trpc.user.setLanguage.mutationOptions({
+    // Refetch languages when session becomes available to ensure we have data
+    useEffect(() => {
+        if (session?.user) {
+            refetchLanguages()
+        }
+    }, [session?.user?.id, refetchLanguages])
+
+    const setLanguageMutation = useMutation({
+        ...trpc.user.setLanguage.mutationOptions(),
+        onSuccess: () => {
+             // Invalidate session to reflect the language change
+             refetchSession()
+        },
         onError: (error) => {
             toast.error("Failed to change language: " + error.message)
         }
-    }))
+    })
 
     const setCurrentLanguage = (language: Language) => {
         setCurrentLanguageState(language)
@@ -87,4 +107,3 @@ export function useLanguage() {
     }
     return context
 }
-

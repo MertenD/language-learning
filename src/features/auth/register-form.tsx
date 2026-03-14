@@ -12,14 +12,22 @@ import Link from "next/link";
 import {authClient} from "@/lib/auth-client";
 import {toast} from "sonner";
 import Image from "next/image";
+import {useTRPC} from "@/trpc/client";
+import {useQuery} from "@tanstack/react-query";
+import {ComboboxLanguage} from "@/components/combobox-language";
 
 const registerSchema = z.object({
     email: z.email("Please enter a valid email address"),
     password: z.string().min(1, "Password is required").min(8, "Password must be at least 8 characters long"),
-    confirmPassword: z.string()
+    confirmPassword: z.string(),
+    nativeLanguageId: z.string().min(1, "Please select your native language"),
+    targetLanguageId: z.string().min(1, "Please select the language you want to learn")
 }).refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["confirmPassword"]
+}).refine((data) => data.nativeLanguageId !== data.targetLanguageId, {
+    message: "Native and target languages must be different",
+    path: ["targetLanguageId"]
 })
 
 type RegisterFormValues = z.infer<typeof registerSchema>
@@ -27,12 +35,17 @@ type RegisterFormValues = z.infer<typeof registerSchema>
 export default function RegisterForm() {
 
     const router = useRouter();
+    const trpc = useTRPC();
+    const { data: languages, isLoading: isLanguagesLoading } = useQuery(trpc.user.getAvailableLanguages.queryOptions());
+
     const form = useForm<RegisterFormValues>({
         resolver: zodResolver(registerSchema),
         defaultValues: {
             email: "",
             password: "",
-            confirmPassword: ""
+            confirmPassword: "",
+            nativeLanguageId: "",
+            targetLanguageId: ""
         }
     })
 
@@ -42,11 +55,11 @@ export default function RegisterForm() {
             email: values.email,
             password: values.password,
             callbackURL: "/",
-            // TODO Make nativeLanguage selectable in the form
-            nativeLanguageId: "0"
+            nativeLanguageId: values.nativeLanguageId,
+            currentLanguageId: values.targetLanguageId
         }, {
             onSuccess: () => {
-                // TODO Populate UserLanguage Table and Stats after registration. Therefore the user should select target language as well i registration form
+                // User language creation is handled by database hook in auth.ts
                 router.push("/")
             },
             onError: (context) => {
@@ -143,6 +156,46 @@ export default function RegisterForm() {
                                         </FormItem>
                                     )}
                                 />
+
+                                 <FormField
+                                    control={form.control}
+                                    name="nativeLanguageId"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Native Language</FormLabel>
+                                            <FormControl>
+                                                <ComboboxLanguage
+                                                    languages={languages || []}
+                                                    value={field.value}
+                                                    onChange={field.onChange}
+                                                    placeholder="Select native language..."
+                                                    disabled={isLanguagesLoading}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="targetLanguageId"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Learning Language</FormLabel>
+                                            <FormControl>
+                                                <ComboboxLanguage
+                                                    languages={languages || []}
+                                                    value={field.value}
+                                                    onChange={field.onChange}
+                                                    placeholder="Select target language..."
+                                                    disabled={isLanguagesLoading}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
                                 <Button type="submit" className="w-full" disabled={isPending}>
                                     Sign up
                                 </Button>

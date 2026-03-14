@@ -1,8 +1,14 @@
-import {createTRPCRouter, protectedProcedure} from "@/trpc/init";
+import {createTRPCRouter, protectedProcedure, baseProcedure} from "@/trpc/init";
 import {z} from "zod";
 import prisma from "@/lib/db";
+import {ActivityType} from "@/generated/prisma/enums";
 
 export const userRouter = createTRPCRouter({
+    getAvailableLanguages: baseProcedure
+        .query(async () => {
+             return prisma.language.findMany();
+        }),
+
     getLanguageStats: protectedProcedure
         .input(z.object({ languageId: z.string().min(1) }))
         .query(async ({ ctx, input }) => {
@@ -105,6 +111,81 @@ export const userRouter = createTRPCRouter({
                 },
                 data: {
                     currentLanguageId: input.languageId
+                }
+            })
+        }),
+
+    addLanguage: protectedProcedure
+        .input(z.object({ languageId: z.string().min(1) }))
+        .mutation(async ({ ctx, input }) => {
+            // Check if language exists
+            const existingLanguage = await prisma.userLanguage.findUnique({
+                where: {
+                    userId_languageId: {
+                        userId: ctx.auth.user.id,
+                        languageId: input.languageId
+                    }
+                }
+            })
+
+            if (existingLanguage) {
+                // Already added
+                return;
+            }
+
+            await prisma.userLanguage.create({
+                data: {
+                    userId: ctx.auth.user.id,
+                    languageId: input.languageId,
+                    stats: {
+                        create: {
+                            streakStartedAt: new Date(),
+                            lastActivityAt: new Date(),
+                        }
+                    },
+                    activities: {
+                        create: {
+                            type: ActivityType.LANGUAGE_STARTED,
+                            timestamp: new Date()
+                        }
+                    }
+                }
+            })
+        }),
+
+    removeLanguage: protectedProcedure
+        .input(z.object({ languageId: z.string().min(1) }))
+        .mutation(async ({ ctx, input }) => {
+            const user = await prisma.user.findUnique({
+                where: { id: ctx.auth.user.id },
+                include: { languages: true }
+            })
+
+            if (!user) return;
+
+            // Prevent removing native language? Maybe not necessary as native language is separate field.
+            // Check if user has other languages
+            if (user.languages.length <= 1) {
+                throw new Error("Cannot remove the only language.")
+            }
+
+            // If removing current language, switch to another one
+            if (user.currentLanguageId === input.languageId) {
+                const otherLanguage = user.languages.find(l => l.languageId !== input.languageId)
+                if (otherLanguage) {
+                    await prisma.user.update({
+                        where: { id: user.id },
+                        data: { currentLanguageId: otherLanguage.languageId }
+                    })
+                }
+            }
+
+            await prisma.userLanguage.delete({
+                where: {
+                   userId_languageId: {
+                       userId: ctx.auth.user.id,
+                       languageId: input.languageId
+                   }
                 }
             })
         })
