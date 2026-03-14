@@ -83,7 +83,6 @@ export default function RecentActivityCard() {
                                 <p className="text-sm font-medium leading-tight">
                                     {getActivityTitle(activity.type)}
                                 </p>
-                                {/* Falls später Kategorien oder Details hinzugefügt werden, können diese hier als Untertitel stehen */}
                                 <div className="flex items-center gap-1 text-xs text-muted-foreground">
                                     <ClockIcon className="h-3 w-3" />
                                     {formatDistanceToNow(new Date(activity.timestamp), { addSuffix: true, locale: de })}

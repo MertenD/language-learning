@@ -4,7 +4,7 @@ import {createContext, ReactNode, useContext, useEffect, useState} from "react";
 import {Language} from "@/generated/prisma/client";
 import {authClient} from "@/lib/auth-client";
 import {useTRPC} from "@/trpc/client";
-import {useMutation, useQuery} from "@tanstack/react-query";
+import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {toast} from "sonner";
 
 interface LanguageContextType {
@@ -22,6 +22,7 @@ interface LanguageProviderProps {
 
 export function LanguageProvider({ children }: LanguageProviderProps) {
     const trpc = useTRPC()
+    const queryClient = useQueryClient()
     const { data: session, isPending: isSessionLoading, refetch: refetchSession } = authClient.useSession()
 
     const { data: languages, isLoading: isLanguagesLoading, refetch: refetchLanguages } = useQuery(
@@ -72,9 +73,11 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
 
     const setLanguageMutation = useMutation({
         ...trpc.user.setLanguage.mutationOptions(),
-        onSuccess: () => {
+        onSuccess: async () => {
              // Invalidate session to reflect the language change
-             refetchSession()
+             await refetchSession()
+             // Invalidate all queries to refresh data dependent on language
+             await queryClient.invalidateQueries()
         },
         onError: (error) => {
             toast.error("Failed to change language: " + error.message)
