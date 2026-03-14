@@ -25,7 +25,7 @@ export const auth = betterAuth({
             },
             currentLanguageId: {
                 type: "string",
-                required: false
+                required: true
             }
         }
     },
@@ -53,7 +53,7 @@ export const auth = betterAuth({
         user: {
             create: {
                 after: async (user) => {
-                    const targetLanguageId = user.currentLanguageId || "1"
+                    const targetLanguageId = (user.currentLanguageId || "1") as string
                     let polarCustomer = null
 
                     try {

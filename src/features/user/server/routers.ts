@@ -9,6 +9,38 @@ export const userRouter = createTRPCRouter({
              return prisma.language.findMany();
         }),
 
+    getRecentActivities: protectedProcedure
+        .input(z.object({ languageId: z.string().min(1) }))
+        .query(async ({ ctx, input }) => {
+            const userLanguage = await prisma.userLanguage.findUnique({
+                where: {
+                    userId_languageId: {
+                        userId: ctx.auth.user.id,
+                        languageId: input.languageId
+                    }
+                },
+                select: { id: true }
+            })
+
+            if (!userLanguage) return []
+
+            const activities = await prisma.userLanguageActivity.findMany({
+                where: {
+                    userLanguageId: userLanguage.id
+                },
+                orderBy: {
+                    timestamp: "desc"
+                },
+                take: 5
+            })
+
+            return activities.map(activity => ({
+                id: activity.id,
+                type: activity.type,
+                timestamp: activity.timestamp
+            }))
+        }),
+
     getLanguageStats: protectedProcedure
         .input(z.object({ languageId: z.string().min(1) }))
         .query(async ({ ctx, input }) => {

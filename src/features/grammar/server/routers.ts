@@ -3,18 +3,27 @@ import prisma from "@/lib/db";
 import {z} from "zod";
 import {PAGINATION} from "@/config/constants";
 import {createGrammarSchema} from "@/features/grammar/schema/grammar-crud-schema";
+import {trackActivity} from "@/features/user/server/activity-service";
+import {ActivityType} from "@/generated/prisma/enums";
 
 export const grammarRouter = createTRPCRouter({
     create: premiumProcedure
         .input(createGrammarSchema)
-        .mutation(({ ctx, input }) => {
-            return prisma.grammar.create({
+        .mutation(async ({ ctx, input }) => {
+            const grammar = await prisma.grammar.create({
                 data: {
                     title: input.title,
                     content: input.content,
                     userId: ctx.auth.user.id
+                    // TODO languageId should be added in the future when multiple languages are supported
                 }
             })
+
+            if (ctx.auth.user.currentLanguageId) {
+                await trackActivity(ctx.auth.user.id, ctx.auth.user.currentLanguageId, ActivityType.GRAMMAR_ADDED);
+            }
+
+            return grammar;
         }),
     remove: protectedProcedure
         .input(z.object({ id: z.string() }))

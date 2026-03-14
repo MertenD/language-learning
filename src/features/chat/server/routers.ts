@@ -5,6 +5,8 @@ import {PAGINATION} from "@/config/constants";
 import {v4 as uuidv4} from "uuid";
 import {createEmptyChat, loadChat} from "@/features/chat/server/chat-store";
 import {createChatSystemMessage} from "@/features/chat/utils/prompts";
+import {trackActivity} from "@/features/user/server/activity-service";
+import {ActivityType} from "@/generated/prisma/enums";
 
 export const chatsRouter = createTRPCRouter({
     createEmptyChat: premiumProcedure
@@ -13,7 +15,7 @@ export const chatsRouter = createTRPCRouter({
             systemMessage: z.string().optional()
         }))
         .mutation(async ({ ctx, input }) => {
-            return createEmptyChat(ctx.auth.user.id, input.title, input.systemMessage)
+            return createEmptyChat(ctx.auth.user.id, ctx.auth.user.currentLanguageId, input.title, input.systemMessage)
         }),
     createChatFromScenario: premiumProcedure
         .input(z.object({
@@ -29,6 +31,7 @@ export const chatsRouter = createTRPCRouter({
             const chat = await prisma.chat.create({
                 data: {
                     userId: ctx.auth.user.id,
+                    languageId: scenario.languageId,
                     scenarioId: scenario.id,
                     title: scenario.title,
                     assistantIcon: scenario.image,
@@ -62,6 +65,9 @@ export const chatsRouter = createTRPCRouter({
                     ]
                 },
             })
+
+            await trackActivity(ctx.auth.user.id, scenario.languageId, ActivityType.SCENARIO_STARTED);
+
             return chat.id
         }),
     remove: protectedProcedure
@@ -91,6 +97,7 @@ export const chatsRouter = createTRPCRouter({
                     take: pageSize,
                     where: {
                         userId: ctx.auth.user.id,
+                        languageId: ctx.auth.user.currentLanguageId,
                         title: {
                             contains: search,
                             mode: "insensitive"
@@ -103,6 +110,7 @@ export const chatsRouter = createTRPCRouter({
                 prisma.chat.count({
                     where: {
                         userId: ctx.auth.user.id,
+                        languageId: ctx.auth.user.currentLanguageId,
                         title: {
                             contains: search,
                             mode: "insensitive"
@@ -142,6 +150,7 @@ export const scenariosRouter = createTRPCRouter({
                     skip: (page - 1) * pageSize,
                     take: pageSize,
                     where: {
+                        languageId: ctx.auth.user.currentLanguageId,
                         title: {
                             contains: search,
                             mode: "insensitive"
@@ -153,6 +162,7 @@ export const scenariosRouter = createTRPCRouter({
                 }),
                 prisma.scenario.count({
                     where: {
+                        languageId: ctx.auth.user.currentLanguageId,
                         title: {
                             contains: search,
                             mode: "insensitive"

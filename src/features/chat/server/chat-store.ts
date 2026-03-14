@@ -4,10 +4,11 @@ import type {UIMessage} from "ai"
 import {v4 as uuidv4} from "uuid";
 import {ChatWithUIMessages} from "@/features/chat/model/chat-model";
 
-export async function createEmptyChat(userId: string, title?: string, systemMessage?: string) {
+export async function createEmptyChat(userId: string, languageId: string, title?: string, systemMessage?: string) {
   const chat = await prisma.chat.create({
     data: {
       userId,
+      languageId: languageId,
       title: title,
       messages: [
         ...(systemMessage ? [{

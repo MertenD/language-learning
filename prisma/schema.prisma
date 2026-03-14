@@ -124,8 +124,8 @@ model User {
   nativeLanguageId String
   nativeLanguage   Language       @relation("UserNativeLanguage", fields: [nativeLanguageId], references: [id])
 
-  currentLanguageId String?
-  currentLanguage   Language? @relation("UserCurrentLanguage", fields: [currentLanguageId], references: [id])
+  currentLanguageId String
+  currentLanguage   Language @relation("UserCurrentLanguage", fields: [currentLanguageId], references: [id])
 
   @@unique([email])
   @@map("user")
