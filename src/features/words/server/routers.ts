@@ -8,15 +8,23 @@ import {createCategorySchema} from "@/features/words/schema/category-crud-schema
 export const wordsRouter = createTRPCRouter({
     create: premiumProcedure
         .input(createWordSchema)
-        .mutation(({ ctx, input }) => {
+        .mutation(async ({ ctx, input }) => {
+            const user = await prisma.user.findUnique({
+                where: { id: ctx.auth.user.id },
+                select: { languageId: true }
+            });
+
+            if (!user) throw new Error("User not found");
+
             return prisma.word.create({
                 data: {
-                    german: input.german,
-                    germanInfo: input.germanInfo,
-                    serbian: input.serbian,
-                    serbianInfo: input.serbianInfo,
+                    primary: input.primary,
+                    primaryInfo: input.primaryInfo,
+                    secondary: input.secondary,
+                    secondaryInfo: input.secondaryInfo,
                     userId: ctx.auth.user.id,
-                    categoryId: input.categoryId
+                    categoryId: input.categoryId,
+                    languageId: user.languageId // Default to user's language for now
                 }
             })
     }),
@@ -30,20 +38,20 @@ export const wordsRouter = createTRPCRouter({
     update: premiumProcedure
         .input(z.object({
             id: z.string().min(1),
-            german: z.string().min(1).optional(),
-            germanInfo: z.string().min(1).optional(),
-            serbian: z.string().min(1).optional(),
-            serbianInfo: z.string().min(1).optional(),
+            primary: z.string().min(1).optional(),
+            primaryInfo: z.string().min(1).optional(),
+            secondary: z.string().min(1).optional(),
+            secondaryInfo: z.string().min(1).optional(),
             categoryId: z.string().optional().nullable()
         }))
         .mutation(({ ctx, input }) => {
             return prisma.word.update({
                 where: { id: input.id, userId: ctx.auth.user.id },
                 data: {
-                    german: input.german,
-                    germanInfo: input.germanInfo || null,
-                    serbian: input.serbian,
-                    serbianInfo: input.serbianInfo || null,
+                    primary: input.primary,
+                    primaryInfo: input.primaryInfo || null,
+                    secondary: input.secondary,
+                    secondaryInfo: input.secondaryInfo || null,
                     categoryId: input.categoryId || null
                 }
             })
@@ -67,6 +75,7 @@ export const wordsRouter = createTRPCRouter({
 
             // If categoryId is empty string, treat it as null (root level)
             const effectiveCategoryId = categoryId === "" ? null : categoryId;
+            const languageId = ctx.auth.user.languageId;
 
             const [items, totalCount] = await Promise.all([
                 prisma.word.findMany({
@@ -74,16 +83,17 @@ export const wordsRouter = createTRPCRouter({
                     take: pageSize,
                     where: {
                         userId: ctx.auth.user.id,
+                        languageId: languageId,
                         categoryId: effectiveCategoryId,
                         OR: [
                             {
-                                serbian: {
+                                secondary: {
                                     contains: search,
                                     mode: "insensitive"
                                 }
                             },
                             {
-                                german: {
+                                primary: {
                                     contains: search,
                                     mode: "insensitive"
                                 }
@@ -97,16 +107,17 @@ export const wordsRouter = createTRPCRouter({
                 prisma.word.count({
                     where: {
                         userId: ctx.auth.user.id,
+                        languageId: languageId,
                         categoryId: effectiveCategoryId,
                         OR: [
                             {
-                                serbian: {
+                                secondary: {
                                     contains: search,
                                     mode: "insensitive"
                                 }
                             },
                             {
-                                german: {
+                                primary: {
                                     contains: search,
                                     mode: "insensitive"
                                 }
@@ -137,10 +148,12 @@ export const wordsRouter = createTRPCRouter({
         .query(async ({ ctx, input }) => {
             const { categoryId } = input;
             const effectiveCategoryId = categoryId === "" ? null : categoryId;
+            const languageId = ctx.auth.user.languageId;
 
             return prisma.word.findMany({
                 where: {
                     userId: ctx.auth.user.id,
+                    languageId: languageId,
                     categoryId: effectiveCategoryId
                 },
                 orderBy: {
@@ -153,12 +166,16 @@ export const wordsRouter = createTRPCRouter({
 export const categoriesRouter = createTRPCRouter({
     createCategory: premiumProcedure
         .input(createCategorySchema)
-        .mutation(({ ctx, input }) => {
+        .mutation(async ({ ctx, input }) => {
+            // Use languageId from session
+            const languageId = ctx.auth.user.languageId;
+
             return prisma.wordCategory.create({
                 data: {
                     name: input.name,
                     parentId: input.parentId,
-                    userId: ctx.auth.user.id
+                    userId: ctx.auth.user.id,
+                    languageId: languageId
                 }
             })
         }),
@@ -176,10 +193,12 @@ export const categoriesRouter = createTRPCRouter({
         .query(({ ctx, input }) => {
             // If parentId is empty string, treat it as null (root level)
             const effectiveParentId = input.parentId === "" ? null : input.parentId;
+            const languageId = ctx.auth.user.languageId;
 
             return prisma.wordCategory.findMany({
                 where: {
                     userId: ctx.auth.user.id,
+                    languageId: languageId,
                     parentId: effectiveParentId
                 },
                 orderBy: {
@@ -221,9 +240,11 @@ export const categoriesRouter = createTRPCRouter({
         }),
     getAllCategories: protectedProcedure
         .query(({ ctx }) => {
+            const languageId = ctx.auth.user.languageId;
             return prisma.wordCategory.findMany({
                 where: {
-                    userId: ctx.auth.user.id
+                    userId: ctx.auth.user.id,
+                    languageId: languageId
                 },
                 orderBy: {
                     name: "asc"

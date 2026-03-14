@@ -19,9 +19,13 @@ export const auth = betterAuth({
     },
     user: {
         additionalFields: {
-            languageId: {
+            nativeLanguageId: {
                 type: "string",
                 required: true
+            },
+            currentLanguageId: {
+                type: "string",
+                required: false
             }
         }
     },
@@ -53,6 +57,12 @@ export const auth = betterAuth({
                     let polarCustomer = null
 
                     try {
+                        // Set the default target language for new users
+                        await prisma.user.update({
+                            where: { id: user.id },
+                            data: { currentLanguageId: targetLanguageId }
+                        })
+
                         await prisma.userLanguage.create({
                             data: {
                                 user: {

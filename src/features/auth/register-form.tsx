@@ -43,7 +43,7 @@ export default function RegisterForm() {
             password: values.password,
             callbackURL: "/",
             // TODO Make nativeLanguage selectable in the form
-            languageId: "0"
+            nativeLanguageId: "0"
         }, {
             onSuccess: () => {
                 // TODO Populate UserLanguage Table and Stats after registration. Therefore the user should select target language as well i registration form

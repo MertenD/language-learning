@@ -44,7 +44,8 @@ model Language {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  users          User[]
+  usersNative    User[]         @relation("UserNativeLanguage")
+  usersCurrent   User[]         @relation("UserCurrentLanguage")
   userLanguages  UserLanguage[]
   wordCategories WordCategory[]
   words          Word[]
@@ -106,22 +107,25 @@ model Verification {
  */
 
 model User {
-  id             String         @id
-  name           String
-  email          String
-  emailVerified  Boolean        @default(false)
-  image          String?
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @default(now()) @updatedAt
-  sessions       Session[]
-  accounts       Account[]
-  words          Word[]
-  wordCategories WordCategory[]
-  grammar        Grammar[]
-  chats          Chat[]
-  languages      UserLanguage[]
-  nativeLanguage Language       @relation(fields: [languageId], references: [id])
-  languageId     String
+  id               String         @id
+  name             String
+  email            String
+  emailVerified    Boolean        @default(false)
+  image            String?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @default(now()) @updatedAt
+  sessions         Session[]
+  accounts         Account[]
+  words            Word[]
+  wordCategories   WordCategory[]
+  grammar          Grammar[]
+  chats            Chat[]
+  languages        UserLanguage[]
+  nativeLanguageId String
+  nativeLanguage   Language       @relation("UserNativeLanguage", fields: [nativeLanguageId], references: [id])
+
+  currentLanguageId String?
+  currentLanguage   Language? @relation("UserCurrentLanguage", fields: [currentLanguageId], references: [id])
 
   @@unique([email])
   @@map("user")

@@ -80,5 +80,32 @@ export const userRouter = createTRPCRouter({
                 wordCount,
                 streakDays
             }
+        }),
+
+    getLanguages: protectedProcedure
+        .query(async ({ ctx }) => {
+            let userLanguages = await prisma.userLanguage.findMany({
+                where: {
+                    userId: ctx.auth.user.id
+                },
+                include: {
+                    language: true
+                }
+            })
+
+            return userLanguages.map(ul => ul.language);
+        }),
+
+    setLanguage: protectedProcedure
+        .input(z.object({ languageId: z.string().min(1) }))
+        .mutation(async ({ ctx, input }) => {
+            await prisma.user.update({
+                where: {
+                    id: ctx.auth.user.id
+                },
+                data: {
+                    currentLanguageId: input.languageId
+                }
+            })
         })
 })

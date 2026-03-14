@@ -26,10 +26,10 @@ export function WordEditDialog({ word, open, onOpenChange, onSave }: WordEditDia
     const form = useForm<CreateWordInput>({
         resolver: zodResolver(createWordSchema),
         defaultValues: {
-            german: word.german,
-            germanInfo: word.germanInfo || "",
-            serbian: word.serbian,
-            serbianInfo: word.serbianInfo || "",
+            primary: word.primary,
+            primaryInfo: word.primaryInfo || "",
+            secondary: word.secondary,
+            secondaryInfo: word.secondaryInfo || "",
             categoryId: word.categoryId || undefined
         }
     })
@@ -37,10 +37,10 @@ export function WordEditDialog({ word, open, onOpenChange, onSave }: WordEditDia
     useEffect(() => {
         if (isEditing) {
             form.reset({
-                german: word.german,
-                germanInfo: word.germanInfo || "",
-                serbian: word.serbian,
-                serbianInfo: word.serbianInfo || "",
+                primary: word.primary,
+                primaryInfo: word.primaryInfo || "",
+                secondary: word.secondary,
+                secondaryInfo: word.secondaryInfo || "",
                 categoryId: word.categoryId || undefined
             })
         }
@@ -52,8 +52,8 @@ export function WordEditDialog({ word, open, onOpenChange, onSave }: WordEditDia
             const updatedWord: Word = {
                 ...word,
                 ...data,
-                germanInfo: data.germanInfo || null,
-                serbianInfo: data.serbianInfo || null,
+                primaryInfo: data.primaryInfo || null,
+                secondaryInfo: data.secondaryInfo || null,
                 categoryId: data.categoryId === "root" ? null : (data.categoryId || null)
             }
             await onSave(updatedWord)
@@ -80,7 +80,7 @@ export function WordEditDialog({ word, open, onOpenChange, onSave }: WordEditDia
                             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                                 <FormField
                                     control={form.control}
-                                    name="german"
+                                    name="primary"
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel className="flex items-center gap-2">
@@ -95,7 +95,7 @@ export function WordEditDialog({ word, open, onOpenChange, onSave }: WordEditDia
                                 />
                                 <FormField
                                     control={form.control}
-                                    name="germanInfo"
+                                    name="primaryInfo"
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormControl>
@@ -108,7 +108,7 @@ export function WordEditDialog({ word, open, onOpenChange, onSave }: WordEditDia
 
                                 <FormField
                                     control={form.control}
-                                    name="serbian"
+                                    name="secondary"
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel className="flex items-center gap-2">
@@ -123,7 +123,7 @@ export function WordEditDialog({ word, open, onOpenChange, onSave }: WordEditDia
                                 />
                                 <FormField
                                     control={form.control}
-                                    name="serbianInfo"
+                                    name="secondaryInfo"
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormControl>
@@ -174,8 +174,8 @@ export function WordEditDialog({ word, open, onOpenChange, onSave }: WordEditDia
                                 <div className="flex items-start gap-3">
                                     <span className="text-3xl">🇩🇪</span>
                                     <div className="flex-1">
-                                        <h3 className="text-xl font-semibold">{word.german}</h3>
-                                        {word.germanInfo && <p className="text-sm text-muted-foreground mt-1">{word.germanInfo}</p>}
+                                        <h3 className="text-xl font-semibold">{word.primary}</h3>
+                                        {word.primaryInfo && <p className="text-sm text-muted-foreground mt-1">{word.primaryInfo}</p>}
                                     </div>
                                 </div>
 
@@ -184,8 +184,8 @@ export function WordEditDialog({ word, open, onOpenChange, onSave }: WordEditDia
                                 <div className="flex items-start gap-3">
                                     <span className="text-3xl">🇷🇸</span>
                                     <div className="flex-1">
-                                        <h3 className="text-xl font-semibold">{word.serbian}</h3>
-                                        {word.serbianInfo && <p className="text-sm text-muted-foreground mt-1">{word.serbianInfo}</p>}
+                                        <h3 className="text-xl font-semibold">{word.secondary}</h3>
+                                        {word.secondaryInfo && <p className="text-sm text-muted-foreground mt-1">{word.secondaryInfo}</p>}
                                     </div>
                                 </div>
 

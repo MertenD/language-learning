@@ -6,7 +6,11 @@ import { cn } from "@/lib/utils"
 import {useLanguage} from "@/features/user/hooks/use-language";
 
 export function LanguageSwitcher() {
-    const { currentLanguage, availableLanguages, setCurrentLanguage } = useLanguage()
+    const { currentLanguage, availableLanguages, setCurrentLanguage, isLoading } = useLanguage()
+
+    if (isLoading) {
+        return <div className="h-10 w-full animate-pulse bg-muted rounded-lg" />
+    }
 
     if (!currentLanguage) return null
 

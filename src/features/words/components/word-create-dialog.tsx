@@ -24,10 +24,10 @@ export function WordCreateDialog({ open, onOpenChange, onCreate, categoryId }: W
     const form = useForm<CreateWordInput>({
         resolver: zodResolver(createWordSchema),
         defaultValues: {
-            german: "",
-            germanInfo: "",
-            serbian: "",
-            serbianInfo: "",
+             primary: "",
+            primaryInfo: "",
+            secondary: "",
+            secondaryInfo: "",
             categoryId: categoryId || undefined
         }
     })
@@ -36,10 +36,10 @@ export function WordCreateDialog({ open, onOpenChange, onCreate, categoryId }: W
     useEffect(() => {
         if (open) {
             form.reset({
-                german: "",
-                germanInfo: "",
-                serbian: "",
-                serbianInfo: "",
+                primary: "",
+                primaryInfo: "",
+                secondary: "",
+                secondaryInfo: "",
                 categoryId: categoryId || undefined
             })
         }
@@ -48,8 +48,8 @@ export function WordCreateDialog({ open, onOpenChange, onCreate, categoryId }: W
     function onSubmit(data: CreateWordInput) {
         const formattedData: CreateWordInput = {
             ...data,
-            germanInfo: data.germanInfo || undefined,
-            serbianInfo: data.serbianInfo || undefined,
+            primaryInfo: data.primaryInfo || undefined,
+            secondaryInfo: data.secondaryInfo || undefined,
             categoryId: data.categoryId === "root" ? undefined : (data.categoryId || undefined)
         }
 
@@ -69,7 +69,7 @@ export function WordCreateDialog({ open, onOpenChange, onCreate, categoryId }: W
                         <div className="space-y-4">
                             <FormField
                                 control={form.control}
-                                name="german"
+                                name="primary"
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel className="flex items-center gap-2">
@@ -85,7 +85,7 @@ export function WordCreateDialog({ open, onOpenChange, onCreate, categoryId }: W
 
                             <FormField
                                 control={form.control}
-                                name="germanInfo"
+                                name="primaryInfo"
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormControl>
@@ -98,7 +98,7 @@ export function WordCreateDialog({ open, onOpenChange, onCreate, categoryId }: W
 
                             <FormField
                                 control={form.control}
-                                name="serbian"
+                                name="secondary"
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel className="flex items-center gap-2">
@@ -114,7 +114,7 @@ export function WordCreateDialog({ open, onOpenChange, onCreate, categoryId }: W
 
                             <FormField
                                 control={form.control}
-                                name="serbianInfo"
+                                name="secondaryInfo"
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormControl>

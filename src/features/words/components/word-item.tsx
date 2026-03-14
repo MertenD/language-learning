@@ -14,10 +14,10 @@ export default function WordItem({ data }: { data: Word }) {
     const handleSave = async (updatedWord: Word) => {
         updateWord.mutate({
             id: updatedWord.id,
-            german: updatedWord.german,
-            germanInfo: updatedWord.germanInfo || undefined,
-            serbian: updatedWord.serbian,
-            serbianInfo: updatedWord.serbianInfo || undefined,
+            primary: updatedWord.primary,
+            primaryInfo: updatedWord.primaryInfo || undefined,
+            secondary: updatedWord.secondary,
+            secondaryInfo: updatedWord.secondaryInfo || undefined,
             categoryId: updatedWord.categoryId || undefined
         })
     }
@@ -28,10 +28,10 @@ export default function WordItem({ data }: { data: Word }) {
 
     return <>
         <VocabularyEntityItem
-            primaryLanguage={data.german}
-            primaryInfo={data.germanInfo}
-            secondaryLanguage={data.serbian}
-            secondaryInfo={data.serbianInfo}
+            primaryLanguage={data.primary}
+            primaryInfo={data.primaryInfo}
+            secondaryLanguage={data.secondary}
+            secondaryInfo={data.secondaryInfo}
             primaryFlag={<span className="text-2xl">🇩🇪</span>}
             secondaryFlag={<span className="text-2xl">🇷🇸</span>}
             onRemove={handleRemove}

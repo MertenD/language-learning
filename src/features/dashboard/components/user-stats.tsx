@@ -2,16 +2,16 @@
 
 import UserStatCard from "@/features/dashboard/components/user-stat-card";
 import {BookOpenIcon, FlameIcon, TrophyIcon, ZapIcon} from "lucide-react";
-import {useSuspenseLanguageStats} from "@/features/user/hooks/use-stats";
+import {useLanguageStats} from "@/features/user/hooks/use-stats";
 
 export default function UserStats() {
 
-    const { data: stats, isFetching } = useSuspenseLanguageStats()
+    const { data: stats, isLoading } = useLanguageStats()
 
     return <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <UserStatCard
             title="Streak"
-            isLoading={!stats || isFetching}
+            isLoading={isLoading}
             value={stats?.streakDays}
             icon={<FlameIcon />}
             chartColorNumber={1}
@@ -19,7 +19,7 @@ export default function UserStats() {
 
         <UserStatCard
             title="XP Points"
-            isLoading={!stats || isFetching}
+            isLoading={isLoading}
             value={stats?.xp}
             icon={<ZapIcon />}
             chartColorNumber={2}
@@ -27,7 +27,7 @@ export default function UserStats() {
 
         <UserStatCard
             title="Level"
-            isLoading={!stats || isFetching}
+            isLoading={isLoading}
             value={stats?.level}
             icon={<TrophyIcon />}
             chartColorNumber={3}
@@ -35,7 +35,7 @@ export default function UserStats() {
 
         <UserStatCard
             title="Vocabulary"
-            isLoading={!stats || isFetching}
+            isLoading={isLoading}
             value={stats?.wordCount}
             icon={<BookOpenIcon />}
             chartColorNumber={4}

@@ -2,11 +2,16 @@
 
 import {createContext, ReactNode, useContext, useEffect, useState} from "react";
 import {Language} from "@/generated/prisma/client";
+import {authClient} from "@/lib/auth-client";
+import {useTRPC} from "@/trpc/client";
+import {useMutation, useQuery} from "@tanstack/react-query";
+import {toast} from "sonner";
 
 interface LanguageContextType {
-    currentLanguage: Language
+    currentLanguage?: Language
     availableLanguages: Language[]
     setCurrentLanguage: (language: Language) => void
+    isLoading: boolean
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined)
@@ -16,48 +21,60 @@ interface LanguageProviderProps {
 }
 
 export function LanguageProvider({ children }: LanguageProviderProps) {
-    const availableLanguages: Language[] = [{
-        id: "0",
-        code: "de",
-        name: "german",
-        flagEmoji: "🇩🇪",
-        createdAt: new Date(),
-        updatedAt: new Date()
-    },{
-        id: "1",
-        code: "rs",
-        name: "serbian",
-        flagEmoji: "🇷🇸",
-        createdAt: new Date(),
-        updatedAt: new Date()
-    }] // TODO Replace by actual available languages for the current user
+    const trpc = useTRPC()
+    const { data: session, isPending: isSessionLoading } = authClient.useSession()
 
-    const [currentLanguage, setCurrentLanguageState] = useState<Language>(availableLanguages[0])
+    const { data: languages, isLoading: isLanguagesLoading } = useQuery(
+        trpc.user.getLanguages.queryOptions()
+    )
 
+    const availableLanguages = languages || []
+
+    const [currentLanguage, setCurrentLanguageState] = useState<Language | undefined>(undefined)
+
+    // Initialize language from session
     useEffect(() => {
-        const savedLanguageId = localStorage.getItem("currentLanguageId")
-        const savedLanguage = availableLanguages.find(lang => lang.id === savedLanguageId)
+        if (availableLanguages.length === 0) return
 
-        if (savedLanguage) {
-            setCurrentLanguageState(savedLanguage)
-        } else {
-            localStorage.setItem("currentLanguageId", availableLanguages[0].id)
+        let foundLanguage: Language | undefined
+
+        if (session?.user?.currentLanguageId) {
+             const sessionLanguage = availableLanguages.find(l => l.id === session.user.currentLanguageId)
+             if (sessionLanguage) {
+                 foundLanguage = sessionLanguage
+             }
         }
-    }, [])
+
+        if (!foundLanguage && availableLanguages.length > 0) {
+            foundLanguage = availableLanguages[0]
+        }
+
+        if (foundLanguage && currentLanguage?.id !== foundLanguage.id) {
+            setCurrentLanguageState(foundLanguage)
+        }
+
+    }, [availableLanguages, session, currentLanguage])
+
+    const setLanguageMutation = useMutation(trpc.user.setLanguage.mutationOptions({
+        onError: (error) => {
+            toast.error("Failed to change language: " + error.message)
+        }
+    }))
 
     const setCurrentLanguage = (language: Language) => {
         setCurrentLanguageState(language)
-        localStorage.setItem("currentLanguageId", language.id)
+        setLanguageMutation.mutate({ languageId: language.id })
     }
 
+    const isLoading = isSessionLoading || isLanguagesLoading || (availableLanguages.length > 0 && !currentLanguage)
+
     return (
-        <LanguageContext.Provider
-            value={{
-                currentLanguage,
-                availableLanguages,
-                setCurrentLanguage
-            }}
-        >
+        <LanguageContext.Provider value={{
+            currentLanguage,
+            availableLanguages,
+            setCurrentLanguage,
+            isLoading
+        }}>
             {children}
         </LanguageContext.Provider>
     )
@@ -70,3 +87,4 @@ export function useLanguage() {
     }
     return context
 }
+
