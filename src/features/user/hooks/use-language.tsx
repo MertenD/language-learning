@@ -31,38 +31,33 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
 
     const availableLanguages = languages || []
 
-    const [currentLanguage, setCurrentLanguageState] = useState<Language | undefined>(undefined)
+    const [optimisticLanguageId, setOptimisticLanguageId] = useState<string | undefined>(undefined)
 
-    // Initialize language from session
+    const setLanguageMutation = useMutation({
+        ...trpc.user.setLanguage.mutationOptions(),
+        onMutate: ({ languageId }) => {
+            setOptimisticLanguageId(languageId);
+            return undefined;
+        },
+        onSuccess: async () => {
+            await refetchSession()
+            await queryClient.invalidateQueries()
+        },
+        onError: (error) => {
+            toast.error("Failed to change language: " + error.message)
+            setOptimisticLanguageId(undefined)
+        }
+    })
+
+    const currentLanguageId = optimisticLanguageId ?? session?.user?.currentLanguageId
+    const currentLanguage = availableLanguages.find(l => l.id === currentLanguageId)
+
+    // Reset optimistic language once session catches up
     useEffect(() => {
-        if (availableLanguages.length === 0) return
-
-        let foundLanguage: Language | undefined
-
-        // Try to match session language
-        if (session?.user?.currentLanguageId) {
-             const sessionLanguage = availableLanguages.find(l => l.id === session.user.currentLanguageId)
-             if (sessionLanguage) {
-                 foundLanguage = sessionLanguage
-             }
+        if (optimisticLanguageId && session?.user?.currentLanguageId === optimisticLanguageId) {
+            setOptimisticLanguageId(undefined)
         }
-
-        // Fallback to first available language if session language not found or not set
-        if (!foundLanguage && availableLanguages.length > 0) {
-            foundLanguage = availableLanguages[0]
-        }
-
-        // Only update state if:
-        // 1. We haven't set a language yet (initial load)
-        // 2. The session language has changed and doesn't match our current state (e.g. external update)
-        // We avoid resetting if the user just clicked switch (optimistic update) by relying on session prop update
-        if (foundLanguage && (!currentLanguage || (session?.user?.currentLanguageId && currentLanguage.id !== session.user.currentLanguageId && currentLanguage.id !== foundLanguage.id))) {
-             if (currentLanguage?.id !== foundLanguage.id) {
-                 setCurrentLanguageState(foundLanguage)
-             }
-        }
-
-    }, [availableLanguages, session])
+    }, [session?.user?.currentLanguageId, optimisticLanguageId])
 
     // Refetch languages when session becomes available to ensure we have data
     useEffect(() => {
@@ -71,21 +66,8 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         }
     }, [session?.user?.id, refetchLanguages])
 
-    const setLanguageMutation = useMutation({
-        ...trpc.user.setLanguage.mutationOptions(),
-        onSuccess: async () => {
-             // Invalidate session to reflect the language change
-             await refetchSession()
-             // Invalidate all queries to refresh data dependent on language
-             await queryClient.invalidateQueries()
-        },
-        onError: (error) => {
-            toast.error("Failed to change language: " + error.message)
-        }
-    })
-
     const setCurrentLanguage = (language: Language) => {
-        setCurrentLanguageState(language)
+        if (language.id === currentLanguage?.id) return
         setLanguageMutation.mutate({ languageId: language.id })
     }
 
