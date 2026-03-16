@@ -1,7 +1,7 @@
 import {createTRPCRouter, protectedProcedure, baseProcedure} from "@/trpc/init";
 import {z} from "zod";
 import prisma from "@/lib/db";
-import {ActivityType} from "@/generated/prisma/enums";
+import {ActivityType} from "@/features/dashboard/model/activity-type";
 
 export const userRouter = createTRPCRouter({
     getAvailableLanguages: baseProcedure

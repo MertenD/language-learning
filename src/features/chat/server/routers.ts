@@ -6,7 +6,7 @@ import {v4 as uuidv4} from "uuid";
 import {createEmptyChat, loadChat} from "@/features/chat/server/chat-store";
 import {createChatSystemMessage} from "@/features/chat/utils/prompts";
 import {trackActivity} from "@/features/user/server/activity-service";
-import {ActivityType} from "@/generated/prisma/enums";
+import {ActivityType} from "@/features/dashboard/model/activity-type";
 
 export const chatsRouter = createTRPCRouter({
     createEmptyChat: premiumProcedure

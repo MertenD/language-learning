@@ -56,7 +56,46 @@ export const useUpdateWord = () => {
 }
 
 /**
- * Hook to remove a word
+ * Hook to import vocabulary
+ */
+export const useImportWords = () => {
+    const queryClient = useQueryClient()
+    const trpc = useTRPC()
+
+    return useMutation(trpc.words.import.mutationOptions({
+        onSuccess: (data) => {
+            toast.success(`Successfully imported ${data.count} words`)
+            queryClient.invalidateQueries(
+                trpc.words.getMany.queryOptions({})
+            )
+            queryClient.invalidateQueries(
+                trpc.words.getAll.queryOptions({})
+            )
+            queryClient.invalidateQueries(
+                trpc.categories.getAllCategories.queryOptions()
+            )
+        },
+        onError: (error) => {
+            toast.error(error.message || "Failed to import words")
+        }
+    }))
+}
+
+/**
+ * Hook to export vocabulary
+ */
+export const useExportWords = () => {
+    const trpc = useTRPC()
+
+    return useMutation(trpc.words.export.mutationOptions({
+        onError: (error) => {
+            toast.error(error.message || "Failed to export vocabulary")
+        }
+    }))
+}
+
+/**
+ * Hook to remove vocabulary
  */
 export const useRemoveWord = () => {
     const queryClient = useQueryClient()

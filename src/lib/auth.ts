@@ -3,7 +3,7 @@ import {prismaAdapter} from "better-auth/adapters/prisma";
 import prisma from "@/lib/db";
 import { polarClient } from "./polar";
 import {checkout, polar, portal} from "@polar-sh/better-auth";
-import {ActivityType} from "@/generated/prisma/enums";
+import {ActivityType} from "@/features/dashboard/model/activity-type";
 
 if (!process.env.POLAR_SUCCESS_URL) {
     throw Error("Environment variable POLAR_SUCCESS_URL must be set!")

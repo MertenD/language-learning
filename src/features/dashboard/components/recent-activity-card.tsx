@@ -1,24 +1,18 @@
 "use client"
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-    ActivityIcon,
-    BookOpenIcon,
-    ClockIcon,
-    MessageSquareIcon,
-    StarIcon,
-    TrophyIcon
-} from "lucide-react";
-import { ActivityType } from "@/generated/prisma/enums";
-import { formatDistanceToNow } from "date-fns";
-import { de } from "date-fns/locale";
-import { useRecentActivities } from "@/features/user/hooks/use-recent-activities";
+import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
+import {ActivityIcon, BookOpenIcon, ClockIcon, MessageSquareIcon, StarIcon, TrophyIcon} from "lucide-react";
+import {formatDistanceToNow} from "date-fns";
+import {de} from "date-fns/locale";
+import {useRecentActivities} from "@/features/user/hooks/use-recent-activities";
 import React from "react";
+import {ActivityType} from "@/features/dashboard/model/activity-type";
 
 const getActivityIcon = (type: ActivityType) => {
     switch (type) {
         case ActivityType.VOCABULARY_ADDED:
         case ActivityType.NEW_VOCABULARY_LEARNED:
+        case ActivityType.VOCABULARY_IMPORTED:
             return <BookOpenIcon className="h-4 w-4 text-blue-500" />;
         case ActivityType.SCENARIO_STARTED:
         case ActivityType.CHAT_INITIATED:
@@ -37,6 +31,8 @@ const getActivityTitle = (type: ActivityType) => {
     switch (type) {
         case ActivityType.VOCABULARY_ADDED:
             return "Wortschatz erweitert";
+        case ActivityType.VOCABULARY_IMPORTED:
+            return "Wortschatz importiert";
         case ActivityType.NEW_VOCABULARY_LEARNED:
             return "Neue Vokabeln gelernt";
         case ActivityType.SCENARIO_STARTED:
@@ -77,11 +73,11 @@ export default function RecentActivityCard() {
                             className="flex items-start gap-3 rounded-lg border bg-card p-3 transition-colors hover:bg-accent"
                         >
                             <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10">
-                                {getActivityIcon(activity.type)}
+                                {getActivityIcon(activity.type as ActivityType)}
                             </div>
                             <div className="flex-1 space-y-1">
                                 <p className="text-sm font-medium leading-tight">
-                                    {getActivityTitle(activity.type)}
+                                    {getActivityTitle(activity.type as ActivityType)}
                                 </p>
                                 <div className="flex items-center gap-1 text-xs text-muted-foreground">
                                     <ClockIcon className="h-3 w-3" />

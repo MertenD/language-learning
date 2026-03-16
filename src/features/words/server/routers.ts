@@ -2,10 +2,12 @@ import {createTRPCRouter, premiumProcedure, protectedProcedure} from "@/trpc/ini
 import prisma from "@/lib/db";
 import {z} from "zod";
 import {PAGINATION} from "@/config/constants";
-import {createWordSchema} from "@/features/words/schema/word-crud-schema";
+import {createWordSchema, csvWordSchema, CsvWordInput} from "@/features/words/schema/word-crud-schema";
 import {createCategorySchema} from "@/features/words/schema/category-crud-schema";
 import {trackActivity} from "@/features/user/server/activity-service";
-import {ActivityType} from "@/generated/prisma/enums";
+import {ActivityType} from "@/features/dashboard/model/activity-type";
+import Papa from "papaparse";
+import {TRPCError} from "@trpc/server";
 
 export const wordsRouter = createTRPCRouter({
     create: premiumProcedure
@@ -27,6 +29,122 @@ export const wordsRouter = createTRPCRouter({
 
             return word
     }),
+    import: premiumProcedure
+        .input(z.object({
+            csv: z.string(),
+            categoryId: z.string().optional().nullable()
+        }))
+        .mutation(async ({ ctx, input }) => {
+            const { csv, categoryId } = input;
+            const { currentLanguageId } = ctx.auth.user;
+
+            const parseResult = Papa.parse(csv, {
+                header: true,
+                skipEmptyLines: true,
+                transformHeader: h => h.trim()
+            })
+
+            if (parseResult.errors.length > 0) {
+                throw new TRPCError({
+                    code: "BAD_REQUEST",
+                    message: "Invalid CSV format: " + parseResult.errors.map(e => e.message).join(", ")
+                })
+            }
+
+            const rows = parseResult.data as any[]
+            const validWords: CsvWordInput[] = []
+            const errors: string[] = []
+
+            rows.forEach((row, index) => {
+                const result = csvWordSchema.safeParse(row)
+                if (result.success) {
+                    validWords.push(result.data)
+                } else {
+                    errors.push(`Row ${index + 1}: ${result.error.issues.map((e: any) => e.message).join(", ")}`)
+                }
+            })
+
+            if (errors.length > 0) {
+                throw new TRPCError({
+                    code: "BAD_REQUEST",
+                    message: "Validation errors:\n" + errors.join("\n")
+                })
+            }
+
+            if (validWords.length === 0) {
+                throw new TRPCError({
+                    code: "BAD_REQUEST",
+                    message: "No valid words found in CSV"
+                })
+            }
+
+            const userLanguage = await prisma.userLanguage.findUnique({
+                where: {
+                    userId_languageId: {
+                        userId: ctx.auth.user.id,
+                        languageId: currentLanguageId
+                    }
+                }
+            })
+
+            const effectiveCategoryId = categoryId === "" ? null : categoryId;
+
+            const count = await prisma.word.createMany({
+                data: validWords.map(w => ({
+                    primary: w.primary,
+                    primaryInfo: w.primaryInfo || null,
+                    secondary: w.secondary,
+                    secondaryInfo: w.secondaryInfo || null,
+                    examples: w.examples ? w.examples.split(" | ").map(e => e.trim()).filter(Boolean) : [],
+                    userId: ctx.auth.user.id,
+                    languageId: currentLanguageId,
+                    userLanguageId: userLanguage?.id,
+                    categoryId: effectiveCategoryId
+                }))
+            })
+
+            if (count.count > 0) {
+                await trackActivity(ctx.auth.user.id, currentLanguageId, ActivityType.VOCABULARY_IMPORTED)
+            }
+
+            return { count: count.count }
+        }),
+    export: premiumProcedure
+        .input(z.object({
+            categoryId: z.string().optional().nullable()
+        }))
+        .mutation(async ({ ctx, input }) => {
+            const { currentLanguageId } = ctx.auth.user;
+            const { categoryId } = input;
+            const effectiveCategoryId = categoryId === "" ? null : categoryId;
+
+            const words = await prisma.word.findMany({
+                where: {
+                    userId: ctx.auth.user.id,
+                    languageId: currentLanguageId,
+                    categoryId: effectiveCategoryId
+                },
+                select: {
+                    primary: true,
+                    primaryInfo: true,
+                    secondary: true,
+                    secondaryInfo: true,
+                    examples: true
+                }
+            })
+
+            const data = words.map(w => ({
+                primary: w.primary,
+                primaryInfo: w.primaryInfo || "",
+                secondary: w.secondary,
+                secondaryInfo: w.secondaryInfo || "",
+                examples: w.examples.join(" | ")
+            }))
+
+            return Papa.unparse(data, {
+                quotes: true
+            });
+        }),
     remove: protectedProcedure
         .input(z.object({ id: z.string() }))
         .mutation(({ ctx, input }) => {

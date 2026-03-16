@@ -4,7 +4,7 @@ import {z} from "zod";
 import {PAGINATION} from "@/config/constants";
 import {createGrammarSchema} from "@/features/grammar/schema/grammar-crud-schema";
 import {trackActivity} from "@/features/user/server/activity-service";
-import {ActivityType} from "@/generated/prisma/enums";
+import {ActivityType} from "@/features/dashboard/model/activity-type";
 
 export const grammarRouter = createTRPCRouter({
     create: premiumProcedure

@@ -1,5 +1,5 @@
 import prisma from "@/lib/db";
-import {ActivityType} from "@/generated/prisma/enums";
+import {ActivityType} from "@/features/dashboard/model/activity-type";
 
 /**
  * Tracks a user activity for a specific language.
@@ -27,11 +27,16 @@ export async function trackActivity(
     }
 
     // 2. Create the activity
-    await prisma.userLanguageActivity.create({
-        data: {
-            type,
-            userLanguageId: userLanguage.id
-        }
-    });
+    try {
+        await prisma.userLanguageActivity.create({
+            data: {
+                type,
+                userLanguageId: userLanguage.id
+            }
+        });
+    } catch (error) {
+        console.error(`Failed to track activity ${type} for user ${userId}`, error);
+        // We swallow the error here so that the main action (e.g. creating vocabulary)
+        // doesn't fail just because tracking failed
+    }
 }
-
