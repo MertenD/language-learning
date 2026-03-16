@@ -13,7 +13,7 @@ export default async function ChatPage({ params }: { params: Promise<{ id: strin
     let chat
 
     if (id === "new") {
-        const chatId = await createEmptyChat(session.user.id)
+        const chatId = await createEmptyChat(session.user.id, session.user.currentLanguageId)
         redirect(`/chat/${chatId}`)
     } else {
         try {

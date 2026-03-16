@@ -31,7 +31,7 @@ export function HangmanGame() {
         newGuessed.add(letter);
         setGuessedLetters(newGuessed);
 
-        const normalizedWord = currentWord.serbian.toUpperCase();
+        const normalizedWord = currentWord.secondary.toUpperCase();
         if (!normalizedWord.includes(letter)) {
             const newWrong = wrongGuesses + 1;
             setWrongGuesses(newWrong);
@@ -62,7 +62,7 @@ export function HangmanGame() {
 
     if (!currentWord) return null;
 
-    const displayWord = currentWord.serbian.split('').map((char: string) => {
+    const displayWord = currentWord.secondary.split('').map((char: string) => {
         const upperChar = char.toUpperCase();
         if (!ALPHABET.includes(upperChar)) return char;
         return guessedLetters.has(upperChar) ? char : "_";
@@ -79,11 +79,11 @@ export function HangmanGame() {
             <Card>
                 <CardHeader className="text-center">
                     <CardTitle>Guess the word</CardTitle>
-                    <p className="text-muted-foreground">Translate: <span className="font-bold text-foreground">{currentWord.german}</span></p>
+                    <p className="text-muted-foreground">Translate: <span className="font-bold text-foreground">{currentWord.primary}</span></p>
                 </CardHeader>
                 <CardContent className="text-center space-y-8">
                     <div className="text-4xl font-mono tracking-widest py-4">
-                        {isFinished && !isWon ? currentWord.serbian.split('').join(' ') : displayWord}
+                        {isFinished && !isWon ? currentWord.secondary.split('').join(' ') : displayWord}
                     </div>
 
                     <div className="flex justify-center gap-1">
@@ -124,4 +124,3 @@ export function HangmanGame() {
         </div>
     );
 }
-

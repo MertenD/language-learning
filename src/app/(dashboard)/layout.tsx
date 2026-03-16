@@ -7,19 +7,18 @@ import {HydrateClient, prefetch, trpc} from "@/trpc/server";
 export default async function Layout({ children}: { children: React.ReactNode }) {
     const session = await requireAuth()
 
-    if (session.user.languageId) {
-        // Prefetch data so client component has it available
+    if (session.user.currentLanguageId) {
         await prefetch(trpc.user.getLanguageStats.queryOptions({
-            languageId: session.user.languageId
+            languageId: session.user.currentLanguageId
         }))
     }
 
     return <HydrateClient>
         <SidebarProvider>
-        <AppSidebar username={session.user.name.split("@")[0]} />
-        <SidebarInset className="bg-background overflow-y-auto">
-            {children}
-        </SidebarInset>
-    </SidebarProvider>
+            <AppSidebar username={session.user.name.split("@")[0]} />
+            <SidebarInset className="bg-background overflow-y-auto">
+                {children}
+            </SidebarInset>
+        </SidebarProvider>
     </HydrateClient>
 }

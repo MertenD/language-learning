@@ -26,7 +26,7 @@ const GAMES: { type: GameType; title: string; description: string; icon: any }[]
     {
         type: 'matching',
         title: 'Matching Pairs',
-        description: 'Match German words with their Serbian translations.',
+        description: 'Match primary words with their secondary translations.',
         icon: Puzzle
     },
     {
@@ -62,7 +62,7 @@ const GAMES: { type: GameType; title: string; description: string; icon: any }[]
     {
         type: 'reverse-choice',
         title: 'Reverse Choice',
-        description: 'Select the German word for the given Serbian translation.',
+        description: 'Select the primary word for the given secondary translation.',
         icon: ArrowLeftRight
     }
 ];

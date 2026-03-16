@@ -23,13 +23,13 @@ export function TrueFalseGame() {
         setIsCorrectMatch(showCorrect);
 
         if (showCorrect) {
-            setDisplayedTranslation(currentWord.serbian);
+            setDisplayedTranslation(currentWord.secondary);
         } else {
             // Pick a random wrong translation
             const otherWords = selectedWords.filter((w: any) => w.id !== currentWord.id);
             if (otherWords.length > 0) {
                 const randomWord = otherWords[Math.floor(Math.random() * otherWords.length)];
-                setDisplayedTranslation(randomWord.serbian);
+                setDisplayedTranslation(randomWord.secondary);
             } else {
                 // Fallback if only 1 word selected (shouldn't happen often in practice)
                 setDisplayedTranslation("Wrong Answer");
@@ -76,7 +76,7 @@ export function TrueFalseGame() {
                 </CardHeader>
                 <CardContent className="space-y-6 py-8">
                     <div>
-                        <h2 className="text-3xl font-bold mb-2">{currentWord.german}</h2>
+                        <h2 className="text-3xl font-bold mb-2">{currentWord.primary}</h2>
                         <div className="text-muted-foreground text-sm">equals</div>
                         <h2 className="text-3xl font-bold mt-2 text-primary">{displayedTranslation}</h2>
                     </div>

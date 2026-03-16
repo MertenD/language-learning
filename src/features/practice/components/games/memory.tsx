@@ -27,15 +27,15 @@ export function MemoryGame() {
         const newCards: MemoryCard[] = [];
         gameWords.forEach((word: any) => {
             newCards.push({
-                id: `g-${word.id}`,
-                text: word.german,
+                id: `p-${word.id}`,
+                text: word.primary,
                 wordId: word.id,
                 isFlipped: false,
                 isMatched: false
             });
             newCards.push({
                 id: `s-${word.id}`,
-                text: word.serbian,
+                text: word.secondary,
                 wordId: word.id,
                 isFlipped: false,
                 isMatched: false

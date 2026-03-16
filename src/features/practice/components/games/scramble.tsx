@@ -18,7 +18,7 @@ export function ScrambleGame() {
     useEffect(() => {
         if (!currentWord) return;
 
-        const word = currentWord.serbian;
+        const word = currentWord.secondary;
         const shuffled = word.split('').sort(() => 0.5 - Math.random()).join('');
         // Ensure it's not the same as original if possible
         setScrambled(shuffled === word && word.length > 1 ? word.split('').reverse().join('') : shuffled);
@@ -31,7 +31,7 @@ export function ScrambleGame() {
     const handleCheck = () => {
         if (!currentWord) return;
 
-        const correct = input.trim().toLowerCase() === currentWord.serbian.toLowerCase();
+        const correct = input.trim().toLowerCase() === currentWord.secondary.toLowerCase();
         setIsCorrect(correct);
         setIsChecked(true);
 
@@ -64,7 +64,7 @@ export function ScrambleGame() {
                 </CardHeader>
                 <CardContent className="text-center pt-4 pb-8">
                     <h2 className="text-4xl font-bold text-primary mb-2 tracking-widest">{scrambled}</h2>
-                    <p className="text-muted-foreground mt-4">Translation for: <span className="font-semibold text-foreground">{currentWord.german}</span></p>
+                    <p className="text-muted-foreground mt-4">Translation for: <span className="font-semibold text-foreground">{currentWord.primary}</span></p>
                 </CardContent>
             </Card>
 
@@ -81,7 +81,7 @@ export function ScrambleGame() {
                 {isChecked && (
                     <div className={`p-4 rounded-md text-center ${isCorrect ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
                         <p className="font-bold">{isCorrect ? "Correct!" : "Incorrect"}</p>
-                        {!isCorrect && <p>Answer: {currentWord.serbian}</p>}
+                        {!isCorrect && <p>Answer: {currentWord.secondary}</p>}
                     </div>
                 )}
 
@@ -96,4 +96,3 @@ export function ScrambleGame() {
         </div>
     );
 }
-

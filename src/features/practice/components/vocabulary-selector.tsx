@@ -137,7 +137,7 @@ export function VocabularySelector() {
                                             htmlFor={word.id}
                                             className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex-1"
                                         >
-                                            {word.german} - {word.serbian}
+                                            {word.primary} - {word.secondary}
                                         </label>
                                     </div>
                                 ))}

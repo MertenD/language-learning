@@ -9,7 +9,7 @@ import { Zap } from "lucide-react";
 
 export function SpeedMatchGame() {
     const { selectedWords, endGame, incrementScore } = usePracticeSession();
-    const [currentPair, setCurrentPair] = useState<{ german: string, serbian: string, isMatch: boolean } | null>(null);
+    const [currentPair, setCurrentPair] = useState<{ primary: string, secondary: string, isMatch: boolean } | null>(null);
     const [timeLeft, setTimeLeft] = useState(100);
     const [score, setLocalScore] = useState(0);
     const [gameOver, setGameOver] = useState(false);
@@ -46,15 +46,15 @@ export function SpeedMatchGame() {
         const randomWord = selectedWords[Math.floor(Math.random() * selectedWords.length)];
         const isMatch = Math.random() > 0.5;
 
-        let serbian = randomWord.serbian;
+        let secondary = randomWord.secondary;
         if (!isMatch && selectedWords.length > 1) {
             const otherWords = selectedWords.filter((w: any) => w.id !== randomWord.id);
-            serbian = otherWords[Math.floor(Math.random() * otherWords.length)].serbian;
+            secondary = otherWords[Math.floor(Math.random() * otherWords.length)].secondary;
         }
 
         setCurrentPair({
-            german: randomWord.german,
-            serbian,
+            primary: randomWord.primary,
+            secondary,
             isMatch
         });
         setRound(r => r + 1);
@@ -102,35 +102,37 @@ export function SpeedMatchGame() {
 
             <Card className="text-center py-8 relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-full h-1 bg-primary animate-pulse" />
-                <CardContent className="space-y-6">
-                    <div>
-                        <p className="text-sm text-muted-foreground mb-2">German</p>
-                        <h2 className="text-3xl font-bold">{currentPair.german}</h2>
+                <CardContent className="space-y-6 pt-6">
+                    <div className="text-center space-y-4">
+                        <div className="p-6 bg-secondary/20 rounded-lg">
+                            <p className="text-sm text-muted-foreground mb-1">Word</p>
+                            <h3 className="text-3xl font-bold">{currentPair.primary}</h3>
+                        </div>
+
+                        <div className="p-6 bg-secondary/20 rounded-lg">
+                            <p className="text-sm text-muted-foreground mb-1">Translation</p>
+                            <h3 className="text-3xl font-bold text-primary">{currentPair.secondary}</h3>
+                        </div>
                     </div>
-                    <div className="text-muted-foreground"><Zap className="inline h-4 w-4" /></div>
-                    <div>
-                        <p className="text-sm text-muted-foreground mb-2">Serbian</p>
-                        <h2 className="text-3xl font-bold text-primary">{currentPair.serbian}</h2>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <Button
+                            variant="destructive"
+                            className="h-20 text-xl"
+                            onClick={() => handleAnswer(false)}
+                        >
+                            No Match
+                        </Button>
+                        <Button
+                            variant="default"
+                            className="h-20 text-xl bg-green-600 hover:bg-green-700"
+                            onClick={() => handleAnswer(true)}
+                        >
+                            Match
+                        </Button>
                     </div>
                 </CardContent>
             </Card>
-
-            <div className="grid grid-cols-2 gap-4">
-                <Button
-                    variant="destructive"
-                    className="h-20 text-xl"
-                    onClick={() => handleAnswer(false)}
-                >
-                    No Match
-                </Button>
-                <Button
-                    variant="default"
-                    className="h-20 text-xl bg-green-600 hover:bg-green-700"
-                    onClick={() => handleAnswer(true)}
-                >
-                    Match
-                </Button>
-            </div>
         </div>
     );
 }

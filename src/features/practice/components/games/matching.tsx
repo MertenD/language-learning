@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 type MatchItem = {
     id: string;
     text: string;
-    type: 'german' | 'serbian';
+    type: 'primary' | 'secondary';
     wordId: string;
     matched: boolean;
 };
@@ -26,16 +26,16 @@ export function MatchingGame() {
         const newItems: MatchItem[] = [];
         currentBatch.forEach((word: any) => {
             newItems.push({
-                id: `g-${word.id}`,
-                text: word.german,
-                type: 'german',
+                id: `p-${word.id}`,
+                text: word.primary,
+                type: 'primary',
                 wordId: word.id,
                 matched: false
             });
             newItems.push({
                 id: `s-${word.id}`,
-                text: word.serbian,
-                type: 'serbian',
+                text: word.secondary,
+                type: 'secondary',
                 wordId: word.id,
                 matched: false
             });
@@ -91,7 +91,7 @@ export function MatchingGame() {
         <div className="max-w-4xl mx-auto">
             <div className="text-center mb-8">
                 <h2 className="text-2xl font-bold">Match the pairs</h2>
-                <p className="text-muted-foreground">Select a German word and its Serbian translation</p>
+                <p className="text-muted-foreground">Select a primary word and its secondary translation</p>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">

@@ -45,9 +45,9 @@ export function FlashcardsGame() {
                     {/* Front */}
                     <Card className="absolute w-full h-full backface-hidden flex items-center justify-center">
                         <CardContent className="text-center p-6">
-                            <h2 className="text-3xl font-bold mb-2">{currentWord.german}</h2>
-                            {currentWord.germanInfo && (
-                                <p className="text-muted-foreground">{currentWord.germanInfo}</p>
+                            <h2 className="text-3xl font-bold mb-2">{currentWord.primary}</h2>
+                            {currentWord.primaryInfo && (
+                                <p className="text-muted-foreground">{currentWord.primaryInfo}</p>
                             )}
                             <p className="text-sm text-muted-foreground mt-8">(Click to flip)</p>
                         </CardContent>
@@ -59,9 +59,9 @@ export function FlashcardsGame() {
                         style={{ transform: "rotateY(180deg)" }}
                     >
                         <CardContent className="text-center p-6">
-                            <h2 className="text-3xl font-bold mb-2">{currentWord.serbian}</h2>
-                            {currentWord.serbianInfo && (
-                                <p className="text-muted-foreground">{currentWord.serbianInfo}</p>
+                            <h2 className="text-3xl font-bold mb-2">{currentWord.secondary}</h2>
+                            {currentWord.secondaryInfo && (
+                                <p className="text-muted-foreground">{currentWord.secondaryInfo}</p>
                             )}
                         </CardContent>
                     </Card>

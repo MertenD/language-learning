@@ -25,7 +25,7 @@ export function TypingGame() {
     const handleCheck = () => {
         if (!currentWord) return;
 
-        const correct = input.trim().toLowerCase() === currentWord.serbian.toLowerCase();
+        const correct = input.trim().toLowerCase() === currentWord.secondary.toLowerCase();
         setIsCorrect(correct);
         setIsChecked(true);
 
@@ -71,9 +71,9 @@ export function TypingGame() {
                     <CardTitle className="text-2xl">Type the translation</CardTitle>
                 </CardHeader>
                 <CardContent className="text-center pt-4 pb-8">
-                    <h2 className="text-4xl font-bold text-primary mb-2">{currentWord.german}</h2>
-                    {currentWord.germanInfo && (
-                        <p className="text-muted-foreground">{currentWord.germanInfo}</p>
+                    <h2 className="text-4xl font-bold text-primary mb-2">{currentWord.primary}</h2>
+                    {currentWord.primaryInfo && (
+                        <p className="text-muted-foreground">{currentWord.primaryInfo}</p>
                     )}
                 </CardContent>
             </Card>
@@ -85,7 +85,7 @@ export function TypingGame() {
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={handleKeyDown}
-                        placeholder="Type Serbian translation..."
+                        placeholder="Type secondary translation..."
                         className="h-14 text-lg text-center"
                         disabled={isChecked}
                         autoComplete="off"
@@ -104,8 +104,8 @@ export function TypingGame() {
                 {isChecked && !isCorrect && (
                     <div className="p-4 bg-destructive/10 text-destructive rounded-md text-center">
                         <p className="font-semibold">Correct answer:</p>
-                        <p className="text-xl">{currentWord.serbian}</p>
-                        {currentWord.serbianInfo && <p className="text-sm">{currentWord.serbianInfo}</p>}
+                        <p className="text-xl">{currentWord.secondary}</p>
+                        {currentWord.secondaryInfo && <p className="text-sm">{currentWord.secondaryInfo}</p>}
                     </div>
                 )}
 

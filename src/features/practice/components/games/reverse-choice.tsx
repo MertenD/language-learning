@@ -17,14 +17,14 @@ export function ReverseChoiceGame() {
     useEffect(() => {
         if (!currentWord) return;
 
-        // Generate options: correct answer + 3 random distractors (German words)
+        // Generate options: correct answer + 3 random distractors (Primary words)
         const distractors = selectedWords
             .filter((w: any) => w.id !== currentWord.id)
             .sort(() => 0.5 - Math.random())
             .slice(0, 3)
-            .map((w: any) => w.german);
+            .map((w: any) => w.primary);
 
-        const allOptions = [currentWord.german, ...distractors]
+        const allOptions = [currentWord.primary, ...distractors]
             .sort(() => 0.5 - Math.random());
 
         setOptions(allOptions);
@@ -38,7 +38,7 @@ export function ReverseChoiceGame() {
         setSelectedOption(option);
         setIsAnswered(true);
 
-        if (option === currentWord.german) {
+        if (option === currentWord.primary) {
             incrementScore();
         }
     };
@@ -63,12 +63,12 @@ export function ReverseChoiceGame() {
 
             <Card>
                 <CardHeader className="text-center pb-2">
-                    <CardTitle className="text-2xl">Select the German translation</CardTitle>
+                    <CardTitle className="text-2xl">Select the primary translation</CardTitle>
                 </CardHeader>
                 <CardContent className="text-center pt-4 pb-8">
-                    <h2 className="text-4xl font-bold text-primary">{currentWord.serbian}</h2>
-                    {currentWord.serbianInfo && (
-                        <p className="text-muted-foreground mt-2">{currentWord.serbianInfo}</p>
+                    <h2 className="text-4xl font-bold text-primary">{currentWord.secondary}</h2>
+                    {currentWord.secondaryInfo && (
+                        <p className="text-muted-foreground mt-2">{currentWord.secondaryInfo}</p>
                     )}
                 </CardContent>
             </Card>
@@ -78,7 +78,7 @@ export function ReverseChoiceGame() {
                     let variant: "outline" | "default" | "destructive" | "secondary" = "outline";
 
                     if (isAnswered) {
-                        if (option === currentWord.german) {
+                        if (option === currentWord.primary) {
                             variant = "default"; // Correct answer always green/primary
                         } else if (option === selectedOption) {
                             variant = "destructive"; // Wrong selection red
@@ -91,8 +91,8 @@ export function ReverseChoiceGame() {
                             variant={variant}
                             className={cn(
                                 "h-14 text-lg justify-start px-6",
-                                isAnswered && option === currentWord.german && "bg-green-600 hover:bg-green-700 text-white",
-                                isAnswered && option === selectedOption && option !== currentWord.german && "bg-red-500 hover:bg-red-600 text-white"
+                                isAnswered && option === currentWord.primary && "bg-green-600 hover:bg-green-700 text-white",
+                                isAnswered && option === selectedOption && option !== currentWord.primary && "bg-red-500 hover:bg-red-600 text-white"
                             )}
                             onClick={() => handleOptionClick(option)}
                             disabled={isAnswered}

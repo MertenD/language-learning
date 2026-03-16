@@ -22,9 +22,9 @@ export function MultipleChoiceGame() {
             .filter((w: any) => w.id !== currentWord.id)
             .sort(() => 0.5 - Math.random())
             .slice(0, 3)
-            .map((w: any) => w.serbian);
+            .map((w: any) => w.secondary);
 
-        const allOptions = [currentWord.serbian, ...distractors]
+        const allOptions = [currentWord.secondary, ...distractors]
             .sort(() => 0.5 - Math.random());
 
         setOptions(allOptions);
@@ -38,7 +38,7 @@ export function MultipleChoiceGame() {
         setSelectedOption(option);
         setIsAnswered(true);
 
-        if (option === currentWord.serbian) {
+        if (option === currentWord.secondary) {
             incrementScore();
         }
     };
@@ -66,9 +66,9 @@ export function MultipleChoiceGame() {
                     <CardTitle className="text-2xl">What is the translation for?</CardTitle>
                 </CardHeader>
                 <CardContent className="text-center pt-4 pb-8">
-                    <h2 className="text-4xl font-bold text-primary">{currentWord.german}</h2>
-                    {currentWord.germanInfo && (
-                        <p className="text-muted-foreground mt-2">{currentWord.germanInfo}</p>
+                    <h2 className="text-4xl font-bold text-primary">{currentWord.primary}</h2>
+                    {currentWord.primaryInfo && (
+                        <p className="text-muted-foreground mt-2">{currentWord.primaryInfo}</p>
                     )}
                 </CardContent>
             </Card>
@@ -78,7 +78,7 @@ export function MultipleChoiceGame() {
                     let variant: "outline" | "default" | "destructive" | "secondary" = "outline";
 
                     if (isAnswered) {
-                        if (option === currentWord.serbian) {
+                        if (option === currentWord.secondary) {
                             variant = "default"; // Correct answer always green/primary
                         } else if (option === selectedOption) {
                             variant = "destructive"; // Wrong selection red
@@ -91,8 +91,8 @@ export function MultipleChoiceGame() {
                             variant={variant}
                             className={cn(
                                 "h-14 text-lg justify-start px-6",
-                                isAnswered && option === currentWord.serbian && "bg-green-600 hover:bg-green-700 text-white",
-                                isAnswered && option === selectedOption && option !== currentWord.serbian && "bg-red-500 hover:bg-red-600 text-white"
+                                isAnswered && option === currentWord.secondary && "bg-green-600 hover:bg-green-700 text-white",
+                                isAnswered && option === selectedOption && option !== currentWord.secondary && "bg-red-500 hover:bg-red-600 text-white"
                             )}
                             onClick={() => handleOptionClick(option)}
                             disabled={isAnswered}
