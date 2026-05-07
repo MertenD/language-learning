@@ -141,6 +141,51 @@ export const userRouter = createTRPCRouter({
             })
         }),
 
+    getWordProgressStats: protectedProcedure.query(async ({ ctx }) => {
+        const { id: userId, currentLanguageId: languageId } = ctx.auth.user
+        const todayStart = new Date()
+        todayStart.setHours(0, 0, 0, 0)
+
+        const [groups, totalWords, dueCount, reviewedTodayCount] = await Promise.all([
+            prisma.wordProgress.groupBy({
+                by: ["level"],
+                where: { word: { userId, languageId } },
+                _count: { _all: true },
+            }),
+            prisma.word.count({ where: { userId, languageId } }),
+            prisma.word.count({
+                where: {
+                    userId,
+                    languageId,
+                    progress: { nextReviewAt: { lte: new Date() } },
+                },
+            }),
+            prisma.wordProgress.count({
+                where: {
+                    word: { userId, languageId },
+                    lastReviewedAt: { gte: todayStart },
+                },
+            }),
+        ])
+
+        const levelCounts: Record<number, number> = {}
+        for (const g of groups) {
+            levelCounts[g.level] = g._count._all
+        }
+        const wordsWithProgress = groups.reduce((sum, g) => sum + g._count._all, 0)
+
+        return {
+            new: totalWords - wordsWithProgress,
+            level1: levelCounts[1] ?? 0,
+            level2: levelCounts[2] ?? 0,
+            level3: levelCounts[3] ?? 0,
+            level4: levelCounts[4] ?? 0,
+            level5: levelCounts[5] ?? 0,
+            dueCount,
+            reviewedTodayCount,
+        }
+    }),
+
     setLanguage: protectedProcedure
         .input(z.object({ languageId: z.string().min(1) }))
         .mutation(async ({ ctx, input }) => {
