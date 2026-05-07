@@ -153,6 +153,13 @@ export const wordsRouter = createTRPCRouter({
                 where: { id: input.id, userId: ctx.auth.user.id }
             })
     }),
+    bulkDelete: premiumProcedure
+        .input(z.object({ ids: z.array(z.string().min(1)).min(1) }))
+        .mutation(({ ctx, input }) => {
+            return prisma.word.deleteMany({
+                where: { id: { in: input.ids }, userId: ctx.auth.user.id }
+            })
+        }),
     update: premiumProcedure
         .input(z.object({
             id: z.string().min(1),
@@ -188,63 +195,44 @@ export const wordsRouter = createTRPCRouter({
             page: z.number().min(1).default(PAGINATION.DEFAULT_PAGE),
             pageSize: z.number().min(PAGINATION.MIN_PAGE_SIZE).max(PAGINATION.MAX_PAGE_SIZE).default(PAGINATION.DEFAULT_PAGE_SIZE),
             search: z.string().default(""),
-            categoryId: z.string().optional().nullable()
+            categoryId: z.string().optional().nullable(),
+            sortBy: z.enum(["updatedAt", "createdAt", "primary", "secondary"]).default("updatedAt"),
+            sortOrder: z.enum(["asc", "desc"]).default("desc"),
         }))
         .query(async ({ ctx, input }) => {
-            const { page, pageSize, search, categoryId } = input;
+            const { page, pageSize, search, categoryId, sortBy, sortOrder } = input;
 
             // If categoryId is empty string, treat it as null (root level)
             const effectiveCategoryId = categoryId === "" ? null : categoryId;
+
+            // When searching, ignore category filter to search across all subcategories
+            const categoryFilter = search ? undefined : effectiveCategoryId
+
+            const searchFilter = search
+                ? {
+                    OR: [
+                        { secondary: { contains: search, mode: "insensitive" as const } },
+                        { primary: { contains: search, mode: "insensitive" as const } },
+                    ],
+                }
+                : {}
+
+            const whereClause = {
+                userId: ctx.auth.user.id,
+                languageId: ctx.auth.user.currentLanguageId,
+                categoryId: categoryFilter,
+                ...searchFilter,
+            }
 
             const [items, totalCount] = await Promise.all([
                 prisma.word.findMany({
                     skip: (page - 1) * pageSize,
                     take: pageSize,
-                    where: {
-                        userId: ctx.auth.user.id,
-                        languageId: ctx.auth.user.currentLanguageId,
-                        categoryId: effectiveCategoryId,
-                        OR: [
-                            {
-                                secondary: {
-                                    contains: search,
-                                    mode: "insensitive"
-                                }
-                            },
-                            {
-                                primary: {
-                                    contains: search,
-                                    mode: "insensitive"
-                                }
-                            }
-                        ]
-                    },
-                    orderBy: {
-                        updatedAt: "desc"
-                    },
+                    where: whereClause,
+                    orderBy: { [sortBy]: sortOrder },
                     include: { progress: true }
                 }),
-                prisma.word.count({
-                    where: {
-                        userId: ctx.auth.user.id,
-                        languageId: ctx.auth.user.currentLanguageId,
-                        categoryId: effectiveCategoryId,
-                        OR: [
-                            {
-                                secondary: {
-                                    contains: search,
-                                    mode: "insensitive"
-                                }
-                            },
-                            {
-                                primary: {
-                                    contains: search,
-                                    mode: "insensitive"
-                                }
-                            }
-                        ]
-                    }
-                })
+                prisma.word.count({ where: whereClause })
             ])
 
             const totalPages = Math.ceil(totalCount / pageSize);

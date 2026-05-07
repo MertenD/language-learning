@@ -2,10 +2,10 @@
 
 import {useUpgradeModal} from "@/hooks/use-upgrade-modal";
 import {WordCreateDialog} from "@/features/words/components/word-create-dialog";
-import {useState} from "react";
+import {useState, useRef} from "react";
 import {CreateWordInput} from "@/features/words/schema/word-crud-schema";
 import {Button} from "@/components/ui/button";
-import {Download, MoreHorizontal, Plus, Upload} from "lucide-react";
+import {ArrowDownAZIcon, ArrowUpAZIcon, Download, MoreHorizontal, Plus, Upload} from "lucide-react";
 import {CategoryCreateDialog} from "@/features/words/components/categories/category-create-dialog";
 import {useWordsParams} from "@/features/words/hooks/use-words-params";
 import {useCreateWord, useExportWords, useImportWords} from "@/features/words/hooks/use-words";
@@ -14,10 +14,12 @@ import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
     DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
-import {useRef} from "react";
 import {toast} from "sonner";
+import {SORT_BY_OPTIONS} from "@/features/words/params";
 
 type WordsHeaderProps = {
     disabled?: boolean
@@ -32,7 +34,7 @@ export default function WordsHeader({ disabled }: WordsHeaderProps) {
     const { handleError, modal } = useUpgradeModal()
     const [isWordOpen, setIsWordOpen] = useState(false)
     const [isCategoryOpen, setIsCategoryOpen] = useState(false)
-    const [params] = useWordsParams()
+    const [params, setParams] = useWordsParams()
     const fileInputRef = useRef<HTMLInputElement>(null)
 
     const handleCreateWord = (newWord: CreateWordInput) => {
@@ -119,6 +121,13 @@ export default function WordsHeader({ disabled }: WordsHeaderProps) {
         event.target.value = ""
     }
 
+    const SORT_LABELS: Record<string, string> = {
+        updatedAt: "Last Updated",
+        createdAt: "Date Added",
+        primary: "Primary (A-Z)",
+        secondary: "Secondary (A-Z)",
+    }
+
     return <>
         <input
             type="file"
@@ -134,6 +143,35 @@ export default function WordsHeader({ disabled }: WordsHeaderProps) {
                 <p className="text-muted-foreground">Create and manage your vocabulary</p>
             </div>
             <div className="flex gap-2">
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="sm" disabled={disabled}>
+                            {params.sortOrder === "asc"
+                                ? <ArrowUpAZIcon className="mr-2 h-4 w-4" />
+                                : <ArrowDownAZIcon className="mr-2 h-4 w-4" />
+                            }
+                            {SORT_LABELS[params.sortBy] ?? "Sort"}
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Sort by</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        {SORT_BY_OPTIONS.map((option) => (
+                            <DropdownMenuItem
+                                key={option}
+                                onClick={() => setParams({ sortBy: option, page: 1 })}
+                                className={params.sortBy === option ? "font-medium" : ""}
+                            >
+                                {SORT_LABELS[option]}
+                            </DropdownMenuItem>
+                        ))}
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => setParams({ sortOrder: params.sortOrder === "asc" ? "desc" : "asc" })}>
+                            {params.sortOrder === "asc" ? "↓ Descending" : "↑ Ascending"}
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="outline" size="icon" disabled={disabled}>

@@ -7,6 +7,10 @@ import {BookOpenIcon} from "lucide-react";
 import WordsLevelCountCard from "@/features/dashboard/components/words-level-count-card";
 import DailyGoal from "@/features/dashboard/components/daily-goal-card";
 import {useWordProgressStats} from "@/features/user/hooks/use-stats";
+import {useState, useEffect} from "react";
+
+const DAILY_GOAL_KEY = "daily-goal-target"
+const DEFAULT_DAILY_GOAL = 20
 
 type WordProgressProps = {
     className?: string
@@ -14,6 +18,20 @@ type WordProgressProps = {
 
 export default function WordProgressCard({ className }: WordProgressProps) {
     const { data: stats, isLoading } = useWordProgressStats()
+    const [dailyGoalTarget, setDailyGoalTarget] = useState(DEFAULT_DAILY_GOAL)
+
+    useEffect(() => {
+        const stored = localStorage.getItem(DAILY_GOAL_KEY)
+        if (stored) {
+            const parsed = parseInt(stored, 10)
+            if (!isNaN(parsed) && parsed > 0) setDailyGoalTarget(parsed)
+        }
+    }, [])
+
+    const handleTargetChange = (value: number) => {
+        setDailyGoalTarget(value)
+        localStorage.setItem(DAILY_GOAL_KEY, String(value))
+    }
 
     const levelStats = stats
         ? [
@@ -67,6 +85,9 @@ export default function WordProgressCard({ className }: WordProgressProps) {
                 title={dailyGoalTitle}
                 description={dailyGoalDescription}
                 href="/practice"
+                current={stats?.reviewedTodayCount}
+                target={dailyGoalTarget}
+                onTargetChange={handleTargetChange}
             />
         </CardContent>
     </Card>

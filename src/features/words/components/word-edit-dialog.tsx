@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import {Word} from "@/generated/prisma/client";
+import {Word, WordProgress} from "@/generated/prisma/client";
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { CreateWordInput, createWordSchema } from "@/features/words/schema/word-crud-schema"
@@ -14,8 +14,13 @@ import { useSuspenseAllCategories } from "@/features/words/hooks/use-categories"
 import { useLanguage, useNativeLanguage } from "@/features/user/hooks/use-language"
 import { PlusIcon, Trash2Icon } from "lucide-react"
 
+type WordWithProgress = Word & { progress?: WordProgress | null }
+
+const LEVEL_LABELS = ["New", "Learning", "Learning", "Advanced", "Advanced", "Mastered"]
+const LEVEL_COLORS = ["text-muted-foreground", "text-amber-500", "text-amber-600", "text-blue-500", "text-blue-600", "text-green-500"]
+
 interface WordEditDialogProps {
-    word: Word
+    word: WordWithProgress
     open: boolean
     onOpenChange: (open: boolean) => void
     onSave?: (word: Word) => void | Promise<void>
@@ -262,6 +267,38 @@ export function WordEditDialog({ word, open, onOpenChange, onSave }: WordEditDia
                                     </div>
                                 )}
                             </div>
+
+                            {word.progress && (
+                                <div className="rounded-lg border bg-muted/30 p-4 space-y-3">
+                                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Practice Stats</p>
+                                    <div className="grid grid-cols-2 gap-3 text-sm">
+                                        <div>
+                                            <p className="text-muted-foreground text-xs">Level</p>
+                                            <p className={`font-semibold ${LEVEL_COLORS[word.progress.level] ?? ""}`}>
+                                                {LEVEL_LABELS[word.progress.level] ?? "Unknown"} ({word.progress.level}/5)
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <p className="text-muted-foreground text-xs">Repetitions</p>
+                                            <p className="font-semibold">{word.progress.repititions}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-muted-foreground text-xs">Correct</p>
+                                            <p className="font-semibold text-green-600">{word.progress.totalCorrect}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-muted-foreground text-xs">Incorrect</p>
+                                            <p className="font-semibold text-red-500">{word.progress.totalIncorrect}</p>
+                                        </div>
+                                        {word.progress.nextReviewAt && (
+                                            <div className="col-span-2">
+                                                <p className="text-muted-foreground text-xs">Next Review</p>
+                                                <p className="font-semibold">{word.progress.nextReviewAt.toLocaleDateString("de-DE")}</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
 
                             <div className="flex items-center justify-between text-xs text-muted-foreground pt-4 border-t">
                                 <span>Created: {word.createdAt.toLocaleDateString("de-DE")}</span>

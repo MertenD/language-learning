@@ -95,6 +95,24 @@ export const useExportWords = () => {
 }
 
 /**
+ * Hook to bulk-delete vocabulary
+ */
+export const useBulkDeleteWords = () => {
+    const queryClient = useQueryClient()
+    const trpc = useTRPC()
+
+    return useMutation(trpc.words.bulkDelete.mutationOptions({
+        onSuccess: (data) => {
+            toast.success(`${data.count} word${data.count !== 1 ? "s" : ""} deleted`)
+            queryClient.invalidateQueries(trpc.words.getMany.queryOptions({}))
+        },
+        onError: (error) => {
+            toast.error(`Failed to delete words: ${error.message}`)
+        }
+    }))
+}
+
+/**
  * Hook to remove vocabulary
  */
 export const useRemoveWord = () => {
