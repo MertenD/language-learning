@@ -2,13 +2,15 @@
 
 import { useState, useRef, useEffect } from "react";
 import { usePracticeSession } from "../../hooks/use-practice-session";
+import { useEndGame } from "../../hooks/use-end-game";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CheckCircle2, XCircle } from "lucide-react";
 
 export function TypingGame() {
-    const { selectedWords, currentWordIndex, nextWord, endGame, incrementScore } = usePracticeSession();
+    const { selectedWords, currentWordIndex, nextWord, recordResult } = usePracticeSession();
+    const endGame = useEndGame();
     const [input, setInput] = useState("");
     const [isChecked, setIsChecked] = useState(false);
     const [isCorrect, setIsCorrect] = useState(false);
@@ -28,10 +30,7 @@ export function TypingGame() {
         const correct = input.trim().toLowerCase() === currentWord.secondary.toLowerCase();
         setIsCorrect(correct);
         setIsChecked(true);
-
-        if (correct) {
-            incrementScore();
-        }
+        recordResult(currentWord.id, correct);
     };
 
     const handleNext = () => {
@@ -120,4 +119,3 @@ export function TypingGame() {
         </div>
     );
 }
-

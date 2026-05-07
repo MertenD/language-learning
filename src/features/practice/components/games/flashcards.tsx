@@ -2,18 +2,21 @@
 
 import { useState } from "react";
 import { usePracticeSession } from "../../hooks/use-practice-session";
+import { useEndGame } from "../../hooks/use-end-game";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { RotateCw } from "lucide-react";
 
 export function FlashcardsGame() {
-    const { selectedWords, currentWordIndex, nextWord, endGame } = usePracticeSession();
+    const { selectedWords, currentWordIndex, nextWord, recordResult } = usePracticeSession();
+    const endGame = useEndGame();
     const [isFlipped, setIsFlipped] = useState(false);
 
     const currentWord = selectedWords[currentWordIndex];
 
     const handleNext = () => {
+        recordResult(currentWord.id, true);
         setIsFlipped(false);
         if (currentWordIndex < selectedWords.length - 1) {
             nextWord();
@@ -79,4 +82,3 @@ export function FlashcardsGame() {
         </div>
     );
 }
-

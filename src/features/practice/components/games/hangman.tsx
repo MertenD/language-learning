@@ -2,13 +2,15 @@
 
 import { useState, useEffect } from "react";
 import { usePracticeSession } from "../../hooks/use-practice-session";
+import { useEndGame } from "../../hooks/use-end-game";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 const ALPHABET = "ABCČĆDĐEFGHIJKLMNOPQRSŠTUVWXYZŽ".split("");
 
 export function HangmanGame() {
-    const { selectedWords, currentWordIndex, nextWord, endGame, incrementScore } = usePracticeSession();
+    const { selectedWords, currentWordIndex, nextWord, recordResult } = usePracticeSession();
+    const endGame = useEndGame();
     const [guessedLetters, setGuessedLetters] = useState<Set<string>>(new Set());
     const [wrongGuesses, setWrongGuesses] = useState(0);
     const [isFinished, setIsFinished] = useState(false);
@@ -38,16 +40,16 @@ export function HangmanGame() {
             if (newWrong >= maxWrong) {
                 setIsFinished(true);
                 setIsWon(false);
+                recordResult(currentWord.id, false);
             }
         } else {
-            // Check win
             const isComplete = normalizedWord.split('').every((char: string) =>
                 !ALPHABET.includes(char) || newGuessed.has(char)
             );
             if (isComplete) {
                 setIsFinished(true);
                 setIsWon(true);
-                incrementScore();
+                recordResult(currentWord.id, true);
             }
         }
     };

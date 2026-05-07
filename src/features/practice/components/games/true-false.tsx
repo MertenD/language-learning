@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { usePracticeSession } from "../../hooks/use-practice-session";
+import { useEndGame } from "../../hooks/use-end-game";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Check, X } from "lucide-react";
 
 export function TrueFalseGame() {
-    const { selectedWords, currentWordIndex, nextWord, endGame, incrementScore } = usePracticeSession();
+    const { selectedWords, currentWordIndex, nextWord, recordResult } = usePracticeSession();
+    const endGame = useEndGame();
     const [displayedTranslation, setDisplayedTranslation] = useState("");
     const [isCorrectMatch, setIsCorrectMatch] = useState(false);
     const [hasAnswered, setHasAnswered] = useState(false);
@@ -18,20 +20,17 @@ export function TrueFalseGame() {
     useEffect(() => {
         if (!currentWord) return;
 
-        // 50% chance to show correct translation
         const showCorrect = Math.random() > 0.5;
         setIsCorrectMatch(showCorrect);
 
         if (showCorrect) {
             setDisplayedTranslation(currentWord.secondary);
         } else {
-            // Pick a random wrong translation
             const otherWords = selectedWords.filter((w: any) => w.id !== currentWord.id);
             if (otherWords.length > 0) {
                 const randomWord = otherWords[Math.floor(Math.random() * otherWords.length)];
                 setDisplayedTranslation(randomWord.secondary);
             } else {
-                // Fallback if only 1 word selected (shouldn't happen often in practice)
                 setDisplayedTranslation("Wrong Answer");
                 setIsCorrectMatch(false);
             }
@@ -47,9 +46,8 @@ export function TrueFalseGame() {
         setHasAnswered(true);
         setUserAnswer(answer);
 
-        if (answer === isCorrectMatch) {
-            incrementScore();
-        }
+        const correct = answer === isCorrectMatch;
+        recordResult(currentWord.id, correct);
 
         setTimeout(() => {
             if (currentWordIndex < selectedWords.length - 1) {
@@ -114,4 +112,3 @@ export function TrueFalseGame() {
         </div>
     );
 }
-

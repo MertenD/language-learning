@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { usePracticeSession } from "../../hooks/use-practice-session";
+import { useEndGame } from "../../hooks/use-end-game";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export function ReverseChoiceGame() {
-    const { selectedWords, currentWordIndex, nextWord, endGame, incrementScore } = usePracticeSession();
+    const { selectedWords, currentWordIndex, nextWord, recordResult } = usePracticeSession();
+    const endGame = useEndGame();
     const [options, setOptions] = useState<string[]>([]);
     const [selectedOption, setSelectedOption] = useState<string | null>(null);
     const [isAnswered, setIsAnswered] = useState(false);
@@ -17,7 +19,6 @@ export function ReverseChoiceGame() {
     useEffect(() => {
         if (!currentWord) return;
 
-        // Generate options: correct answer + 3 random distractors (Primary words)
         const distractors = selectedWords
             .filter((w: any) => w.id !== currentWord.id)
             .sort(() => 0.5 - Math.random())
@@ -35,12 +36,10 @@ export function ReverseChoiceGame() {
     const handleOptionClick = (option: string) => {
         if (isAnswered) return;
 
+        const correct = option === currentWord.primary;
         setSelectedOption(option);
         setIsAnswered(true);
-
-        if (option === currentWord.primary) {
-            incrementScore();
-        }
+        recordResult(currentWord.id, correct);
     };
 
     const handleNext = () => {
@@ -79,9 +78,9 @@ export function ReverseChoiceGame() {
 
                     if (isAnswered) {
                         if (option === currentWord.primary) {
-                            variant = "default"; // Correct answer always green/primary
+                            variant = "default";
                         } else if (option === selectedOption) {
-                            variant = "destructive"; // Wrong selection red
+                            variant = "destructive";
                         }
                     }
 
@@ -113,4 +112,3 @@ export function ReverseChoiceGame() {
         </div>
     );
 }
-

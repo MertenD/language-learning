@@ -2,20 +2,21 @@
 
 import { useState, useEffect } from "react";
 import { usePracticeSession } from "../../hooks/use-practice-session";
+import { useEndGame } from "../../hooks/use-end-game";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Zap } from "lucide-react";
 
 export function SpeedMatchGame() {
-    const { selectedWords, endGame, incrementScore } = usePracticeSession();
+    const { selectedWords, incrementScore } = usePracticeSession();
+    const endGame = useEndGame();
     const [currentPair, setCurrentPair] = useState<{ primary: string, secondary: string, isMatch: boolean } | null>(null);
     const [timeLeft, setTimeLeft] = useState(100);
     const [score, setLocalScore] = useState(0);
     const [gameOver, setGameOver] = useState(false);
     const [round, setRound] = useState(0);
 
-    const maxRounds = 20; // Fixed number of rounds for speed match
+    const maxRounds = 20;
 
     useEffect(() => {
         if (gameOver) return;
@@ -26,7 +27,7 @@ export function SpeedMatchGame() {
                     setGameOver(true);
                     return 0;
                 }
-                return prev - 0.5; // Decrease speed
+                return prev - 0.5;
             });
         }, 50);
 
@@ -58,7 +59,7 @@ export function SpeedMatchGame() {
             isMatch
         });
         setRound(r => r + 1);
-        setTimeLeft(100); // Reset timer for each word
+        setTimeLeft(100);
     };
 
     const handleAnswer = (answer: boolean) => {
@@ -68,7 +69,6 @@ export function SpeedMatchGame() {
             setLocalScore(s => s + 1);
             incrementScore();
         } else {
-            // Penalty?
             setTimeLeft(prev => Math.max(0, prev - 20));
         }
         generatePair();
@@ -136,4 +136,3 @@ export function SpeedMatchGame() {
         </div>
     );
 }
-

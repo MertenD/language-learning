@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { usePracticeSession } from "../../hooks/use-practice-session";
+import { useEndGame } from "../../hooks/use-end-game";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 export function ScrambleGame() {
-    const { selectedWords, currentWordIndex, nextWord, endGame, incrementScore } = usePracticeSession();
+    const { selectedWords, currentWordIndex, nextWord, recordResult } = usePracticeSession();
+    const endGame = useEndGame();
     const [scrambled, setScrambled] = useState("");
     const [input, setInput] = useState("");
     const [isChecked, setIsChecked] = useState(false);
@@ -20,7 +22,6 @@ export function ScrambleGame() {
 
         const word = currentWord.secondary;
         const shuffled = word.split('').sort(() => 0.5 - Math.random()).join('');
-        // Ensure it's not the same as original if possible
         setScrambled(shuffled === word && word.length > 1 ? word.split('').reverse().join('') : shuffled);
 
         setInput("");
@@ -34,10 +35,7 @@ export function ScrambleGame() {
         const correct = input.trim().toLowerCase() === currentWord.secondary.toLowerCase();
         setIsCorrect(correct);
         setIsChecked(true);
-
-        if (correct) {
-            incrementScore();
-        }
+        recordResult(currentWord.id, correct);
     };
 
     const handleNext = () => {

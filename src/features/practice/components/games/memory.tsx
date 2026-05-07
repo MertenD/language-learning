@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { usePracticeSession } from "../../hooks/use-practice-session";
+import { useEndGame } from "../../hooks/use-end-game";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -15,13 +16,13 @@ type MemoryCard = {
 };
 
 export function MemoryGame() {
-    const { selectedWords, endGame, incrementScore } = usePracticeSession();
+    const { selectedWords, recordResult } = usePracticeSession();
+    const endGame = useEndGame();
     const [cards, setCards] = useState<MemoryCard[]>([]);
     const [flippedIds, setFlippedIds] = useState<string[]>([]);
     const [isProcessing, setIsProcessing] = useState(false);
 
     useEffect(() => {
-        // Limit to 8 pairs (16 cards) for 4x4 grid
         const gameWords = selectedWords.slice(0, 8);
 
         const newCards: MemoryCard[] = [];
@@ -51,7 +52,6 @@ export function MemoryGame() {
         const clickedCard = cards.find(c => c.id === id);
         if (!clickedCard || clickedCard.isFlipped || clickedCard.isMatched) return;
 
-        // Flip the card
         const newCards = cards.map(c => c.id === id ? { ...c, isFlipped: true } : c);
         setCards(newCards);
 
@@ -65,8 +65,7 @@ export function MemoryGame() {
             const secondCard = newCards.find(c => c.id === secondId);
 
             if (firstCard && secondCard && firstCard.wordId === secondCard.wordId) {
-                // Match found
-                incrementScore();
+                recordResult(firstCard.wordId, true);
                 setTimeout(() => {
                     setCards(prev => prev.map(c =>
                         (c.id === firstId || c.id === secondId)
@@ -76,13 +75,11 @@ export function MemoryGame() {
                     setFlippedIds([]);
                     setIsProcessing(false);
 
-                    // Check win condition
                     if (newCards.filter(c => !c.isMatched).length === 2) {
                         setTimeout(() => endGame(), 500);
                     }
                 }, 500);
             } else {
-                // No match
                 setTimeout(() => {
                     setCards(prev => prev.map(c =>
                         (c.id === firstId || c.id === secondId)
@@ -116,12 +113,10 @@ export function MemoryGame() {
                             transition={{ duration: 0.4 }}
                             style={{ transformStyle: "preserve-3d" }}
                         >
-                            {/* Back (Face Down) */}
                             <Card className="absolute w-full h-full backface-hidden bg-primary flex items-center justify-center">
                                 <div className="w-8 h-8 rounded-full border-2 border-primary-foreground/30" />
                             </Card>
 
-                            {/* Front (Face Up) */}
                             <Card
                                 className={cn(
                                     "absolute w-full h-full backface-hidden flex items-center justify-center p-2 text-center",
@@ -140,4 +135,3 @@ export function MemoryGame() {
         </div>
     );
 }
-

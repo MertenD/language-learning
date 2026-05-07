@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { usePracticeSession } from "../../hooks/use-practice-session";
+import { useEndGame } from "../../hooks/use-end-game";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -14,15 +15,15 @@ type MatchItem = {
 };
 
 export function MatchingGame() {
-    const { selectedWords, endGame, incrementScore } = usePracticeSession();
+    const { selectedWords, recordResult } = usePracticeSession();
+    const endGame = useEndGame();
     const [items, setItems] = useState<MatchItem[]>([]);
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [wrongPair, setWrongPair] = useState<string[]>([]);
 
     useEffect(() => {
-        // Take up to 6 pairs at a time to fit on screen
         const currentBatch = selectedWords.slice(0, 6);
-        
+
         const newItems: MatchItem[] = [];
         currentBatch.forEach((word: any) => {
             newItems.push({
@@ -62,22 +63,20 @@ export function MatchingGame() {
             if (!firstItem) return;
 
             if (firstItem.wordId === clickedItem.wordId && firstItem.type !== clickedItem.type) {
-                // Match found
-                setItems(prev => prev.map(item =>
+                const updatedItems = items.map(item =>
                     (item.id === id || item.id === selectedId)
                         ? { ...item, matched: true }
                         : item
-                ));
-                incrementScore();
+                );
+                setItems(updatedItems);
+                recordResult(firstItem.wordId, true);
                 setSelectedId(null);
 
-                // Check if all matched
-                const allMatched = items.every(i => i.matched || (i.id === id || i.id === selectedId));
+                const allMatched = updatedItems.every(i => i.matched);
                 if (allMatched) {
                     setTimeout(() => endGame(), 1000);
                 }
             } else {
-                // Wrong match
                 setWrongPair([selectedId, id]);
                 setTimeout(() => {
                     setWrongPair([]);
@@ -115,4 +114,3 @@ export function MatchingGame() {
         </div>
     );
 }
-

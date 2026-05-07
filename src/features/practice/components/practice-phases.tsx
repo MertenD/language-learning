@@ -59,7 +59,17 @@ export function PracticePhases() {
 
     // 3. Results Phase
     if (isGameFinished) {
-        const percentage = Math.round((score / selectedWords.length) * 100);
+        const percentage = selectedWords.length > 0
+            ? Math.round((score / selectedWords.length) * 100)
+            : 0;
+
+        const XP_MULTIPLIERS: Record<string, number> = {
+            flashcards: 0.5, "multiple-choice": 1.0, "true-false": 1.0,
+            "reverse-choice": 1.0, typing: 1.5, scramble: 1.5, hangman: 1.5,
+            memory: 1.2, matching: 1.2, listening: 1.0,
+        };
+        const multiplier = gameType ? (XP_MULTIPLIERS[gameType] ?? 1.0) : 1.0;
+        const xpEarned = Math.round(score * 10 * multiplier);
 
         return (
             <div className="max-w-md mx-auto text-center space-y-8 py-12">
@@ -78,13 +88,16 @@ export function PracticePhases() {
                     <CardHeader>
                         <CardTitle>Score</CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="space-y-3">
                         <div className="text-5xl font-bold text-primary mb-2">
                             {score} / {selectedWords.length}
                         </div>
                         <p className="text-sm text-muted-foreground">
                             {percentage}% Correct
                         </p>
+                        <div className="inline-flex items-center gap-1.5 bg-primary/10 text-primary rounded-full px-3 py-1 text-sm font-semibold">
+                            +{xpEarned} XP
+                        </div>
                     </CardContent>
                 </Card>
 
