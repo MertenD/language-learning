@@ -92,3 +92,8 @@ export function useLanguage() {
     }
     return context
 }
+
+export function useNativeLanguage() {
+    const trpc = useTRPC()
+    return useQuery(trpc.user.getNativeLanguage.queryOptions())
+}

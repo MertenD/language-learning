@@ -61,6 +61,29 @@ export const useRemoveCategory = () => {
 }
 
 /**
+ * Hook to update (rename) a category
+ */
+export const useUpdateCategory = () => {
+    const queryClient = useQueryClient()
+    const trpc = useTRPC()
+
+    return useMutation(trpc.categories.updateCategory.mutationOptions({
+        onSuccess: (data) => {
+            toast.success(`Category renamed to "${data.name}"`)
+            queryClient.invalidateQueries(
+                trpc.categories.getCategories.queryOptions({ parentId: data.parentId })
+            )
+            queryClient.invalidateQueries(
+                trpc.categories.getAllCategories.queryOptions()
+            )
+        },
+        onError: (error) => {
+            toast.error(`Failed to rename category: ${error.message}`)
+        }
+    }))
+}
+
+/**
  * Hook to fetch all categories
  */
 export const useSuspenseAllCategories = () => {

@@ -134,6 +134,13 @@ export const userRouter = createTRPCRouter({
             return userLanguages.map(ul => ul.language);
         }),
 
+    getNativeLanguage: protectedProcedure
+        .query(async ({ ctx }) => {
+            return prisma.language.findUnique({
+                where: { id: ctx.auth.user.nativeLanguageId }
+            })
+        }),
+
     setLanguage: protectedProcedure
         .input(z.object({ languageId: z.string().min(1) }))
         .mutation(async ({ ctx, input }) => {

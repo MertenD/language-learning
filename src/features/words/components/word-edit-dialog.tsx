@@ -11,6 +11,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useSuspenseAllCategories } from "@/features/words/hooks/use-categories"
+import { useLanguage, useNativeLanguage } from "@/features/user/hooks/use-language"
+import { PlusIcon, Trash2Icon } from "lucide-react"
 
 interface WordEditDialogProps {
     word: Word
@@ -22,6 +24,8 @@ interface WordEditDialogProps {
 export function WordEditDialog({ word, open, onOpenChange, onSave }: WordEditDialogProps) {
     const [isEditing, setIsEditing] = useState(false)
     const categories = useSuspenseAllCategories()
+    const { currentLanguage } = useLanguage()
+    const { data: nativeLanguage } = useNativeLanguage()
 
     const form = useForm<CreateWordInput>({
         resolver: zodResolver(createWordSchema),
@@ -30,7 +34,8 @@ export function WordEditDialog({ word, open, onOpenChange, onSave }: WordEditDia
             primaryInfo: word.primaryInfo || "",
             secondary: word.secondary,
             secondaryInfo: word.secondaryInfo || "",
-            categoryId: word.categoryId || undefined
+            categoryId: word.categoryId || undefined,
+            examples: word.examples ?? []
         }
     })
 
@@ -41,20 +46,26 @@ export function WordEditDialog({ word, open, onOpenChange, onSave }: WordEditDia
                 primaryInfo: word.primaryInfo || "",
                 secondary: word.secondary,
                 secondaryInfo: word.secondaryInfo || "",
-                categoryId: word.categoryId || undefined
+                categoryId: word.categoryId || undefined,
+                examples: word.examples ?? []
             })
         }
     }, [isEditing, word, form])
 
+    // Reset edit mode when dialog closes
+    useEffect(() => {
+        if (!open) setIsEditing(false)
+    }, [open])
+
     const onSubmit = async (data: CreateWordInput) => {
         if (onSave) {
-            console.log("Submitting updated word data:", data)
             const updatedWord: Word = {
                 ...word,
                 ...data,
                 primaryInfo: data.primaryInfo || null,
                 secondaryInfo: data.secondaryInfo || null,
-                categoryId: data.categoryId === "root" ? null : (data.categoryId || null)
+                categoryId: data.categoryId === "root" ? null : (data.categoryId || null),
+                examples: data.examples?.filter(e => e.trim().length > 0) ?? []
             }
             await onSave(updatedWord)
         }
@@ -66,9 +77,19 @@ export function WordEditDialog({ word, open, onOpenChange, onSave }: WordEditDia
         form.reset()
     }
 
+    const examples = form.watch("examples") ?? []
+
+    const addExample = () => {
+        form.setValue("examples", [...examples, ""])
+    }
+
+    const removeExample = (index: number) => {
+        form.setValue("examples", examples.filter((_, i) => i !== index))
+    }
+
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[600px]">
+            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>Vocabulary Details</DialogTitle>
                     <DialogDescription>View and edit vocabulary.</DialogDescription>
@@ -84,7 +105,8 @@ export function WordEditDialog({ word, open, onOpenChange, onSave }: WordEditDia
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel className="flex items-center gap-2">
-                                                <span className="text-2xl">🇩🇪</span> German
+                                                <span className="text-2xl">{nativeLanguage?.flagEmoji}</span>
+                                                {nativeLanguage?.name ?? "Primary"}
                                             </FormLabel>
                                             <FormControl>
                                                 <Input {...field} />
@@ -112,7 +134,8 @@ export function WordEditDialog({ word, open, onOpenChange, onSave }: WordEditDia
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel className="flex items-center gap-2">
-                                                <span className="text-2xl">🇷🇸</span> Serbian
+                                                <span className="text-2xl">{currentLanguage?.flagEmoji}</span>
+                                                {currentLanguage?.name ?? "Secondary"}
                                             </FormLabel>
                                             <FormControl>
                                                 <Input {...field} />
@@ -160,6 +183,39 @@ export function WordEditDialog({ word, open, onOpenChange, onSave }: WordEditDia
                                     )}
                                 />
 
+                                <div className="space-y-2">
+                                    <FormLabel>Examples</FormLabel>
+                                    {examples.map((_, index) => (
+                                        <FormField
+                                            key={index}
+                                            control={form.control}
+                                            name={`examples.${index}`}
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <div className="flex gap-2">
+                                                        <FormControl>
+                                                            <Input placeholder="Example sentence" {...field} />
+                                                        </FormControl>
+                                                        <Button
+                                                            type="button"
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            onClick={() => removeExample(index)}
+                                                        >
+                                                            <Trash2Icon className="size-4" />
+                                                        </Button>
+                                                    </div>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    ))}
+                                    <Button type="button" variant="outline" size="sm" onClick={addExample} className="w-full">
+                                        <PlusIcon className="size-4 mr-2" />
+                                        Add Example
+                                    </Button>
+                                </div>
+
                                 <div className="flex gap-2 justify-end">
                                     <Button type="button" variant="outline" onClick={handleCancel}>
                                         Cancel
@@ -172,7 +228,7 @@ export function WordEditDialog({ word, open, onOpenChange, onSave }: WordEditDia
                         <>
                             <div className="space-y-4">
                                 <div className="flex items-start gap-3">
-                                    <span className="text-3xl">🇩🇪</span>
+                                    <span className="text-3xl">{nativeLanguage?.flagEmoji}</span>
                                     <div className="flex-1">
                                         <h3 className="text-xl font-semibold">{word.primary}</h3>
                                         {word.primaryInfo && <p className="text-sm text-muted-foreground mt-1">{word.primaryInfo}</p>}
@@ -182,12 +238,23 @@ export function WordEditDialog({ word, open, onOpenChange, onSave }: WordEditDia
                                 <div className="flex items-center justify-center text-2xl text-muted-foreground">↕</div>
 
                                 <div className="flex items-start gap-3">
-                                    <span className="text-3xl">🇷🇸</span>
+                                    <span className="text-3xl">{currentLanguage?.flagEmoji}</span>
                                     <div className="flex-1">
                                         <h3 className="text-xl font-semibold">{word.secondary}</h3>
                                         {word.secondaryInfo && <p className="text-sm text-muted-foreground mt-1">{word.secondaryInfo}</p>}
                                     </div>
                                 </div>
+
+                                {word.examples && word.examples.length > 0 && (
+                                    <div className="space-y-1 pt-2">
+                                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Examples</p>
+                                        <ul className="space-y-1">
+                                            {word.examples.map((ex, i) => (
+                                                <li key={i} className="text-sm text-muted-foreground border-l-2 border-border pl-3">{ex}</li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
 
                                 {word.categoryId && (
                                     <div className="text-sm text-muted-foreground">

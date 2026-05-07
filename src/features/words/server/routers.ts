@@ -3,7 +3,7 @@ import prisma from "@/lib/db";
 import {z} from "zod";
 import {PAGINATION} from "@/config/constants";
 import {createWordSchema, csvWordSchema, CsvWordInput} from "@/features/words/schema/word-crud-schema";
-import {createCategorySchema} from "@/features/words/schema/category-crud-schema";
+import {createCategorySchema, updateCategorySchema} from "@/features/words/schema/category-crud-schema";
 import {trackActivity} from "@/features/user/server/activity-service";
 import {ActivityType} from "@/features/dashboard/model/activity-type";
 import Papa from "papaparse";
@@ -19,6 +19,7 @@ export const wordsRouter = createTRPCRouter({
                     primaryInfo: input.primaryInfo,
                     secondary: input.secondary,
                     secondaryInfo: input.secondaryInfo,
+                    examples: input.examples ?? [],
                     userId: ctx.auth.user.id,
                     categoryId: input.categoryId,
                     languageId: ctx.auth.user.currentLanguageId
@@ -159,7 +160,8 @@ export const wordsRouter = createTRPCRouter({
             primaryInfo: z.string().min(1).optional(),
             secondary: z.string().min(1).optional(),
             secondaryInfo: z.string().min(1).optional(),
-            categoryId: z.string().optional().nullable()
+            categoryId: z.string().optional().nullable(),
+            examples: z.array(z.string()).optional()
         }))
         .mutation(({ ctx, input }) => {
             return prisma.word.update({
@@ -169,7 +171,8 @@ export const wordsRouter = createTRPCRouter({
                     primaryInfo: input.primaryInfo || null,
                     secondary: input.secondary,
                     secondaryInfo: input.secondaryInfo || null,
-                    categoryId: input.categoryId || null
+                    categoryId: input.categoryId || null,
+                    ...(input.examples !== undefined && { examples: input.examples })
                 }
             })
         }),
@@ -359,6 +362,15 @@ export const categoriesRouter = createTRPCRouter({
                 orderBy: {
                     name: "asc"
                 }
+            })
+        }),
+
+    updateCategory: premiumProcedure
+        .input(updateCategorySchema)
+        .mutation(({ ctx, input }) => {
+            return prisma.wordCategory.update({
+                where: { id: input.id, userId: ctx.auth.user.id },
+                data: { name: input.name }
             })
         })
 })

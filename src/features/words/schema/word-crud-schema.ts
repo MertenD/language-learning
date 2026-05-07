@@ -5,7 +5,8 @@ export const createWordSchema = z.object({
     primaryInfo: z.string().optional(),
     secondary: z.string().min(1),
     secondaryInfo: z.string().optional(),
-    categoryId: z.string().optional().nullable()
+    categoryId: z.string().optional().nullable(),
+    examples: z.array(z.string()).optional()
 })
 
 export const csvWordSchema = z.object({
