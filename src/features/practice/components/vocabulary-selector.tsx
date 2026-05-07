@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Loader2, FolderIcon, ChevronRight } from "lucide-react";
+import { Loader2, FolderIcon, ChevronRight, Clock } from "lucide-react";
 import { usePracticeSession } from "../hooks/use-practice-session";
 import {useTRPC} from "@/trpc/client";
 import {useQuery} from "@tanstack/react-query";
@@ -28,6 +28,8 @@ export function VocabularySelector() {
     const { data: words, isLoading: isLoadingWords } = useQuery(trpc.words.getAll.queryOptions({
         categoryId: currentCategoryId
     }));
+
+    const { data: dueWords } = useQuery(trpc.practice.getDueWords.queryOptions({ limit: 100 }));
 
     const handleWordToggle = (word: any) => {
         const newSelected = new Set(selectedWordIds);
@@ -87,6 +89,25 @@ export function VocabularySelector() {
                     </div>
                 ))}
             </div>
+
+            {dueWords && dueWords.length > 0 && (
+                <Card className="border-orange-200 bg-orange-50 dark:border-orange-800/50 dark:bg-orange-900/10">
+                    <CardContent className="flex items-center justify-between p-4">
+                        <div className="flex items-center gap-3">
+                            <div className="bg-orange-100 dark:bg-orange-900/30 p-2 rounded-full">
+                                <Clock className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                            </div>
+                            <div>
+                                <p className="font-medium">Due for Review</p>
+                                <p className="text-sm text-muted-foreground">{dueWords.length} word{dueWords.length !== 1 ? "s" : ""} need practice</p>
+                            </div>
+                        </div>
+                        <Button onClick={() => setWords(dueWords)}>
+                            Start Review
+                        </Button>
+                    </CardContent>
+                </Card>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Card>

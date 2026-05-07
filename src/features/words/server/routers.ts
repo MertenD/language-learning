@@ -221,7 +221,8 @@ export const wordsRouter = createTRPCRouter({
                     },
                     orderBy: {
                         updatedAt: "desc"
-                    }
+                    },
+                    include: { progress: true }
                 }),
                 prisma.word.count({
                     where: {
