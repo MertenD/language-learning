@@ -8,6 +8,8 @@ import {trackActivity} from "@/features/user/server/activity-service";
 import {ActivityType} from "@/features/dashboard/model/activity-type";
 import Papa from "papaparse";
 import {TRPCError} from "@trpc/server";
+import {generateObject} from "ai";
+import {openrouter, AI_MODEL} from "@/lib/ai";
 
 export const wordsRouter = createTRPCRouter({
     create: premiumProcedure
@@ -267,7 +269,96 @@ export const wordsRouter = createTRPCRouter({
                     updatedAt: "desc"
                 }
             });
-        })
+        }),
+
+    bulkCreate: premiumProcedure
+        .input(z.object({
+            words: z.array(z.object({
+                primary: z.string().min(1),
+                secondary: z.string().min(1),
+                primaryInfo: z.string().optional(),
+                secondaryInfo: z.string().optional(),
+                examples: z.array(z.string()).optional(),
+                categoryId: z.string().optional().nullable(),
+            })).min(1),
+        }))
+        .mutation(async ({ ctx, input }) => {
+            const { id: userId, currentLanguageId } = ctx.auth.user
+
+            const result = await prisma.word.createMany({
+                data: input.words.map(w => ({
+                    primary: w.primary,
+                    primaryInfo: w.primaryInfo || null,
+                    secondary: w.secondary,
+                    secondaryInfo: w.secondaryInfo || null,
+                    examples: w.examples ?? [],
+                    categoryId: w.categoryId ?? null,
+                    userId,
+                    languageId: currentLanguageId,
+                })),
+            })
+
+            if (result.count > 0) {
+                await trackActivity(userId, currentLanguageId, ActivityType.VOCABULARY_ADDED)
+            }
+
+            return { count: result.count }
+        }),
+
+    generateWords: premiumProcedure
+        .input(z.object({
+            topic: z.string().min(1).max(150),
+            count: z.number().int().min(3).max(20).default(10),
+        }))
+        .mutation(async ({ ctx, input }) => {
+            const { currentLanguageId, nativeLanguageId } = ctx.auth.user
+
+            const [currentLanguage, nativeLanguage, existingWords] = await Promise.all([
+                prisma.language.findUnique({ where: { id: currentLanguageId } }),
+                prisma.language.findUnique({ where: { id: nativeLanguageId } }),
+                prisma.word.findMany({
+                    where: { userId: ctx.auth.user.id, languageId: currentLanguageId },
+                    select: { primary: true, secondary: true },
+                }),
+            ])
+
+            if (!currentLanguage || !nativeLanguage) {
+                throw new TRPCError({ code: "BAD_REQUEST", message: "Language configuration not found" })
+            }
+
+            const existingList = existingWords.length > 0
+                ? `\nAlready known words (do NOT generate these again):\n${existingWords.map(w => `- ${w.primary} / ${w.secondary}`).join("\n")}\n`
+                : ""
+
+            const { object } = await generateObject({
+                model: openrouter(AI_MODEL),
+                schema: z.object({
+                    words: z.array(z.object({
+                        primary: z.string().describe(`The word/phrase in ${nativeLanguage.name}`),
+                        secondary: z.string().describe(`The word/phrase in ${currentLanguage.name}`),
+                        primaryInfo: z.string().optional().describe("Brief grammatical note (optional)"),
+                        secondaryInfo: z.string().optional().describe("Brief grammatical note (optional)"),
+                        examples: z.array(z.string()).optional().describe(`1–2 short example sentences in ${currentLanguage.name}`),
+                    })),
+                }),
+                prompt: `Generate exactly ${input.count} vocabulary words related to the topic "${input.topic}".
+
+Native language (primary): ${nativeLanguage.name}
+Learning language (secondary): ${currentLanguage.name}
+${existingList}
+Rules:
+- "primary" must be in ${nativeLanguage.name}
+- "secondary" must be the translation in ${currentLanguage.name}
+- "primaryInfo": very brief grammatical hint in ${nativeLanguage.name}, e.g. "das Nomen" or "(verb)" — optional
+- "secondaryInfo": very brief grammatical hint in ${currentLanguage.name} — optional
+- "examples": 1–2 short, natural example sentences in ${currentLanguage.name} showing the word in context
+- Include a mix of nouns, verbs, and adjectives
+- Choose practical, commonly used words for this topic
+- Do not repeat words`,
+            })
+
+            return object.words
+        }),
 })
 
 export const categoriesRouter = createTRPCRouter({

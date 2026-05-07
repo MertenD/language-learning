@@ -95,6 +95,33 @@ export const useExportWords = () => {
 }
 
 /**
+ * Hook to generate vocabulary via AI
+ */
+export const useGenerateWords = () => {
+    const trpc = useTRPC()
+    return useMutation(trpc.words.generateWords.mutationOptions())
+}
+
+/**
+ * Hook to bulk-create vocabulary
+ */
+export const useBulkCreateWords = () => {
+    const queryClient = useQueryClient()
+    const trpc = useTRPC()
+
+    return useMutation(trpc.words.bulkCreate.mutationOptions({
+        onSuccess: (data) => {
+            toast.success(`${data.count} word${data.count !== 1 ? "s" : ""} added`)
+            queryClient.invalidateQueries(trpc.words.getMany.queryOptions({}))
+            queryClient.invalidateQueries(trpc.words.getAll.queryOptions({}))
+        },
+        onError: (error) => {
+            toast.error(`Failed to save words: ${error.message}`)
+        }
+    }))
+}
+
+/**
  * Hook to bulk-delete vocabulary
  */
 export const useBulkDeleteWords = () => {

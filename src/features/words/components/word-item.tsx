@@ -20,15 +20,34 @@ import {cn} from "@/lib/utils";
 
 type WordWithProgress = Word & { progress?: WordProgress | null }
 
-const LEVEL_COLORS = ["bg-gray-400", "bg-amber-400", "bg-amber-500", "bg-blue-400", "bg-blue-500", "bg-green-500"]
 const LEVEL_LABELS = ["New", "Learning", "Learning", "Advanced", "Advanced", "Mastered"]
 
-function LevelBadge({ level }: { level: number }) {
+const LEVEL_CHIP_CLASSES = [
+    "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400",
+    "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400",
+    "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400",
+    "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400",
+    "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400",
+    "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400",
+]
+
+const LEVEL_BORDER_CLASSES = [
+    "border-l-[3px] border-l-gray-300 dark:border-l-gray-600",
+    "border-l-[3px] border-l-amber-400",
+    "border-l-[3px] border-l-amber-500",
+    "border-l-[3px] border-l-blue-400",
+    "border-l-[3px] border-l-blue-500",
+    "border-l-[3px] border-l-green-500",
+]
+
+function LevelChip({ level }: { level: number }) {
     return (
-        <div
-            title={`${LEVEL_LABELS[level] ?? "Unknown"} (Level ${level})`}
-            className={cn("h-2.5 w-2.5 rounded-full flex-shrink-0", LEVEL_COLORS[level] ?? "bg-gray-400")}
-        />
+        <span className={cn(
+            "text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0 whitespace-nowrap",
+            LEVEL_CHIP_CLASSES[level] ?? LEVEL_CHIP_CLASSES[0]
+        )}>
+            {LEVEL_LABELS[level] ?? "Unknown"}
+        </span>
     )
 }
 
@@ -60,6 +79,9 @@ export default function WordItem({ data }: { data: WordWithProgress }) {
         removeWord.mutate({ id: data.id })
     }
 
+    const level = data.progress?.level
+    const hasProgress = level != null
+
     return <>
         <VocabularyEntityItem
             primaryLanguage={data.primary}
@@ -68,7 +90,8 @@ export default function WordItem({ data }: { data: WordWithProgress }) {
             secondaryInfo={data.secondaryInfo}
             primaryFlag={<span className="text-2xl">{nativeLanguage?.flagEmoji}</span>}
             secondaryFlag={<span className="text-2xl">{currentLanguage?.flagEmoji}</span>}
-            actions={data.progress != null ? <LevelBadge level={data.progress.level} /> : undefined}
+            actions={hasProgress ? <LevelChip level={level} /> : undefined}
+            className={hasProgress ? LEVEL_BORDER_CLASSES[level] : undefined}
             onRemove={handleRemove}
             isRemoving={removeWord.isPending}
             onClick={() => setIsOpen(true)}

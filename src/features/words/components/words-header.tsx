@@ -5,7 +5,7 @@ import {WordCreateDialog} from "@/features/words/components/word-create-dialog";
 import {useState, useRef} from "react";
 import {CreateWordInput} from "@/features/words/schema/word-crud-schema";
 import {Button} from "@/components/ui/button";
-import {ArrowDownAZIcon, ArrowUpAZIcon, Download, MoreHorizontal, Plus, Upload} from "lucide-react";
+import {ArrowDownAZIcon, ArrowUpAZIcon, Download, MoreHorizontal, Plus, SparklesIcon, Upload} from "lucide-react";
 import {CategoryCreateDialog} from "@/features/words/components/categories/category-create-dialog";
 import {useWordsParams} from "@/features/words/hooks/use-words-params";
 import {useCreateWord, useExportWords, useImportWords} from "@/features/words/hooks/use-words";
@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {toast} from "sonner";
 import {SORT_BY_OPTIONS} from "@/features/words/params";
+import {GenerateWordsDialog} from "@/features/words/components/generate-words-dialog";
 
 type WordsHeaderProps = {
     disabled?: boolean
@@ -34,6 +35,7 @@ export default function WordsHeader({ disabled }: WordsHeaderProps) {
     const { handleError, modal } = useUpgradeModal()
     const [isWordOpen, setIsWordOpen] = useState(false)
     const [isCategoryOpen, setIsCategoryOpen] = useState(false)
+    const [isGenerateOpen, setIsGenerateOpen] = useState(false)
     const [params, setParams] = useWordsParams()
     const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -189,6 +191,10 @@ export default function WordsHeader({ disabled }: WordsHeaderProps) {
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
+                <Button onClick={() => setIsGenerateOpen(true)} variant="outline" disabled={disabled}>
+                    <SparklesIcon className="mr-2 h-4 w-4" />
+                    Generate
+                </Button>
                 <Button onClick={() => setIsCategoryOpen(true)} variant="outline" disabled={disabled}>
                     <Plus className="mr-2 h-4 w-4" />
                     New Folder
@@ -201,5 +207,6 @@ export default function WordsHeader({ disabled }: WordsHeaderProps) {
         </div>
         <WordCreateDialog open={isWordOpen} onOpenChange={setIsWordOpen} onCreate={handleCreateWord} categoryId={params.categoryId} />
         <CategoryCreateDialog open={isCategoryOpen} onOpenChange={setIsCategoryOpen} onCreate={handleCreateCategory} />
+        <GenerateWordsDialog open={isGenerateOpen} onOpenChange={setIsGenerateOpen} categoryId={params.categoryId || null} />
     </>
 }
