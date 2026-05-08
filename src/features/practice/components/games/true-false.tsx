@@ -20,20 +20,15 @@ export function TrueFalseGame() {
     useEffect(() => {
         if (!currentWord) return;
 
-        const showCorrect = Math.random() > 0.5;
+        const otherWords = selectedWords.filter((w: any) => w.id !== currentWord.id);
+        const showCorrect = otherWords.length === 0 ? true : Math.random() > 0.5;
         setIsCorrectMatch(showCorrect);
 
         if (showCorrect) {
             setDisplayedTranslation(currentWord.secondary);
         } else {
-            const otherWords = selectedWords.filter((w: any) => w.id !== currentWord.id);
-            if (otherWords.length > 0) {
-                const randomWord = otherWords[Math.floor(Math.random() * otherWords.length)];
-                setDisplayedTranslation(randomWord.secondary);
-            } else {
-                setDisplayedTranslation("Wrong Answer");
-                setIsCorrectMatch(false);
-            }
+            const randomWord = otherWords[Math.floor(Math.random() * otherWords.length)];
+            setDisplayedTranslation(randomWord.secondary);
         }
 
         setHasAnswered(false);

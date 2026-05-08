@@ -22,7 +22,7 @@ export function MatchingGame() {
     const [wrongPair, setWrongPair] = useState<string[]>([]);
 
     useEffect(() => {
-        const currentBatch = selectedWords.slice(0, 6);
+        const currentBatch = selectedWords;
 
         const newItems: MatchItem[] = [];
         currentBatch.forEach((word: any) => {

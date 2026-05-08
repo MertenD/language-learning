@@ -4,12 +4,14 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Separator } from "@/components/ui/separator"
-import { ChevronRightIcon, ChevronLeftIcon, FolderIcon, ClockIcon, CheckIcon, Loader2 } from "lucide-react"
+import { ChevronRightIcon, ChevronLeftIcon, FolderIcon, ClockIcon, CheckIcon, Loader2, XIcon } from "lucide-react"
 import { usePracticeSession } from "../hooks/use-practice-session"
 import { useTRPC } from "@/trpc/client"
 import { useQuery } from "@tanstack/react-query"
 import { cn } from "@/lib/utils"
 import type { Word } from "@/generated/prisma/client"
+import { VocabularyEntityItem } from "@/components/entity-components"
+import { useLanguage, useNativeLanguage } from "@/features/user/hooks/use-language"
 
 type SelectedWords = Map<string, Word>
 
@@ -19,6 +21,8 @@ export function VocabularySelector() {
 
     const { setWords } = usePracticeSession()
     const trpc = useTRPC()
+    const { currentLanguage } = useLanguage()
+    const { data: nativeLanguage } = useNativeLanguage()
 
     const { data: categories, isLoading: loadingCategories } = useQuery(
         trpc.categories.getCategories.queryOptions({ parentId: currentCategoryId })
@@ -255,6 +259,38 @@ export function VocabularySelector() {
                     }
                 </Button>
             </div>
+
+            {/* Selected words preview */}
+            {selectedWords.size > 0 && (
+                <div>
+                    <p className="text-sm font-medium text-muted-foreground mb-3">
+                        {selectedWords.size} word{selectedWords.size !== 1 ? "s" : ""} selected
+                    </p>
+                    <div className="grid xl:grid-cols-2 gap-3">
+                        {[...selectedWords.values()].map(word => (
+                            <VocabularyEntityItem
+                                key={word.id}
+                                primaryLanguage={word.primary}
+                                primaryInfo={word.primaryInfo}
+                                secondaryLanguage={word.secondary}
+                                secondaryInfo={word.secondaryInfo}
+                                primaryFlag={<span className="text-2xl">{nativeLanguage?.flagEmoji}</span>}
+                                secondaryFlag={<span className="text-2xl">{currentLanguage?.flagEmoji}</span>}
+                                actions={
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                                        onClick={() => toggleWord(word)}
+                                    >
+                                        <XIcon className="h-3.5 w-3.5" />
+                                    </Button>
+                                }
+                            />
+                        ))}
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

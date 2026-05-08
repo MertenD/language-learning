@@ -18,10 +18,21 @@ import ScenariosList from "@/features/chat/components/scenarios/scenarios-list"
 import ScenariosLoading from "@/features/chat/components/scenarios/scenarios-loading"
 import ScenariosError from "@/features/chat/components/scenarios/scenarios-error"
 
-export default function ChatPageTabs() {
+type ChatPageTabsProps = {
+    defaultTab?: string
+}
+
+export default function ChatPageTabs({ defaultTab }: ChatPageTabsProps) {
     const createEmptyChat = useCreateEmptyChat()
     const router = useRouter()
     const { handleError, modal } = useUpgradeModal()
+
+    const activeTab = defaultTab === "scenarios" ? "scenarios" : "conversations"
+
+    const handleTabChange = (value: string) => {
+        const url = value === "conversations" ? "/chat" : `/chat?tab=${value}`
+        router.replace(url, { scroll: false })
+    }
 
     const handleNewChat = () => {
         createEmptyChat.mutate(
@@ -57,7 +68,7 @@ export default function ChatPageTabs() {
                     </div>
 
                     {/* Tabs */}
-                    <Tabs defaultValue="conversations">
+                    <Tabs value={activeTab} onValueChange={handleTabChange}>
                         <TabsList className="mb-6">
                             <TabsTrigger value="conversations">Conversations</TabsTrigger>
                             <TabsTrigger value="scenarios">Scenarios</TabsTrigger>

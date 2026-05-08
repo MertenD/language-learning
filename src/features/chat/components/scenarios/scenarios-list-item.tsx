@@ -1,19 +1,22 @@
 "use client"
 
 import React from "react"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { useRouter } from "next/navigation"
 import { useCreateChatFromScenario } from "@/features/chat/hooks/use-chat"
 import { useUpgradeModal } from "@/hooks/use-upgrade-modal"
 import { useRemoveUserScenario } from "@/features/chat/hooks/use-scenarios"
-import { PencilIcon, SparklesIcon, Trash2Icon } from "lucide-react"
+import { ChevronRightIcon, Loader2Icon, MoreVerticalIcon, PencilIcon, SparklesIcon, Trash2Icon } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import type { Scenario } from "@/generated/prisma/client"
 import {
     AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
     AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import {
+    DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 interface ScenariosListItemProps {
     data: Scenario
@@ -40,86 +43,94 @@ export default function ScenariosListItem({ data, isAiGenerated, isUserCreated, 
     return (
         <>
             {modal}
-            <Card
+            <div
                 className={cn(
-                    "p-2 shadow-none hover:shadow cursor-pointer transition-shadow px-0 relative",
-                    isPending && "opacity-50 cursor-not-allowed"
+                    "group flex items-start gap-4 rounded-xl border bg-card p-4 hover:bg-accent/40 transition-colors cursor-pointer",
+                    isPending && "opacity-50 pointer-events-none"
                 )}
+                onClick={handleCreateChat}
             >
-                {/* Badges top-right */}
-                <div className="absolute top-3 right-3 flex gap-1.5 z-10">
-                    {isAiGenerated && (
-                        <span className="text-xs bg-primary/10 text-primary font-medium px-2 py-0.5 rounded-full flex items-center gap-1">
-                            <SparklesIcon className="h-3 w-3" />
-                            Suggested
-                        </span>
-                    )}
-                    {isUserCreated && onEdit && (
-                        <div className="flex gap-1">
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-7 w-7"
-                                onClick={e => { e.stopPropagation(); onEdit() }}
-                            >
-                                <PencilIcon className="h-3.5 w-3.5" />
-                            </Button>
-                            <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-7 w-7 text-destructive hover:text-destructive"
-                                        onClick={e => e.stopPropagation()}
-                                        disabled={removeScenario.isPending}
-                                    >
-                                        <Trash2Icon className="h-3.5 w-3.5" />
-                                    </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                        <AlertDialogTitle>Delete "{data.title}"?</AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                            This scenario will be permanently deleted.
-                                        </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                        <AlertDialogAction
-                                            onClick={() => removeScenario.mutate({ id: data.id })}
-                                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                        >
-                                            Delete
-                                        </AlertDialogAction>
-                                    </AlertDialogFooter>
-                                </AlertDialogContent>
-                            </AlertDialog>
-                        </div>
-                    )}
+                {/* Emoji icon */}
+                <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-muted text-2xl mt-0.5">
+                    {data.image}
                 </div>
 
-                <button
-                    disabled={isPending}
-                    onClick={handleCreateChat}
-                    className="w-full text-left"
-                >
-                    <CardContent className="px-2">
-                        <div className="flex items-start gap-4 p-2">
-                            <div className="flex-shrink-0 mt-1">
-                                <div className="flex size-16 items-center justify-center rounded-lg bg-primary/10 text-3xl">
-                                    {data.image}
-                                </div>
-                            </div>
-                            <div className="flex-1 min-w-0 pr-16">
-                                <h3 className="text-lg font-semibold text-foreground text-balance">{data.title}</h3>
-                                <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-                                    {data.description}
-                                </p>
-                            </div>
+                {/* Content */}
+                <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-center gap-2 flex-wrap min-w-0">
+                            <h3 className="font-semibold text-sm leading-snug">{data.title}</h3>
+                            {isAiGenerated && (
+                                <Badge variant="secondary" className="gap-1 shrink-0 text-xs py-0">
+                                    <SparklesIcon className="h-3 w-3" />
+                                    Suggested
+                                </Badge>
+                            )}
                         </div>
-                    </CardContent>
-                </button>
-            </Card>
+
+                        {/* Actions */}
+                        <div className="flex items-center gap-1 shrink-0" onClick={e => e.stopPropagation()}>
+                            {isPending && <Loader2Icon className="size-4 animate-spin text-muted-foreground" />}
+                            {isUserCreated && (
+                                <AlertDialog>
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button
+                                                size="icon"
+                                                variant="ghost"
+                                                className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
+                                            >
+                                                <MoreVerticalIcon className="size-4" />
+                                            </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="end">
+                                            {onEdit && (
+                                                <>
+                                                    <DropdownMenuItem onClick={onEdit}>
+                                                        <PencilIcon className="size-4" />
+                                                        Edit
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuSeparator />
+                                                </>
+                                            )}
+                                            <AlertDialogTrigger asChild>
+                                                <DropdownMenuItem className="text-destructive focus:text-destructive">
+                                                    <Trash2Icon className="size-4" />
+                                                    Delete
+                                                </DropdownMenuItem>
+                                            </AlertDialogTrigger>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>Delete "{data.title}"?</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                                This scenario will be permanently deleted.
+                                            </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                            <AlertDialogAction
+                                                onClick={() => removeScenario.mutate({ id: data.id })}
+                                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                            >
+                                                Delete
+                                            </AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
+                            )}
+                        </div>
+                    </div>
+
+                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2 leading-relaxed">
+                        {data.description}
+                    </p>
+                </div>
+
+                {/* Arrow */}
+                <ChevronRightIcon className="size-4 text-muted-foreground shrink-0 mt-1 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
+            </div>
         </>
     )
 }

@@ -1,8 +1,19 @@
 "use client"
 
 import {Card, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
+import {Badge} from "@/components/ui/badge";
 import {GameType, usePracticeSession} from "../hooks/use-practice-session";
 import {CheckSquare, Grid, Keyboard, Layers, Puzzle, Shuffle, Check, HelpCircle, Zap, ArrowLeftRight} from "lucide-react";
+import {cn} from "@/lib/utils";
+
+const MIN_WORDS: Partial<Record<GameType, number>> = {
+    'multiple-choice': 2,
+    'reverse-choice': 2,
+    'true-false': 2,
+    'listening': 2,
+    'matching': 2,
+    'memory': 2,
+};
 
 const GAMES: { type: GameType; title: string; description: string; icon: any }[] = [
     {
@@ -68,30 +79,46 @@ const GAMES: { type: GameType; title: string; description: string; icon: any }[]
 ];
 
 export function GameSelector() {
-    const { setGameType, startGame } = usePracticeSession();
+    const { setGameType, startGame, selectedWords } = usePracticeSession();
 
     const handleSelectGame = (type: GameType) => {
+        const min = MIN_WORDS[type] ?? 1;
+        if (selectedWords.length < min) return;
         setGameType(type);
         startGame();
     };
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {GAMES.map((game) => (
-                <Card
-                    key={game.type}
-                    className="cursor-pointer hover:border-primary transition-colors"
-                    onClick={() => handleSelectGame(game.type)}
-                >
-                    <CardHeader>
-                        <div className="flex items-center gap-2">
-                            <game.icon className="h-5 w-5 text-primary" />
-                            <CardTitle className="text-lg">{game.title}</CardTitle>
-                        </div>
-                        <CardDescription>{game.description}</CardDescription>
-                    </CardHeader>
-                </Card>
-            ))}
+            {GAMES.map((game) => {
+                const min = MIN_WORDS[game.type] ?? 1;
+                const isDisabled = selectedWords.length < min;
+                return (
+                    <Card
+                        key={game.type}
+                        className={cn(
+                            "transition-colors",
+                            isDisabled
+                                ? "opacity-50 cursor-not-allowed"
+                                : "cursor-pointer hover:border-primary"
+                        )}
+                        onClick={() => handleSelectGame(game.type)}
+                    >
+                        <CardHeader>
+                            <div className="flex items-center gap-2">
+                                <game.icon className="h-5 w-5 text-primary" />
+                                <CardTitle className="text-lg">{game.title}</CardTitle>
+                                {isDisabled && (
+                                    <Badge variant="secondary" className="ml-auto text-xs">
+                                        {min}+ words
+                                    </Badge>
+                                )}
+                            </div>
+                            <CardDescription>{game.description}</CardDescription>
+                        </CardHeader>
+                    </Card>
+                );
+            })}
         </div>
     );
 }

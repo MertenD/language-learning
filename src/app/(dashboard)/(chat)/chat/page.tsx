@@ -15,19 +15,22 @@ export default async function ChatPage({ searchParams }: ChatPageProps) {
 
     const breadcrumbs = [{ title: "Chat", url: "/chat" }]
 
-    const [chatsParams, scenariosParams] = await Promise.all([
+    const [chatsParams, scenariosParams, resolvedSearch] = await Promise.all([
         chatsParamsLoader(searchParams),
         scenariosParamsLoader(searchParams),
+        searchParams,
     ])
     prefetchChats(chatsParams)
     prefetchScenarios(scenariosParams)
+
+    const defaultTab = resolvedSearch.tab === "scenarios" ? "scenarios" : "conversations"
 
     return (
         <>
             <AppHeader breadcrumbs={breadcrumbs} />
             <main className="flex-1">
                 <HydrateClient>
-                    <ChatPageTabs />
+                    <ChatPageTabs defaultTab={defaultTab} />
                 </HydrateClient>
             </main>
         </>

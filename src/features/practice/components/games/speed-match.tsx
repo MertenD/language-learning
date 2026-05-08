@@ -8,9 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 
 export function SpeedMatchGame() {
-    const { selectedWords, incrementScore } = usePracticeSession();
+    const { selectedWords, incrementScore, recordResult } = usePracticeSession();
     const endGame = useEndGame();
-    const [currentPair, setCurrentPair] = useState<{ primary: string, secondary: string, isMatch: boolean } | null>(null);
+    const [currentPair, setCurrentPair] = useState<{ primary: string, secondary: string, isMatch: boolean, wordId: string } | null>(null);
     const [timeLeft, setTimeLeft] = useState(100);
     const [score, setLocalScore] = useState(0);
     const [gameOver, setGameOver] = useState(false);
@@ -45,18 +45,19 @@ export function SpeedMatchGame() {
         }
 
         const randomWord = selectedWords[Math.floor(Math.random() * selectedWords.length)];
-        const isMatch = Math.random() > 0.5;
+        const otherWords = selectedWords.filter((w: any) => w.id !== randomWord.id);
+        const isMatch = otherWords.length === 0 ? true : Math.random() > 0.5;
 
         let secondary = randomWord.secondary;
-        if (!isMatch && selectedWords.length > 1) {
-            const otherWords = selectedWords.filter((w: any) => w.id !== randomWord.id);
+        if (!isMatch) {
             secondary = otherWords[Math.floor(Math.random() * otherWords.length)].secondary;
         }
 
         setCurrentPair({
             primary: randomWord.primary,
             secondary,
-            isMatch
+            isMatch,
+            wordId: randomWord.id,
         });
         setRound(r => r + 1);
         setTimeLeft(100);
@@ -65,7 +66,9 @@ export function SpeedMatchGame() {
     const handleAnswer = (answer: boolean) => {
         if (!currentPair || gameOver) return;
 
-        if (answer === currentPair.isMatch) {
+        const correct = answer === currentPair.isMatch;
+        recordResult(currentPair.wordId, correct);
+        if (correct) {
             setLocalScore(s => s + 1);
             incrementScore();
         } else {

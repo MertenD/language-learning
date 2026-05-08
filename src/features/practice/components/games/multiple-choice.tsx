@@ -19,11 +19,13 @@ export function MultipleChoiceGame() {
     useEffect(() => {
         if (!currentWord) return;
 
-        const distractors = selectedWords
-            .filter((w: any) => w.id !== currentWord.id)
-            .sort(() => 0.5 - Math.random())
-            .slice(0, 3)
-            .map((w: any) => w.secondary);
+        const distractors = [...new Set(
+            selectedWords
+                .filter((w: any) => w.id !== currentWord.id)
+                .sort(() => 0.5 - Math.random())
+                .map((w: any) => w.secondary)
+                .filter((s: string) => s !== currentWord.secondary)
+        )].slice(0, 3);
 
         const allOptions = [currentWord.secondary, ...distractors]
             .sort(() => 0.5 - Math.random());

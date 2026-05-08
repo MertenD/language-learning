@@ -45,7 +45,10 @@ export default function ScenariosList() {
 
             <div className="space-y-8">
                 {/* Scenarios page action bar */}
-                <div className="flex justify-end">
+                <div className="flex items-center justify-between h-10">
+                    <p className="text-sm text-muted-foreground">
+                        Practice conversations in specific situations
+                    </p>
                     <Button variant="outline" size="sm" onClick={() => setIsCreateOpen(true)}>
                         <PlusIcon className="mr-1.5 h-4 w-4" />
                         Create Scenario

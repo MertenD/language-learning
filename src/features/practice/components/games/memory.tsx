@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { usePracticeSession } from "../../hooks/use-practice-session";
 import { useEndGame } from "../../hooks/use-end-game";
 import { Card } from "@/components/ui/card";
@@ -22,8 +22,15 @@ export function MemoryGame() {
     const [flippedIds, setFlippedIds] = useState<string[]>([]);
     const [isProcessing, setIsProcessing] = useState(false);
 
+    const gridCols = useMemo(() => {
+        const n = cards.length;
+        if (n <= 4) return 'grid-cols-2';
+        if (n <= 6) return 'grid-cols-3';
+        return 'grid-cols-4';
+    }, [cards.length]);
+
     useEffect(() => {
-        const gameWords = selectedWords.slice(0, 8);
+        const gameWords = selectedWords;
 
         const newCards: MemoryCard[] = [];
         gameWords.forEach((word: any) => {
@@ -100,7 +107,7 @@ export function MemoryGame() {
                 <p className="text-muted-foreground">Find matching pairs by flipping cards</p>
             </div>
 
-            <div className="grid grid-cols-4 gap-4">
+            <div className={cn("grid gap-4", gridCols)}>
                 {cards.map((card) => (
                     <div
                         key={card.id}

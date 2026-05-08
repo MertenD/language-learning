@@ -15,8 +15,8 @@ export function FlashcardsGame() {
 
     const currentWord = selectedWords[currentWordIndex];
 
-    const handleNext = () => {
-        recordResult(currentWord.id, true);
+    const handleNext = (correct: boolean) => {
+        recordResult(currentWord.id, correct);
         setIsFlipped(false);
         if (currentWordIndex < selectedWords.length - 1) {
             nextWord();
@@ -71,13 +71,20 @@ export function FlashcardsGame() {
                 </motion.div>
             </div>
 
-            <div className="flex gap-4">
+            <div className="flex flex-col items-center gap-3 w-full">
                 <Button variant="outline" onClick={() => setIsFlipped(!isFlipped)}>
                     <RotateCw className="mr-2 h-4 w-4" /> Flip
                 </Button>
-                <Button onClick={handleNext}>
-                    {currentWordIndex < selectedWords.length - 1 ? "Next Card" : "Finish"}
-                </Button>
+                {isFlipped && (
+                    <div className="flex gap-4">
+                        <Button variant="destructive" onClick={() => handleNext(false)}>
+                            Still learning ✗
+                        </Button>
+                        <Button className="bg-green-600 hover:bg-green-700 text-white" onClick={() => handleNext(true)}>
+                            Got it ✓
+                        </Button>
+                    </div>
+                )}
             </div>
         </div>
     );
