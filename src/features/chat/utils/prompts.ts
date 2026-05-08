@@ -1,3 +1,31 @@
+import type { LearningContext } from "@/features/user/server/learning-context-service"
+
+export function createLearningContextMessage(ctx: LearningContext): string {
+    const parts: string[] = [
+        "LERNKONTEXT DES NUTZERS (automatisch generiert, immer aktuell):",
+        `Level: ${ctx.level} | Gespeicherte Vokabeln: ${ctx.totalWords}`,
+    ]
+
+    if (ctx.masteredWords.length > 0) {
+        parts.push("\nBEKANNTE VOKABELN (Level ≥ 3 — bevorzugt in Gesprächen verwenden):")
+        parts.push(ctx.masteredWords.map(w => `${w.primary} → ${w.secondary}`).join(" | "))
+    }
+
+    if (ctx.learningWords.length > 0) {
+        parts.push("\nVOKABELN IN PROGRESS (Level 1–2 — bei Fehlern besonders erklären):")
+        parts.push(ctx.learningWords.map(w => `${w.primary} → ${w.secondary}`).join(" | "))
+    }
+
+    if (ctx.grammarNotes.length > 0) {
+        parts.push("\nGESPEICHERTE GRAMMATIKREGELN (bei Fehlern besonders berücksichtigen):")
+        ctx.grammarNotes.forEach(g => parts.push(`• ${g.title}: ${g.summary}`))
+    }
+
+    parts.push("\n→ Passe Komplexität, Vokabular und Korrekturfokus an diesen Wissensstand an.")
+
+    return parts.join("\n")
+}
+
 export function createChatSystemMessage(data: {
     scenarioTitle?: string
     scenarioDescription?: string

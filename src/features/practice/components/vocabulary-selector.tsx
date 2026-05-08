@@ -9,7 +9,7 @@ import { usePracticeSession } from "../hooks/use-practice-session"
 import { useTRPC } from "@/trpc/client"
 import { useQuery } from "@tanstack/react-query"
 import { cn } from "@/lib/utils"
-import type { Word } from "@prisma/client"
+import type { Word } from "@/generated/prisma/client"
 
 type SelectedWords = Map<string, Word>
 

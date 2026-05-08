@@ -305,6 +305,28 @@ export const wordsRouter = createTRPCRouter({
             return { count: result.count }
         }),
 
+    getStats: protectedProcedure
+        .query(async ({ ctx }) => {
+            const { id: userId, currentLanguageId: languageId } = ctx.auth.user
+
+            const [total, progressGroups] = await Promise.all([
+                prisma.word.count({ where: { userId, languageId } }),
+                prisma.wordProgress.groupBy({
+                    by: ["level"],
+                    where: { word: { userId, languageId } },
+                    _count: { _all: true },
+                }),
+            ])
+
+            const levelMap = new Map(progressGroups.map(g => [g.level, g._count._all]))
+            const learning = [1, 2].reduce((sum, l) => sum + (levelMap.get(l) ?? 0), 0)
+            const mastered = levelMap.get(5) ?? 0
+            const withProgress = progressGroups.reduce((sum, g) => sum + g._count._all, 0)
+            const newWords = total - withProgress + (levelMap.get(0) ?? 0)
+
+            return { total, learning, mastered, new: newWords }
+        }),
+
     generateWords: premiumProcedure
         .input(z.object({
             topic: z.string().min(1).max(150),

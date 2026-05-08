@@ -5,6 +5,8 @@ import {createResumableStreamContext} from "resumable-stream"
 import {requirePremiumUserFromRequest} from "@/lib/auth-utils";
 import {createOpenRouter} from "@openrouter/ai-sdk-provider";
 import parseChatAiAnswer from "@/features/chat/utils/prompts-utils";
+import {getUserLearningContext} from "@/features/user/server/learning-context-service";
+import {createLearningContextMessage} from "@/features/chat/utils/prompts";
 
 export const maxDuration = 60
 // const google = createGoogleGenerativeAI()
@@ -19,7 +21,10 @@ export async function POST(req: NextRequest) {
 
     const { message, id }: { message: UIMessage; id: string } = await req.json()
 
-    const chat = await loadChat(id, user.id)
+    const [chat, learningContext] = await Promise.all([
+      loadChat(id, user.id),
+      getUserLearningContext(user.id, (user as any).currentLanguageId),
+    ])
     const previousMessages = chat.messages
 
     const messages: UIMessage[] = [...previousMessages, message]
@@ -31,9 +36,15 @@ export async function POST(req: NextRequest) {
       activeStreamId: null,
     })
 
+    const contextMessage: UIMessage = {
+      id: "learning-context",
+      role: "system",
+      parts: [{ type: "text", text: createLearningContextMessage(learningContext) }],
+    }
+
     const result = streamText({
       model: openrouter("deepseek/deepseek-v3.2"),
-      messages: convertToModelMessages(messages),
+      messages: convertToModelMessages([contextMessage, ...messages]),
     })
     
     const generateMessageId = createIdGenerator({

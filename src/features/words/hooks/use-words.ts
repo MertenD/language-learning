@@ -1,15 +1,17 @@
 import {useTRPC} from "@/trpc/client";
-import {useMutation, useQueryClient, useSuspenseQuery} from "@tanstack/react-query";
+import {useMutation, useQuery, useQueryClient, useSuspenseQuery} from "@tanstack/react-query";
 import {toast} from "sonner";
 import {useWordsParams} from "@/features/words/hooks/use-words-params";
 
-/**
- * Hook to fetch all words using suspense
- */
 export const useSuspenseWords = () => {
     const trpc = useTRPC()
     const [params] = useWordsParams()
     return useSuspenseQuery(trpc.words.getMany.queryOptions(params))
+}
+
+export const useWordStats = () => {
+    const trpc = useTRPC()
+    return useQuery(trpc.words.getStats.queryOptions())
 }
 
 /**

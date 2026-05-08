@@ -103,6 +103,7 @@ model User {
   grammar          Grammar[]
   chats            Chat[]
   languages        UserLanguage[]
+  scenarios        Scenario[]
   nativeLanguageId String
   nativeLanguage   Language       @relation("UserNativeLanguage", fields: [nativeLanguageId], references: [id])
 
@@ -271,9 +272,15 @@ model Scenario {
   assistantInstructions String
   firstAssistantMessage String
   targets               String[]
+  isUserCreated         Boolean  @default(false)
+  isAiGenerated         Boolean  @default(false)
+  generatedAt           DateTime?
   createdAt             DateTime @default(now())
   updatedAt             DateTime @default(now()) @updatedAt
 
   chats      Chat[]
   languageId String
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

@@ -1,26 +1,19 @@
 "use client"
 
-import { useState } from "react";
-import {useSuspenseWords} from "@/features/words/hooks/use-words";
-import WordsEmpty from "@/features/words/components/words-empty";
-import WordItem from "@/features/words/components/word-item";
-import CategoryItem from "@/features/words/components/categories/category-item";
-import {useWordsParams} from "@/features/words/hooks/use-words-params";
-import {useSuspenseCategoriesByParent} from "@/features/words/hooks/use-categories";
-import {useBulkDeleteWords} from "@/features/words/hooks/use-words";
-import {Checkbox} from "@/components/ui/checkbox";
-import {Button} from "@/components/ui/button";
-import {Trash2Icon, XIcon} from "lucide-react";
-import {cn} from "@/lib/utils";
+import { useState } from "react"
+import { useSuspenseWords, useBulkDeleteWords } from "@/features/words/hooks/use-words"
+import WordsEmpty from "@/features/words/components/words-empty"
+import WordItem from "@/features/words/components/word-item"
+import CategoryChip from "@/features/words/components/categories/category-chip"
+import { useWordsParams } from "@/features/words/hooks/use-words-params"
+import { useSuspenseCategoriesByParent } from "@/features/words/hooks/use-categories"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Button } from "@/components/ui/button"
+import { Trash2Icon, XIcon } from "lucide-react"
+import { cn } from "@/lib/utils"
 import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
+    AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+    AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 
 export default function WordsList() {
@@ -43,10 +36,6 @@ export default function WordsList() {
         })
     }
 
-    const selectAll = () => {
-        setSelectedIds(new Set(words.data.items.map(w => w.id)))
-    }
-
     const clearSelection = () => setSelectedIds(new Set())
 
     const handleBulkDelete = () => {
@@ -64,6 +53,16 @@ export default function WordsList() {
 
     return (
         <div className="space-y-4">
+            {/* Folder chips */}
+            {categories.data.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                    {categories.data.map(cat => (
+                        <CategoryChip key={cat.id} category={cat} />
+                    ))}
+                </div>
+            )}
+
+            {/* Bulk-select bar */}
             {isSelectMode && (
                 <div className="flex items-center justify-between rounded-lg border bg-primary/5 border-primary/20 px-4 py-2.5">
                     <div className="flex items-center gap-3">
@@ -71,7 +70,12 @@ export default function WordsList() {
                             <XIcon className="h-4 w-4" />
                         </Button>
                         <span className="text-sm font-medium">{selectedIds.size} selected</span>
-                        <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={selectAll}>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 text-xs"
+                            onClick={() => setSelectedIds(new Set(words.data.items.map(w => w.id)))}
+                        >
                             Select all {words.data.items.length}
                         </Button>
                     </div>
@@ -87,44 +91,44 @@ export default function WordsList() {
                 </div>
             )}
 
-            <div className="grid xl:grid-cols-2 gap-4">
-                {categories.data.map((category) => (
-                    <CategoryItem key={category.id} category={category} />
-                ))}
-                {words.data.items.map((word) => (
-                    <div
-                        key={word.id}
-                        className={cn("relative group", isSelectMode && "cursor-pointer")}
-                        onClick={isSelectMode ? () => toggleSelect(word.id) : undefined}
-                    >
-                        {isSelectMode && (
-                            <div className="absolute top-3 left-3 z-10">
-                                <Checkbox
-                                    checked={selectedIds.has(word.id)}
-                                    onCheckedChange={() => toggleSelect(word.id)}
-                                    onClick={(e) => e.stopPropagation()}
-                                    className="bg-background border-2"
-                                />
+            {/* Word cards */}
+            {words.data.items.length > 0 && (
+                <div className="grid xl:grid-cols-2 gap-3">
+                    {words.data.items.map((word) => (
+                        <div
+                            key={word.id}
+                            className={cn("relative group", isSelectMode && "cursor-pointer")}
+                            onClick={isSelectMode ? () => toggleSelect(word.id) : undefined}
+                        >
+                            {isSelectMode && (
+                                <div className="absolute top-3 left-3 z-10">
+                                    <Checkbox
+                                        checked={selectedIds.has(word.id)}
+                                        onCheckedChange={() => toggleSelect(word.id)}
+                                        onClick={e => e.stopPropagation()}
+                                        className="bg-background border-2"
+                                    />
+                                </div>
+                            )}
+                            <div className={cn(
+                                "transition-all",
+                                isSelectMode && selectedIds.has(word.id) && "ring-2 ring-primary rounded-lg",
+                                isSelectMode && "pointer-events-none pl-8"
+                            )}>
+                                <WordItem data={word} />
                             </div>
-                        )}
-                        <div className={cn(
-                            "transition-all",
-                            isSelectMode && selectedIds.has(word.id) && "ring-2 ring-primary rounded-lg",
-                            isSelectMode && "pointer-events-none pl-8"
-                        )}>
-                            <WordItem data={word} />
+                            {!isSelectMode && (
+                                <div
+                                    className="absolute top-3 left-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity"
+                                    onClick={e => { e.stopPropagation(); toggleSelect(word.id) }}
+                                >
+                                    <Checkbox className="bg-background border-2" />
+                                </div>
+                            )}
                         </div>
-                        {!isSelectMode && (
-                            <div
-                                className="absolute top-3 left-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity"
-                                onClick={(e) => { e.stopPropagation(); toggleSelect(word.id) }}
-                            >
-                                <Checkbox className="bg-background border-2" />
-                            </div>
-                        )}
-                    </div>
-                ))}
-            </div>
+                    ))}
+                </div>
+            )}
 
             <AlertDialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
                 <AlertDialogContent>
