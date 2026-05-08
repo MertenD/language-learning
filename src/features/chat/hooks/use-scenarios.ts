@@ -47,6 +47,23 @@ export const useGenerateScenarios = () => {
 }
 
 /**
+ * Hook to save an AI-generated scenario as a user-owned copy
+ */
+export const useSaveAiScenario = () => {
+    const trpc = useTRPC()
+    const queryClient = useQueryClient()
+    return useMutation(trpc.scenarios.saveAiScenario.mutationOptions({
+        onSuccess: () => {
+            toast.success("Szenario gespeichert")
+            queryClient.invalidateQueries(trpc.scenarios.getUserScenarios.queryOptions())
+        },
+        onError: (error) => {
+            toast.error(error.message || "Failed to save scenario")
+        },
+    }))
+}
+
+/**
  * Hook to delete a user scenario
  */
 export const useRemoveUserScenario = () => {

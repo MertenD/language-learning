@@ -6,13 +6,14 @@ export type LearningContext = {
   masteredWords: Array<{ primary: string; secondary: string }>
   learningWords: Array<{ primary: string; secondary: string }>
   grammarNotes: Array<{ title: string; summary: string }>
+  languageName: string
 }
 
 export async function getUserLearningContext(
   userId: string,
   languageId: string
 ): Promise<LearningContext> {
-  const [vocabulary, grammar, userLanguage] = await Promise.all([
+  const [vocabulary, grammar, userLanguage, language] = await Promise.all([
     prisma.word.findMany({
       where: { userId, languageId },
       include: { progress: true },
@@ -29,6 +30,7 @@ export async function getUserLearningContext(
       where: { userId_languageId: { userId, languageId } },
       include: { stats: true },
     }),
+    prisma.language.findUnique({ where: { id: languageId } }),
   ])
 
   const masteredWords = vocabulary
@@ -55,5 +57,6 @@ export async function getUserLearningContext(
     masteredWords,
     learningWords,
     grammarNotes,
+    languageName: language?.name ?? "",
   }
 }

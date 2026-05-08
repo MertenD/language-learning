@@ -1,17 +1,11 @@
 "use client"
 
-import { useState } from "react"
 import { useSmoothText } from "@/features/chat/hooks/use-scmooth-text"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { BotIcon, BookmarkPlusIcon } from "lucide-react"
+import { BotIcon } from "lucide-react"
 import parseChatAiAnswer from "@/features/chat/utils/prompts-utils"
-import {MessageSection} from "@/features/chat/components/chat/message-section";
-import {ExampleAnswersSection} from "@/features/chat/components/chat/scenario/example-answers-section";
-import {WordCreateDialog} from "@/features/words/components/word-create-dialog";
-import {useCreateWord} from "@/features/words/hooks/use-words";
-import {useUpgradeModal} from "@/hooks/use-upgrade-modal";
-import {CreateWordInput} from "@/features/words/schema/word-crud-schema";
-import {Button} from "@/components/ui/button";
+import { MessageSection } from "@/features/chat/components/chat/message-section"
+import { ExampleAnswersSection } from "@/features/chat/components/chat/scenario/example-answers-section"
 
 interface MessageBubbleAiProps {
     text: string
@@ -22,23 +16,13 @@ interface MessageBubbleAiProps {
 export default function MessageBubbleAi({ text, isStreaming, onExampleClick }: MessageBubbleAiProps) {
     const displayedText = useSmoothText(text, isStreaming, 1)
     const chatAiAnswer = parseChatAiAnswer(displayedText)
-    const [isSaveWordOpen, setIsSaveWordOpen] = useState(false)
-    const createWord = useCreateWord()
-    const { handleError, modal } = useUpgradeModal()
-
-    const handleSaveWord = (newWord: CreateWordInput) => {
-        createWord.mutate(newWord, {
-            onSuccess: () => setIsSaveWordOpen(false),
-            onError: handleError,
-        })
-    }
 
     return <div className="flex flex-col">
-        { chatAiAnswer.mistakes && <div className="mt-[-13px] pb-2 flex gap-3 flex-row-reverse animate-in fade-in slide-in-from-right-2 duration-500 mb-4">
+        {chatAiAnswer.mistakes && <div className="mt-[-13px] pb-2 flex gap-3 flex-row-reverse animate-in fade-in slide-in-from-right-2 duration-500 mb-4">
             <div className="h-9 w-9"/>
             <MessageSection markdownContent={chatAiAnswer.mistakes} variant="mistakes" isCollapsible />
-        </div> }
-        <div className="flex gap-3 flex-row animate-in fade-in slide-in-from-left-2 duration-500 group">
+        </div>}
+        <div className="flex gap-3 flex-row animate-in fade-in slide-in-from-left-2 duration-500">
             <Avatar className="h-9 w-9 shadow-sm border-2 border-card">
                 <AvatarImage src="/ai-assistant-concept.png" />
                 <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80">
@@ -59,21 +43,7 @@ export default function MessageBubbleAi({ text, isStreaming, onExampleClick }: M
                     !chatAiAnswer.explanation &&
                     !chatAiAnswer.mistakes &&
                     !chatAiAnswer.exampleAnswers && <MessageSection markdownContent={displayedText} />}
-
-                {!isStreaming && (
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-7 px-2 text-xs text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={() => setIsSaveWordOpen(true)}
-                    >
-                        <BookmarkPlusIcon className="mr-1.5 h-3.5 w-3.5" />
-                        Save as vocabulary
-                    </Button>
-                )}
             </div>
         </div>
-        {modal}
-        <WordCreateDialog open={isSaveWordOpen} onOpenChange={setIsSaveWordOpen} onCreate={handleSaveWord} />
     </div>
 }

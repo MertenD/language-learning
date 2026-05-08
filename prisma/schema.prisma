@@ -272,6 +272,8 @@ model Scenario {
   assistantInstructions String
   firstAssistantMessage String
   targets               String[]
+  level                 String?
+  tags                  String[] @default([])
   isUserCreated         Boolean  @default(false)
   isAiGenerated         Boolean  @default(false)
   generatedAt           DateTime?

@@ -5,16 +5,27 @@ import { Button } from "@/components/ui/button"
 import { useCreateEmptyChat } from "@/features/chat/hooks/use-chat"
 import { useRouter } from "next/navigation"
 import { useUpgradeModal } from "@/hooks/use-upgrade-modal"
-import { createChatSystemMessage } from "@/features/chat/utils/prompts"
+import { createChatSystemMessage, createChatGreeting } from "@/features/chat/utils/prompts"
+import { useLanguage, useNativeLanguage } from "@/features/user/hooks/use-language"
 
 export default function ChatsEmpty() {
     const createEmptyChat = useCreateEmptyChat()
     const router = useRouter()
     const { handleError, modal } = useUpgradeModal()
+    const { currentLanguage } = useLanguage()
+    const { data: nativeLanguage } = useNativeLanguage()
 
     const handleNewChat = () => {
         createEmptyChat.mutate(
-            { title: "New Chat", systemMessage: createChatSystemMessage() },
+            {
+                title: "New Chat",
+                systemMessage: createChatSystemMessage(
+                    currentLanguage
+                        ? { targetLanguageName: currentLanguage.name, nativeLanguageName: nativeLanguage?.name }
+                        : null
+                ),
+                firstMessage: currentLanguage ? createChatGreeting(currentLanguage.name) : undefined,
+            },
             {
                 onSuccess: (chatId) => router.push(`/chat/${chatId}`),
                 onError: handleError,
@@ -33,7 +44,7 @@ export default function ChatsEmpty() {
                 <p className="mt-1.5 text-sm text-muted-foreground max-w-[240px]">
                     Start a conversation to practice speaking and writing in your target language.
                 </p>
-                <Button className="mt-5" onClick={handleNewChat} disabled={createEmptyChat.isPending}>
+                <Button className="mt-5" onClick={handleNewChat} disabled={createEmptyChat.isPending || !currentLanguage}>
                     Start Conversation
                 </Button>
             </div>

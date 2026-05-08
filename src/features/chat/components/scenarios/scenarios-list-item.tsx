@@ -5,9 +5,10 @@ import { cn } from "@/lib/utils"
 import { useRouter } from "next/navigation"
 import { useCreateChatFromScenario } from "@/features/chat/hooks/use-chat"
 import { useUpgradeModal } from "@/hooks/use-upgrade-modal"
-import { useRemoveUserScenario } from "@/features/chat/hooks/use-scenarios"
-import { ChevronRightIcon, Loader2Icon, MoreVerticalIcon, PencilIcon, SparklesIcon, Trash2Icon } from "lucide-react"
+import { useRemoveUserScenario, useSaveAiScenario } from "@/features/chat/hooks/use-scenarios"
+import { BookmarkIcon, ChevronRightIcon, Loader2Icon, MoreVerticalIcon, PencilIcon, SparklesIcon, Trash2Icon } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+
 import { Button } from "@/components/ui/button"
 import type { Scenario } from "@/generated/prisma/client"
 import {
@@ -28,6 +29,7 @@ interface ScenariosListItemProps {
 export default function ScenariosListItem({ data, isAiGenerated, isUserCreated, onEdit }: ScenariosListItemProps) {
     const createChat = useCreateChatFromScenario()
     const removeScenario = useRemoveUserScenario()
+    const saveAiScenario = useSaveAiScenario()
     const { handleError, modal } = useUpgradeModal()
     const router = useRouter()
 
@@ -71,6 +73,21 @@ export default function ScenariosListItem({ data, isAiGenerated, isUserCreated, 
                         {/* Actions */}
                         <div className="flex items-center gap-1 shrink-0" onClick={e => e.stopPropagation()}>
                             {isPending && <Loader2Icon className="size-4 animate-spin text-muted-foreground" />}
+                            {isAiGenerated && (
+                                <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
+                                    title="Zu meinen Szenarien hinzufügen"
+                                    disabled={saveAiScenario.isPending}
+                                    onClick={() => saveAiScenario.mutate({ id: data.id }, { onError: handleError })}
+                                >
+                                    {saveAiScenario.isPending
+                                        ? <Loader2Icon className="size-3.5 animate-spin" />
+                                        : <BookmarkIcon className="size-3.5" />
+                                    }
+                                </Button>
+                            )}
                             {isUserCreated && (
                                 <AlertDialog>
                                     <DropdownMenu>
@@ -126,6 +143,20 @@ export default function ScenariosListItem({ data, isAiGenerated, isUserCreated, 
                     <p className="text-sm text-muted-foreground mt-1 line-clamp-2 leading-relaxed">
                         {data.description}
                     </p>
+                    {(data.level || data.tags?.length > 0) && (
+                        <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+                            {data.level && (
+                                <Badge variant="outline" className="text-xs py-0 px-1.5 font-mono">
+                                    {data.level}
+                                </Badge>
+                            )}
+                            {data.tags?.map(tag => (
+                                <span key={tag} className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                                    {tag}
+                                </span>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 {/* Arrow */}

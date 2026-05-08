@@ -8,7 +8,8 @@ import { Loader2, MessageSquarePlusIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useCreateEmptyChat } from "@/features/chat/hooks/use-chat"
 import { useUpgradeModal } from "@/hooks/use-upgrade-modal"
-import { createChatSystemMessage } from "@/features/chat/utils/prompts"
+import { createChatSystemMessage, createChatGreeting } from "@/features/chat/utils/prompts"
+import { useLanguage, useNativeLanguage } from "@/features/user/hooks/use-language"
 import ChatsList from "@/features/chat/components/chats/chats-list"
 import ChatsSearch from "@/features/chat/components/chats/chats-search"
 import ChatsPagination from "@/features/chat/components/chats/chats-pagination"
@@ -26,6 +27,8 @@ export default function ChatPageTabs({ defaultTab }: ChatPageTabsProps) {
     const createEmptyChat = useCreateEmptyChat()
     const router = useRouter()
     const { handleError, modal } = useUpgradeModal()
+    const { currentLanguage } = useLanguage()
+    const { data: nativeLanguage } = useNativeLanguage()
 
     const activeTab = defaultTab === "scenarios" ? "scenarios" : "conversations"
 
@@ -36,7 +39,15 @@ export default function ChatPageTabs({ defaultTab }: ChatPageTabsProps) {
 
     const handleNewChat = () => {
         createEmptyChat.mutate(
-            { title: "New Chat", systemMessage: createChatSystemMessage() },
+            {
+                title: "New Chat",
+                systemMessage: createChatSystemMessage(
+                    currentLanguage
+                        ? { targetLanguageName: currentLanguage.name, nativeLanguageName: nativeLanguage?.name }
+                        : null
+                ),
+                firstMessage: currentLanguage ? createChatGreeting(currentLanguage.name) : undefined,
+            },
             {
                 onSuccess: (chatId) => router.push(`/chat/${chatId}`),
                 onError: handleError,
@@ -58,7 +69,7 @@ export default function ChatPageTabs({ defaultTab }: ChatPageTabsProps) {
                                 Practice with AI in real conversations
                             </p>
                         </div>
-                        <Button onClick={handleNewChat} disabled={createEmptyChat.isPending} className="shrink-0">
+                        <Button onClick={handleNewChat} disabled={createEmptyChat.isPending || !currentLanguage} className="shrink-0">
                             {createEmptyChat.isPending
                                 ? <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                 : <MessageSquarePlusIcon className="mr-2 h-4 w-4" />

@@ -11,14 +11,15 @@ import MessageBubbleAi from "@/features/chat/components/chat/message-bubble-ai";
 import {getTextFromMessage} from "@/features/chat/utils/chat-utils";
 import parseChatAiAnswer from "@/features/chat/utils/prompts-utils";
 import {ChatHeader} from "@/features/chat/components/chat/chat-header";
-import {Bot} from "lucide-react";
+import {Bot, RefreshCwIcon} from "lucide-react";
+import {Button} from "@/components/ui/button";
 import {ChatInput} from "@/features/chat/components/chat/chat-input";
 
 type ChatInterfaceProps = {
     chatId: string
     assistantName?: string
     initialMessages: UIMessage[]
-    onTargetsStatusChange?: (targetsStatus: boolean[]) => void
+    onTargetsStatusChange?: (updater: (prev: boolean[]) => boolean[]) => void
     chatHeaderTail?: React.ReactNode
 }
 
@@ -26,7 +27,7 @@ export function ChatInterface({ chatId, assistantName, initialMessages, onTarget
     const scrollAreaRef = useRef<HTMLDivElement>(null)
     const [isOneMessageSent, setIsOneMessageSent] = useState(false)
 
-    const { messages, sendMessage, status, error } = useChat({
+    const { messages, sendMessage, regenerate, clearError, status, error } = useChat({
         id: chatId,
         messages: initialMessages,
         resume: true,
@@ -60,7 +61,9 @@ export function ChatInterface({ chatId, assistantName, initialMessages, onTarget
             const text = getTextFromMessage(lastAssistantMessage)
             const { targetsStatus } = parseChatAiAnswer(text)
             if (targetsStatus) {
-                onTargetsStatusChange(targetsStatus)
+                onTargetsStatusChange(prev =>
+                    targetsStatus.map((val, i) => prev?.[i] === true || val === true)
+                )
             }
         }
     }, [messages, isLoading])
@@ -115,12 +118,26 @@ export function ChatInterface({ chatId, assistantName, initialMessages, onTarget
                         )}
 
                         {error && (
-                            <div className="rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800 px-4 py-3">
-                                <p className="text-sm text-rose-700 dark:text-rose-300">
-                                    {error.message === "Payment required"
-                                        ? "Für diesen Chat benötigst du ein aktives Premium-Abo."
-                                        : "Es ist ein Fehler aufgetreten. Bitte versuche es später erneut."}
-                                </p>
+                            <div className="flex gap-3 animate-in fade-in slide-in-from-left-2 duration-500">
+                                <div className="h-9 w-9 shrink-0" />
+                                <div className="rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800 px-4 py-3 flex items-center gap-4">
+                                    <p className="text-sm text-rose-700 dark:text-rose-300 flex-1">
+                                        {error.message === "Payment required"
+                                            ? "Für diesen Chat benötigst du ein aktives Premium-Abo."
+                                            : "Es ist ein Fehler aufgetreten."}
+                                    </p>
+                                    {error.message !== "Payment required" && (
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="shrink-0 gap-2 border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-950"
+                                            onClick={() => { clearError(); regenerate() }}
+                                        >
+                                            <RefreshCwIcon className="size-3.5" />
+                                            Wiederholen
+                                        </Button>
+                                    )}
+                                </div>
                             </div>
                         )}
                     </div>

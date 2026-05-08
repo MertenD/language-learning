@@ -2,10 +2,10 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ChevronRight, Loader2, RefreshCwIcon, SparklesIcon } from "lucide-react"
+import { BookmarkIcon, ChevronRight, Loader2, RefreshCwIcon, SparklesIcon } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { useAiSuggestions, useGenerateScenarios } from "@/features/chat/hooks/use-scenarios"
+import { useAiSuggestions, useGenerateScenarios, useSaveAiScenario } from "@/features/chat/hooks/use-scenarios"
 import { useCreateChatFromScenario } from "@/features/chat/hooks/use-chat"
 import { useUpgradeModal } from "@/hooks/use-upgrade-modal"
 import { useRouter } from "next/navigation"
@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation"
 export default function ScenarioSuggestionCard() {
     const { data: suggestions, isLoading } = useAiSuggestions()
     const generateScenarios = useGenerateScenarios()
+    const saveAiScenario = useSaveAiScenario()
     const createChat = useCreateChatFromScenario()
     const { handleError, modal } = useUpgradeModal()
     const router = useRouter()
@@ -105,14 +106,45 @@ export default function ScenarioSuggestionCard() {
                                         <div className="space-y-4 flex flex-col justify-between h-full">
                                             <div className="flex items-start justify-between">
                                                 <div className="text-4xl">{scenario.image}</div>
+                                                {scenario.level && (
+                                                    <Badge variant="outline" className="text-xs font-mono shrink-0">
+                                                        {scenario.level}
+                                                    </Badge>
+                                                )}
                                             </div>
                                             <div className="space-y-2">
                                                 <h3 className="font-bold text-lg leading-tight text-balance">{scenario.title}</h3>
                                                 <p className="text-sm text-muted-foreground leading-relaxed text-pretty line-clamp-3">
                                                     {scenario.description}
                                                 </p>
+                                                {scenario.tags && scenario.tags.length > 0 && (
+                                                    <div className="flex flex-wrap gap-1">
+                                                        {scenario.tags.map(tag => (
+                                                            <span key={tag} className="text-xs text-muted-foreground bg-muted/60 rounded-full px-2 py-0.5">
+                                                                {tag}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                )}
                                             </div>
-                                            <div className="flex items-center justify-end pt-2">
+                                            <div className="flex items-center justify-between pt-2">
+                                                <Button
+                                                    size="sm"
+                                                    variant="ghost"
+                                                    className="gap-1.5 text-muted-foreground hover:text-foreground"
+                                                    onClick={e => {
+                                                        e.stopPropagation()
+                                                        saveAiScenario.mutate({ id: scenario.id }, { onError: handleError })
+                                                    }}
+                                                    disabled={saveAiScenario.isPending}
+                                                    title="Zu meinen Szenarien hinzufügen"
+                                                >
+                                                    {saveAiScenario.isPending
+                                                        ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                                        : <BookmarkIcon className="h-3.5 w-3.5" />
+                                                    }
+                                                    Merken
+                                                </Button>
                                                 <Button size="sm" variant="ghost" className="gap-1 group-hover:gap-2 transition-all">
                                                     Start
                                                     <ChevronRight className="h-4 w-4" />

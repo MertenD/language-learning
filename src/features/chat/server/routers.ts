@@ -16,10 +16,11 @@ export const chatsRouter = createTRPCRouter({
     createEmptyChat: premiumProcedure
         .input(z.object({
             title: z.string().optional(),
-            systemMessage: z.string().optional()
+            systemMessage: z.string().optional(),
+            firstMessage: z.string().optional(),
         }))
         .mutation(async ({ ctx, input }) => {
-            return createEmptyChat(ctx.auth.user.id, ctx.auth.user.currentLanguageId, input.title, input.systemMessage)
+            return createEmptyChat(ctx.auth.user.id, ctx.auth.user.currentLanguageId, input.title, input.systemMessage, input.firstMessage)
         }),
     createChatFromScenario: premiumProcedure
         .input(z.object({
@@ -32,6 +33,10 @@ export const chatsRouter = createTRPCRouter({
             if (!scenario) {
                 throw new Error("Scenario not found")
             }
+            const [language, nativeLanguage] = await Promise.all([
+                prisma.language.findUnique({ where: { id: scenario.languageId } }),
+                prisma.language.findUnique({ where: { id: ctx.auth.user.nativeLanguageId } }),
+            ])
             const chat = await prisma.chat.create({
                 data: {
                     userId: ctx.auth.user.id,
@@ -48,10 +53,14 @@ export const chatsRouter = createTRPCRouter({
                                 {
                                     type: "text",
                                     text: createChatSystemMessage({
+                                        targetLanguageName: language?.name ?? "",
+                                        nativeLanguageName: nativeLanguage?.name ?? "Deutsch",
                                         scenarioTitle: scenario.title,
                                         scenarioDescription: scenario.description,
                                         scenarioAssistantInstructions: scenario.assistantInstructions,
-                                        scenarioTargets: scenario.targets
+                                        scenarioTargets: scenario.targets,
+                                        scenarioLevel: scenario.level ?? undefined,
+                                        scenarioTags: scenario.tags,
                                     })
                                 }
                             ]
@@ -244,6 +253,8 @@ export const scenariosRouter = createTRPCRouter({
                         assistantInstructions: z.string().describe("Kurze Systemanweisung für den Assistenten: welche Rolle spielt er, wie verhält er sich"),
                         firstAssistantMessage: z.string().describe(`Die erste Nachricht des Assistenten auf ${currentLanguage.name}, die das Gespräch eröffnet`),
                         targets: z.array(z.string()).min(2).max(5).describe("Lernziele die der Nutzer in diesem Szenario erreichen soll"),
+                        level: z.enum(["A1", "A2", "B1", "B2", "C1", "C2"]).describe("CEFR-Level passend zum Nutzerprofil"),
+                        tags: z.array(z.string()).min(1).max(3).describe("1–3 Grammatik- oder Themenschwerpunkte wie 'Vergangenheit', 'Konjugation', 'Präpositionen'"),
                     }))
                 }),
                 prompt: `Erstelle 5 Konversationsszenarien zum Üben von ${currentLanguage.name}.
@@ -256,6 +267,13 @@ NUTZERPROFIL:
 AUFTRAG:
 - 3 "consolidation" Szenarien: Situationen, wo die bekannten Vokabeln natürlich vorkommen und geübt werden (orientiere dich also an dem aktuellen Stand des Nutzers)
 - 2 "stretch" Szenarien: Völlig neue Themen die zum Niveau passen, aber neue Vokabeln einführen
+
+LEVEL-ZUWEISUNG (CEFR):
+- consolidation-Szenarien: aktuelles Level (${learningContext.level}) oder eine Stufe darunter
+- stretch-Szenarien: eine Stufe über dem aktuellen Level
+
+TAGS:
+- Wähle 1–3 Grammatik- oder Themenschwerpunkte die in diesem Szenario natürlich vorkommen (z.B. "Vergangenheit", "Konjugation", "Präpositionen", "Adjektive", "Fragen")
 
 REGELN:
 - Szenarien sollen realistisch und motivierend sein
@@ -282,6 +300,8 @@ REGELN:
                             assistantInstructions: s.assistantInstructions,
                             firstAssistantMessage: s.firstAssistantMessage,
                             targets: s.targets,
+                            level: s.level,
+                            tags: s.tags,
                             languageId: currentLanguageId,
                             userId,
                             isAiGenerated: true,
@@ -294,6 +314,58 @@ REGELN:
             return created
         }),
 
+    generateSingle: premiumProcedure
+        .input(z.object({ prompt: z.string().min(1).max(1000) }))
+        .mutation(async ({ ctx, input }) => {
+            const { id: userId, currentLanguageId } = ctx.auth.user
+
+            const [learningContext, currentLanguage] = await Promise.all([
+                getUserLearningContext(userId, currentLanguageId),
+                prisma.language.findUnique({ where: { id: currentLanguageId } }),
+            ])
+
+            if (!currentLanguage) {
+                throw new TRPCError({ code: "BAD_REQUEST", message: "Language not found" })
+            }
+
+            const knownWordsText = learningContext.masteredWords.length > 0
+                ? learningContext.masteredWords.map(w => `${w.primary} → ${w.secondary}`).join(", ")
+                : "noch keine Vokabeln gespeichert"
+
+            const { object } = await generateObject({
+                model: openrouter(AI_MODEL),
+                schema: z.object({
+                    title: z.string().describe("Kurzer prägnanter Titel des Szenarios"),
+                    description: z.string().describe("1-2 Sätze Beschreibung was in diesem Szenario passiert"),
+                    image: z.string().describe("Ein einzelnes passendes Emoji"),
+                    assistantName: z.string().describe("Name des Gesprächspartners (z.B. 'Maria', 'Kellner', 'Arzt')"),
+                    assistantInstructions: z.string().describe("Systemanweisung für den Assistenten: welche Rolle spielt er, wie verhält er sich"),
+                    firstAssistantMessage: z.string().describe(`Die erste Nachricht des Assistenten auf ${currentLanguage.name}, die das Gespräch eröffnet`),
+                    targets: z.array(z.string()).min(2).max(5).describe("Konkrete Gesprächsziele die der Nutzer erreichen soll"),
+                    level: z.enum(["A1", "A2", "B1", "B2", "C1", "C2"]).describe("CEFR-Level passend zum Nutzerprofil und dem Szenario"),
+                    tags: z.array(z.string()).min(1).max(3).describe("1–3 Grammatik- oder Themenschwerpunkte"),
+                }),
+                prompt: `Erstelle ein einzelnes Konversationsszenario zum Üben von ${currentLanguage.name}.
+
+NUTZERPROFIL:
+- Sprachlevel: ${learningContext.level}
+- Bekannte Vokabeln: ${knownWordsText}
+- Grammatikkenntnisse: ${learningContext.grammarNotes.map(g => g.title).join(", ") || "keine gespeichert"}
+
+NUTZERWUNSCH:
+${input.prompt}
+
+REGELN:
+- Orientiere dich stark am Nutzerwunsch, ergänze aber sinnvoll auf Basis des Nutzerprofils
+- Gesprächspartner hat einen passenden echten Namen
+- firstAssistantMessage muss auf ${currentLanguage.name} sein
+- targets sind konkrete Gesprächsziele die der Nutzer erreichen soll
+- Level passend zum Nutzerprofil und der Schwierigkeit des Szenarios wählen`,
+            })
+
+            return object
+        }),
+
     createUserScenario: premiumProcedure
         .input(z.object({
             title: z.string().min(1).max(100),
@@ -303,6 +375,8 @@ REGELN:
             assistantInstructions: z.string().min(1),
             firstAssistantMessage: z.string().min(1),
             targets: z.array(z.string().min(1)).min(1).max(10),
+            level: z.enum(["A1", "A2", "B1", "B2", "C1", "C2"]).optional(),
+            tags: z.array(z.string()).default([]),
         }))
         .mutation(async ({ ctx, input }) => {
             return prisma.scenario.create({
@@ -325,12 +399,41 @@ REGELN:
             assistantInstructions: z.string().min(1),
             firstAssistantMessage: z.string().min(1),
             targets: z.array(z.string().min(1)).min(1).max(10),
+            level: z.enum(["A1", "A2", "B1", "B2", "C1", "C2"]).optional(),
+            tags: z.array(z.string()).default([]),
         }))
         .mutation(async ({ ctx, input }) => {
             const { id, ...data } = input
             return prisma.scenario.update({
                 where: { id, userId: ctx.auth.user.id },
                 data,
+            })
+        }),
+
+    saveAiScenario: premiumProcedure
+        .input(z.object({ id: z.string().min(1) }))
+        .mutation(async ({ ctx, input }) => {
+            const source = await prisma.scenario.findUnique({
+                where: { id: input.id, userId: ctx.auth.user.id, isAiGenerated: true },
+            })
+            if (!source) {
+                throw new TRPCError({ code: "NOT_FOUND", message: "Scenario not found" })
+            }
+            return prisma.scenario.create({
+                data: {
+                    title: source.title,
+                    description: source.description,
+                    image: source.image,
+                    assistantName: source.assistantName,
+                    assistantInstructions: source.assistantInstructions,
+                    firstAssistantMessage: source.firstAssistantMessage,
+                    targets: source.targets,
+                    level: source.level,
+                    tags: source.tags,
+                    languageId: source.languageId,
+                    userId: ctx.auth.user.id,
+                    isUserCreated: true,
+                },
             })
         }),
 
