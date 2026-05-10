@@ -130,7 +130,7 @@ export function VocabularySelector() {
                     ))}
                 </div>
 
-                <div className="overflow-y-auto max-h-[420px]">
+                <div className="overflow-y-auto max-h-[50vh] md:max-h-[420px]">
                     {/* Back button */}
                     {currentCategoryId && (
                         <button
@@ -266,7 +266,7 @@ export function VocabularySelector() {
                     <p className="text-sm font-medium text-muted-foreground mb-3">
                         {selectedWords.size} word{selectedWords.size !== 1 ? "s" : ""} selected
                     </p>
-                    <div className="grid xl:grid-cols-2 gap-3">
+                    <div className="grid md:grid-cols-2 gap-3">
                         {[...selectedWords.values()].map(word => (
                             <VocabularyEntityItem
                                 key={word.id}

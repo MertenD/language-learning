@@ -30,7 +30,7 @@ export default function AppHeader({ breadcrumbs }: AppHeaderProps) {
                                                 <BreadcrumbLink
                                                     href={crumb.url}
                                                     className={[
-                                                        "text-lg font-semibold",
+                                                        "text-sm sm:text-lg font-semibold",
                                                         isLast
                                                             ? "block min-w-0 max-w-full truncate"
                                                             : "whitespace-nowrap shrink-0",

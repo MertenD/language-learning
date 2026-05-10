@@ -36,9 +36,9 @@ export default function ScenarioSuggestionCard() {
             {modal}
             <Card>
                 <CardHeader>
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-0 items-start sm:items-center justify-between">
                         <div className="space-y-1">
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 flex-wrap">
                                 <CardTitle className="text-2xl">Suggested Scenarios</CardTitle>
                                 <Badge variant="secondary" className="gap-1">
                                     <SparklesIcon className="h-3 w-3" />
@@ -47,7 +47,7 @@ export default function ScenarioSuggestionCard() {
                             </div>
                             <CardDescription>Based on your recently learned vocabulary.</CardDescription>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 shrink-0">
                             {items.length > 0 && (
                                 <Button
                                     variant="ghost"

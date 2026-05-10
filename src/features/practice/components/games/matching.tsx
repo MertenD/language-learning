@@ -93,7 +93,7 @@ export function MatchingGame() {
                 <p className="text-muted-foreground">Select a primary word and its secondary translation</p>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 {items.map((item) => (
                     <Button
                         key={item.id}

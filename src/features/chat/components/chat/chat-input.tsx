@@ -30,7 +30,7 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
     }
 
     return (
-        <div className="border-t bg-background/80 backdrop-blur-sm p-5 shrink-0 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+        <div className="border-t bg-background/80 backdrop-blur-sm p-3 md:p-5 shrink-0 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
             <form className="flex gap-3 max-w-4xl mx-auto" onSubmit={handleSubmit}>
                 <Textarea
                     placeholder="Schreibe eine Nachricht..."

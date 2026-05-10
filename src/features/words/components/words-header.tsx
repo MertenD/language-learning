@@ -126,15 +126,11 @@ export default function WordsHeader({ disabled }: WordsHeaderProps) {
 
                 {/* Toolbar */}
                 <div className="flex items-center gap-2 shrink-0">
-                    {/* Sort */}
+                    {/* Mobile: all secondary actions in one dropdown */}
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="sm" disabled={disabled}>
-                                {params.sortOrder === "asc"
-                                    ? <ArrowUpAZIcon className="mr-1.5 h-4 w-4" />
-                                    : <ArrowDownAZIcon className="mr-1.5 h-4 w-4" />
-                                }
-                                {SORT_LABELS[params.sortBy] ?? "Sort"}
+                            <Button variant="outline" size="icon" className="flex md:hidden" disabled={disabled}>
+                                <MoreHorizontal className="h-4 w-4" />
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
@@ -144,35 +140,23 @@ export default function WordsHeader({ disabled }: WordsHeaderProps) {
                                     onClick={() => setParams({ sortBy: option, page: 1 })}
                                     className={params.sortBy === option ? "font-medium" : ""}
                                 >
+                                    {params.sortOrder === "asc"
+                                        ? <ArrowUpAZIcon className="mr-2 h-4 w-4" />
+                                        : <ArrowDownAZIcon className="mr-2 h-4 w-4" />
+                                    }
                                     {SORT_LABELS[option]}
                                 </DropdownMenuItem>
                             ))}
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={() => setParams({ sortOrder: params.sortOrder === "asc" ? "desc" : "asc" })}>
-                                {params.sortOrder === "asc" ? "↓ Descending" : "↑ Ascending"}
+                            <DropdownMenuItem onClick={() => setIsCategoryOpen(true)}>
+                                <FolderPlusIcon className="mr-2 h-4 w-4" />
+                                New Folder
                             </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-
-                    {/* New Folder — always visible */}
-                    <Button variant="outline" size="sm" onClick={() => setIsCategoryOpen(true)} disabled={disabled}>
-                        <FolderPlusIcon className="mr-1.5 h-4 w-4" />
-                        New Folder
-                    </Button>
-
-                    {/* More actions */}
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="icon" disabled={disabled}>
-                                <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
+                            <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => setIsGenerateOpen(true)}>
                                 <SparklesIcon className="mr-2 h-4 w-4" />
                                 Generate with AI
                             </DropdownMenuItem>
-                            <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => fileInputRef.current?.click()}>
                                 <Upload className="mr-2 h-4 w-4" />
                                 Import CSV
@@ -184,10 +168,68 @@ export default function WordsHeader({ disabled }: WordsHeaderProps) {
                         </DropdownMenuContent>
                     </DropdownMenu>
 
-                    {/* Primary CTA */}
+                    {/* Desktop: full toolbar */}
+                    <div className="hidden md:flex items-center gap-2">
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="outline" size="sm" disabled={disabled}>
+                                    {params.sortOrder === "asc"
+                                        ? <ArrowUpAZIcon className="mr-1.5 h-4 w-4" />
+                                        : <ArrowDownAZIcon className="mr-1.5 h-4 w-4" />
+                                    }
+                                    {SORT_LABELS[params.sortBy] ?? "Sort"}
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                {SORT_BY_OPTIONS.map((option) => (
+                                    <DropdownMenuItem
+                                        key={option}
+                                        onClick={() => setParams({ sortBy: option, page: 1 })}
+                                        className={params.sortBy === option ? "font-medium" : ""}
+                                    >
+                                        {SORT_LABELS[option]}
+                                    </DropdownMenuItem>
+                                ))}
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem onClick={() => setParams({ sortOrder: params.sortOrder === "asc" ? "desc" : "asc" })}>
+                                    {params.sortOrder === "asc" ? "↓ Descending" : "↑ Ascending"}
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+
+                        <Button variant="outline" size="sm" onClick={() => setIsCategoryOpen(true)} disabled={disabled}>
+                            <FolderPlusIcon className="mr-1.5 h-4 w-4" />
+                            New Folder
+                        </Button>
+
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="outline" size="icon" disabled={disabled}>
+                                    <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => setIsGenerateOpen(true)}>
+                                    <SparklesIcon className="mr-2 h-4 w-4" />
+                                    Generate with AI
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem onClick={() => fileInputRef.current?.click()}>
+                                    <Upload className="mr-2 h-4 w-4" />
+                                    Import CSV
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={handleExport}>
+                                    <Download className="mr-2 h-4 w-4" />
+                                    Export CSV
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
+
+                    {/* Primary CTA — always visible */}
                     <Button onClick={() => setIsWordOpen(true)} disabled={disabled}>
-                        <Plus className="mr-1.5 h-4 w-4" />
-                        Add Word
+                        <Plus className="h-4 w-4" />
+                        <span className="hidden sm:inline ml-1.5">Add Word</span>
                     </Button>
                 </div>
             </div>

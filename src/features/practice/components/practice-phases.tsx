@@ -32,7 +32,7 @@ export function PracticePhases() {
     // 1. Selection Phase
     if (selectedWords.length === 0) {
         return (
-            <div className="space-y-16">
+            <div className="space-y-8 md:space-y-16">
                 <PracticeHeader />
                 <VocabularySelector />
             </div>

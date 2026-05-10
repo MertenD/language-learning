@@ -93,7 +93,7 @@ export default function WordsList() {
 
             {/* Word cards */}
             {words.data.items.length > 0 && (
-                <div className="grid xl:grid-cols-2 gap-3">
+                <div className="grid md:grid-cols-2 gap-3">
                     {words.data.items.map((word) => (
                         <div
                             key={word.id}

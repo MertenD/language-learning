@@ -36,7 +36,7 @@ export function FlashcardsGame() {
             </div>
 
             <div
-                className="relative w-full h-64 cursor-pointer perspective-1000"
+                className="relative w-full min-h-40 sm:h-64 cursor-pointer perspective-1000"
                 onClick={() => setIsFlipped(!isFlipped)}
             >
                 <motion.div

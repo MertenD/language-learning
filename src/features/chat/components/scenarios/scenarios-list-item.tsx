@@ -77,7 +77,7 @@ export default function ScenariosListItem({ data, isAiGenerated, isUserCreated, 
                                 <Button
                                     size="icon"
                                     variant="ghost"
-                                    className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
+                                    className="h-7 w-7 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
                                     title="Zu meinen Szenarien hinzufügen"
                                     disabled={saveAiScenario.isPending}
                                     onClick={() => saveAiScenario.mutate({ id: data.id }, { onError: handleError })}
@@ -95,7 +95,7 @@ export default function ScenariosListItem({ data, isAiGenerated, isUserCreated, 
                                             <Button
                                                 size="icon"
                                                 variant="ghost"
-                                                className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                className="h-7 w-7 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
                                             >
                                                 <MoreVerticalIcon className="size-4" />
                                             </Button>

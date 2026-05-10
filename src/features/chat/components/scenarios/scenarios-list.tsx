@@ -91,7 +91,7 @@ export default function ScenariosList() {
                     )}
 
                     {aiScenarios.length > 0 && (
-                        <div className="grid xl:grid-cols-2 gap-3">
+                        <div className="grid md:grid-cols-2 gap-3">
                             {aiScenarios.map(s => (
                                 <ScenariosListItem key={s.id} data={s} isAiGenerated />
                             ))}
@@ -103,7 +103,7 @@ export default function ScenariosList() {
                 {userOwned.length > 0 && (
                     <section>
                         <h2 className="font-semibold mb-3">Your Scenarios</h2>
-                        <div className="grid xl:grid-cols-2 gap-3">
+                        <div className="grid md:grid-cols-2 gap-3">
                             {userOwned.map(s => (
                                 <ScenariosListItem key={s.id} data={s} isUserCreated onEdit={() => setEditScenario(s)} />
                             ))}
@@ -117,7 +117,7 @@ export default function ScenariosList() {
                     {global.length === 0
                         ? <ScenariosEmpty />
                         : (
-                            <div className="grid xl:grid-cols-2 gap-3">
+                            <div className="grid md:grid-cols-2 gap-3">
                                 {global.map(s => (
                                     <ScenariosListItem key={s.id} data={s} />
                                 ))}

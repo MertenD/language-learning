@@ -27,7 +27,7 @@ export function ChatHeader({ assistantName, isLoading, chatHeaderTail }: ChatHea
     return (
         <>
             {modal}
-            <div className="flex justify-between items-center gap-3 border-b bg-gradient-to-r from-background to-muted/30 backdrop-blur-sm p-5 shrink-0 shadow-sm">
+            <div className="flex justify-between items-center gap-3 border-b bg-gradient-to-r from-background to-muted/30 backdrop-blur-sm p-3 sm:p-5 shrink-0 shadow-sm">
                 <div className="flex items-center gap-3">
                     <Avatar className="h-10 w-10 shadow-md border-2 border-white dark:border-slate-800">
                         <AvatarImage src="/ai-assistant-concept.png" />

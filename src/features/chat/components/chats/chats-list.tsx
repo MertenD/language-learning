@@ -13,6 +13,6 @@ export default function ChatsList() {
         getKey={(chat) => chat.id}
         renderItem={(chat) => <ChatsListItem data={chat} />}
         emptyView={<ChatsEmpty />}
-        className="grid xl:grid-cols-2"
+        className="grid md:grid-cols-2"
     />
 }

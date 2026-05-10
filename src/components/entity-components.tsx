@@ -104,10 +104,10 @@ export function EntitySearch({
     onChange,
     placeholder = "Search"
 }: EntitySearchProps) {
-    return <div className="relative ml-auto">
+    return <div className="relative w-full md:ml-auto">
         <SearchIcon className="size-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
         <Input
-            className="max-w-[200px] bg-background shadow-none border-border pl-8"
+            className="w-full md:max-w-[200px] bg-background shadow-none border-border pl-8"
             placeholder={placeholder}
             value={value}
             onChange={(e) => onChange(e.target.value)}
@@ -288,7 +288,7 @@ export function VocabularyEntityItem({
         onClick={() => !isRemoving && onClick?.()}
     >
         <CardContent className="flex flex-row items-center justify-between p-0">
-            <div className="flex items-center gap-4 flex-1 min-w-0">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 flex-1 min-w-0">
                 <div className="flex items-start gap-2 flex-1 min-w-0">
                     <div className="flex-shrink-0 mt-1">{primaryFlag}</div>
                     <div className="min-w-0 flex-1">
@@ -299,7 +299,7 @@ export function VocabularyEntityItem({
                     </div>
                 </div>
 
-                <div className="flex-shrink-0 text-muted-foreground">↔</div>
+                <div className="flex-shrink-0 text-muted-foreground hidden sm:block">↔</div>
 
                 <div className="flex items-start gap-2 flex-1 min-w-0">
                     <div className="flex-shrink-0 mt-1">{secondaryFlag}</div>

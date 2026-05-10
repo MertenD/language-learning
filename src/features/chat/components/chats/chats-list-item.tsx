@@ -101,7 +101,7 @@ export default function ChatsListItem({ data }: { data: Chat }) {
                         <Button
                             size="icon"
                             variant="ghost"
-                            className="h-7 w-7 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity -mr-1 mt-0.5"
+                            className="h-7 w-7 shrink-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity -mr-1 mt-0.5"
                             onClick={e => { e.preventDefault(); e.stopPropagation() }}
                             disabled={removeChat.isPending}
                         >
