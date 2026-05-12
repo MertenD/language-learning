@@ -142,6 +142,24 @@ export const useBulkDeleteWords = () => {
 }
 
 /**
+ * Hook to bulk-move vocabulary to a category
+ */
+export const useBulkMoveWords = () => {
+    const queryClient = useQueryClient()
+    const trpc = useTRPC()
+
+    return useMutation(trpc.words.bulkMove.mutationOptions({
+        onSuccess: (data) => {
+            toast.success(`${data.count} Vokabel${data.count !== 1 ? "n" : ""} verschoben`)
+            queryClient.invalidateQueries(trpc.words.getMany.queryOptions({}))
+        },
+        onError: (error) => {
+            toast.error(`Fehler beim Verschieben: ${error.message}`)
+        }
+    }))
+}
+
+/**
  * Hook to remove vocabulary
  */
 export const useRemoveWord = () => {

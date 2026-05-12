@@ -5,11 +5,12 @@ import { useSuspenseWords, useBulkDeleteWords } from "@/features/words/hooks/use
 import WordsEmpty from "@/features/words/components/words-empty"
 import WordItem from "@/features/words/components/word-item"
 import CategoryChip from "@/features/words/components/categories/category-chip"
+import MoveWordsDialog from "@/features/words/components/move-words-dialog"
 import { useWordsParams } from "@/features/words/hooks/use-words-params"
 import { useSuspenseCategoriesByParent } from "@/features/words/hooks/use-categories"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Button } from "@/components/ui/button"
-import { Trash2Icon, XIcon } from "lucide-react"
+import { FolderInputIcon, Trash2Icon, XIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import {
     AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
@@ -24,6 +25,7 @@ export default function WordsList() {
 
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
     const [isConfirmOpen, setIsConfirmOpen] = useState(false)
+    const [isMoveOpen, setIsMoveOpen] = useState(false)
 
     const isSelectMode = selectedIds.size > 0
 
@@ -79,15 +81,25 @@ export default function WordsList() {
                             Select all {words.data.items.length}
                         </Button>
                     </div>
-                    <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => setIsConfirmOpen(true)}
-                        disabled={bulkDelete.isPending}
-                    >
-                        <Trash2Icon className="mr-2 h-4 w-4" />
-                        Delete {selectedIds.size}
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setIsMoveOpen(true)}
+                        >
+                            <FolderInputIcon className="mr-2 h-4 w-4" />
+                            Move {selectedIds.size}
+                        </Button>
+                        <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => setIsConfirmOpen(true)}
+                            disabled={bulkDelete.isPending}
+                        >
+                            <Trash2Icon className="mr-2 h-4 w-4" />
+                            Delete {selectedIds.size}
+                        </Button>
+                    </div>
                 </div>
             )}
 
@@ -129,6 +141,13 @@ export default function WordsList() {
                     ))}
                 </div>
             )}
+
+            <MoveWordsDialog
+                open={isMoveOpen}
+                onOpenChange={setIsMoveOpen}
+                wordIds={Array.from(selectedIds)}
+                onSuccess={clearSelection}
+            />
 
             <AlertDialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
                 <AlertDialogContent>

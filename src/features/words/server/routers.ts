@@ -162,6 +162,17 @@ export const wordsRouter = createTRPCRouter({
                 where: { id: { in: input.ids }, userId: ctx.auth.user.id }
             })
         }),
+    bulkMove: premiumProcedure
+        .input(z.object({
+            ids: z.array(z.string().min(1)).min(1),
+            categoryId: z.string().nullable(),
+        }))
+        .mutation(({ ctx, input }) => {
+            return prisma.word.updateMany({
+                where: { id: { in: input.ids }, userId: ctx.auth.user.id },
+                data: { categoryId: input.categoryId },
+            })
+        }),
     update: premiumProcedure
         .input(z.object({
             id: z.string().min(1),
