@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button"
 import {Word, WordProgress} from "@/generated/prisma/client";
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { CreateWordInput, createWordSchema, WORD_TYPE_LABELS, WordType } from "@/features/words/schema/word-crud-schema"
+import { CreateWordInput, createWordSchema, WORD_TYPE_LABELS, WORD_TYPE_COLORS, WordType } from "@/features/words/schema/word-crud-schema"
 import { WordFormsFields } from "@/features/words/components/word-forms-fields"
+import { cn } from "@/lib/utils"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -19,6 +20,89 @@ type WordWithProgress = Word & { progress?: WordProgress | null }
 
 const LEVEL_LABELS = ["New", "Learning", "Learning", "Advanced", "Advanced", "Mastered"]
 const LEVEL_COLORS = ["text-muted-foreground", "text-amber-500", "text-amber-600", "text-blue-500", "text-blue-600", "text-green-500"]
+
+type FormsRecord = Record<string, string | undefined | null>
+
+function FormRow({ label, value }: { label: string; value?: string | null }) {
+    if (!value) return null
+    return (
+        <div className="flex items-baseline gap-2 min-w-0">
+            <span className="text-xs text-muted-foreground shrink-0 w-24">{label}</span>
+            <span className="text-sm font-medium truncate">{value}</span>
+        </div>
+    )
+}
+
+function WordFormsDisplay({ wordType, forms }: { wordType: string; forms: FormsRecord }) {
+    const f = forms
+
+    const pronouns = [
+        { pronoun: "ich", key: "firstPersonSingular" },
+        { pronoun: "du", key: "secondPersonSingular" },
+        { pronoun: "er/sie/es", key: "thirdPersonSingular" },
+        { pronoun: "wir", key: "firstPersonPlural" },
+        { pronoun: "ihr", key: "secondPersonPlural" },
+        { pronoun: "sie/Sie", key: "thirdPersonPlural" },
+    ]
+    const hasConjugation = pronouns.some(p => f[p.key])
+
+    return (
+        <div className="rounded-lg border bg-muted/30 p-4 space-y-3">
+            <div className="flex items-center gap-2">
+                <span className={cn(
+                    "text-xs font-semibold px-2 py-0.5 rounded-full",
+                    WORD_TYPE_COLORS[wordType as WordType] ?? "bg-gray-100 text-gray-500"
+                )}>
+                    {WORD_TYPE_LABELS[wordType as WordType] ?? wordType}
+                </span>
+                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                    {wordType === "noun" && "Grammatik"}
+                    {wordType === "verb" && "Konjugation"}
+                    {wordType === "adjective" && "Steigerung"}
+                </span>
+            </div>
+
+            {wordType === "noun" && (
+                <div className="space-y-1.5">
+                    <FormRow label="Geschlecht" value={f.gender} />
+                    <FormRow label="Plural" value={f.plural} />
+                </div>
+            )}
+
+            {wordType === "verb" && (
+                <div className="space-y-3">
+                    {hasConjugation && (
+                        <div className="grid grid-cols-2 gap-x-6 gap-y-1">
+                            {pronouns.map(({ pronoun, key }) =>
+                                f[key] ? (
+                                    <div key={key} className="flex items-baseline gap-2">
+                                        <span className="text-xs text-muted-foreground w-16 shrink-0">{pronoun}</span>
+                                        <span className="text-sm font-medium">{f[key]}</span>
+                                    </div>
+                                ) : null
+                            )}
+                        </div>
+                    )}
+                    {(f.pastTense || f.pastParticiple || f.auxiliary) && (
+                        <div className="space-y-1.5 pt-1 border-t border-border/50">
+                            <FormRow label="Vergangenheit" value={f.pastTense} />
+                            <FormRow label="Partizip II" value={f.pastParticiple} />
+                            <FormRow label="Hilfsverb" value={f.auxiliary} />
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {wordType === "adjective" && (
+                <div className="space-y-1.5">
+                    <FormRow label="Komparativ" value={f.comparative} />
+                    <FormRow label="Superlativ" value={f.superlative} />
+                    <FormRow label="Feminin" value={f.feminineForm} />
+                </div>
+            )}
+        </div>
+    )
+}
 
 interface WordEditDialogProps {
     word: WordWithProgress
@@ -282,6 +366,24 @@ export function WordEditDialog({ word, open, onOpenChange, onSave }: WordEditDia
                                         {word.secondaryInfo && <p className="text-sm text-muted-foreground mt-1">{word.secondaryInfo}</p>}
                                     </div>
                                 </div>
+
+                                {word.wordType && word.wordType !== "phrase" && word.wordType !== "other" && word.forms && (
+                                    <WordFormsDisplay
+                                        wordType={word.wordType}
+                                        forms={word.forms as FormsRecord}
+                                    />
+                                )}
+
+                                {word.wordType && (word.wordType === "phrase" || word.wordType === "other") && (
+                                    <div className="flex items-center gap-2">
+                                        <span className={cn(
+                                            "text-xs font-semibold px-2 py-0.5 rounded-full",
+                                            WORD_TYPE_COLORS[word.wordType as WordType] ?? ""
+                                        )}>
+                                            {WORD_TYPE_LABELS[word.wordType as WordType] ?? word.wordType}
+                                        </span>
+                                    </div>
+                                )}
 
                                 {word.examples && word.examples.length > 0 && (
                                     <div className="space-y-1 pt-2">

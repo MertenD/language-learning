@@ -53,24 +53,6 @@ function WordTypeBadge({ type }: { type: string }) {
     )
 }
 
-type FormsRecord = Record<string, string | undefined>
-
-function buildFormsSummary(wordType: string, forms: FormsRecord): string | null {
-    const f = forms
-    if (wordType === "noun") {
-        const parts = [f.gender, f.plural ? `Pl: ${f.plural}` : undefined].filter(Boolean)
-        return parts.length > 0 ? parts.join(" · ") : null
-    }
-    if (wordType === "verb") {
-        const parts = [f.thirdPersonSingular, f.pastTense, f.pastParticiple].filter(Boolean)
-        return parts.length > 0 ? parts.join(" · ") : null
-    }
-    if (wordType === "adjective") {
-        const parts = [f.comparative, f.superlative].filter(Boolean)
-        return parts.length > 0 ? parts.join(" · ") : null
-    }
-    return null
-}
 
 function LevelChip({ level }: { level: number }) {
     return (
@@ -116,9 +98,6 @@ export default function WordItem({ data }: { data: WordWithProgress }) {
 
     const level = data.progress?.level
     const hasProgress = level != null
-    const formsSummary = data.wordType && data.forms
-        ? buildFormsSummary(data.wordType, data.forms as FormsRecord)
-        : null
 
     return <>
         <VocabularyEntityItem
@@ -134,9 +113,6 @@ export default function WordItem({ data }: { data: WordWithProgress }) {
                     {hasProgress && <LevelChip level={level} />}
                 </div>
             }
-            footer={formsSummary ? (
-                <p className="text-xs text-muted-foreground">{formsSummary}</p>
-            ) : undefined}
             className={hasProgress ? LEVEL_BORDER_CLASSES[level] : undefined}
             onRemove={handleRemove}
             isRemoving={removeWord.isPending}
