@@ -408,8 +408,8 @@ Native language (primary): ${nativeLanguage.name}
 Learning language (secondary): ${currentLanguage.name}
 ${existingList}
 Rules:
-- "primary" must be in ${nativeLanguage.name}
-- "secondary" must be the translation in ${currentLanguage.name}
+- "primary" must be in ${nativeLanguage.name}. Do not enhance with additional info or context like () or / — just the plain word or phrase.
+- "secondary" must be the translation in ${currentLanguage.name}. Do not enhance with additional info or context like () or / — just the plain word or phrase.
 - "primaryInfo": very brief grammatical hint in ${nativeLanguage.name} — optional
 - "secondaryInfo": very brief grammatical hint in ${currentLanguage.name} — optional
 - "examples": ALWAYS exactly 2 natural example sentences in ${currentLanguage.name} — no exceptions, never 0 or 1
