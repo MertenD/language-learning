@@ -260,8 +260,28 @@ export const scenariosRouter = createTRPCRouter({
                         image: z.string().describe("Ein einzelnes passendes Emoji"),
                         assistantName: z.string().describe("Name des Gesprächspartners (z.B. 'Maria', 'Kellner', 'Arzt')"),
                         assistantInstructions: z.string().describe("Kurze Systemanweisung für den Assistenten: welche Rolle spielt er, wie verhält er sich"),
-                        firstAssistantMessage: z.string().describe(`Die erste Nachricht des Assistenten auf ${currentLanguage.name}, die das Gespräch eröffnet`),
-                        targets: z.array(z.string()).min(2).max(5).describe("Lernziele die der Nutzer in diesem Szenario erreichen soll"),
+                        firstAssistantMessage: z.string().describe(`Erste Nachricht MUSS exakt diesem XML-Format folgen — keine Ausnahmen, keine Markdown-Formatierung außerhalb der Tags:
+<CONVERSATION>
+[Gesprächseröffnung auf ${currentLanguage.name} — 1-3 Sätze]
+</CONVERSATION>
+<EXPLANATION>
+[Deutsche Übersetzung + 2-3 neue Vokabeln mit Bedeutung]
+</EXPLANATION>
+<EXAMPLE_ANSWERS>
+[3 mögliche Antworten auf ${currentLanguage.name}, jeweils mit deutscher Übersetzung in Klammern]
+</EXAMPLE_ANSWERS>
+<GOALS_STATUS>
+[JSON-Array mit genau so vielen false-Einträgen wie targets, z.B. [false, false, false] für 3 targets]
+</GOALS_STATUS>`),
+                        targets: z.array(z.string()).min(2).max(5).describe(
+                            "Konkrete handlungsbasierte Ziele — NICHT vage Fähigkeiten wie 'Höflichkeitsformen nutzen' oder 'Wortschatz erweitern'. " +
+                            "STATTDESSEN: Spezifische Aktion die der Nutzer im Gespräch ausführen soll. " +
+                            `Beispiele für ${currentLanguage.name}: ` +
+                            "'Frage nach einem freien Tisch für zwei', " +
+                            "'Bestelle ein Hauptgericht mit Mengenangabe', " +
+                            "'Reklamiere eine falsche Bestellung', " +
+                            "'Bitte um die Rechnung'"
+                        ),
                         level: z.enum(["A1", "A2", "B1", "B2", "C1", "C2"]).describe("CEFR-Level passend zum Nutzerprofil"),
                         tags: z.array(z.string()).min(1).max(3).describe("1–3 Grammatik- oder Themenschwerpunkte wie 'Vergangenheit', 'Konjugation', 'Präpositionen'"),
                     }))
@@ -299,8 +319,9 @@ TAGS:
 REGELN:
 - Szenarien sollen realistisch und motivierend sein
 - Gesprächspartner hat einen passenden echten Namen
-- firstAssistantMessage muss auf ${currentLanguage.name} sein
-- targets sind konkrete Gesprächsziele die der Nutzer erreichen soll
+- firstAssistantMessage MUSS das XML-Format (<CONVERSATION>, <EXPLANATION>, <EXAMPLE_ANSWERS>, <GOALS_STATUS>) exakt einhalten — kein reiner Text
+- GOALS_STATUS enthält genau so viele false-Einträge wie targets definiert sind
+- targets sind KONKRETE Aktionen (z.B. "Frage nach einem freien Tisch für zwei"), KEINE vagen Fähigkeitsbeschreibungen
 - Nicht zu einfach, nicht zu schwer — herausfordernd aber erreichbar`,
             })
 
@@ -366,8 +387,28 @@ REGELN:
                     image: z.string().describe("Ein einzelnes passendes Emoji"),
                     assistantName: z.string().describe("Name des Gesprächspartners (z.B. 'Maria', 'Kellner', 'Arzt')"),
                     assistantInstructions: z.string().describe("Systemanweisung für den Assistenten: welche Rolle spielt er, wie verhält er sich"),
-                    firstAssistantMessage: z.string().describe(`Die erste Nachricht des Assistenten auf ${currentLanguage.name}, die das Gespräch eröffnet`),
-                    targets: z.array(z.string()).min(2).max(5).describe("Konkrete Gesprächsziele die der Nutzer erreichen soll"),
+                    firstAssistantMessage: z.string().describe(`Erste Nachricht MUSS exakt diesem XML-Format folgen — keine Ausnahmen, keine Markdown-Formatierung außerhalb der Tags:
+<CONVERSATION>
+[Gesprächseröffnung auf ${currentLanguage.name} — 1-3 Sätze]
+</CONVERSATION>
+<EXPLANATION>
+[Deutsche Übersetzung + 2-3 neue Vokabeln mit Bedeutung]
+</EXPLANATION>
+<EXAMPLE_ANSWERS>
+[3 mögliche Antworten auf ${currentLanguage.name}, jeweils mit deutscher Übersetzung in Klammern]
+</EXAMPLE_ANSWERS>
+<GOALS_STATUS>
+[JSON-Array mit genau so vielen false-Einträgen wie targets, z.B. [false, false, false] für 3 targets]
+</GOALS_STATUS>`),
+                    targets: z.array(z.string()).min(2).max(5).describe(
+                        "Konkrete handlungsbasierte Ziele — NICHT vage Fähigkeiten wie 'Höflichkeitsformen nutzen' oder 'Wortschatz erweitern'. " +
+                        "STATTDESSEN: Spezifische Aktion + erwartete Phrase oder Vokabel. " +
+                        `Beispiele für ${currentLanguage.name}: ` +
+                        "'Frage nach einem freien Tisch mit einer konkreten Floskel', " +
+                        "'Bestelle ein Gericht und nenne eine Mengenangabe', " +
+                        "'Reklamiere höflich und nenne einen Grund', " +
+                        "'Verabschiede dich und bedanke dich für den Service'"
+                    ),
                     level: z.enum(["A1", "A2", "B1", "B2", "C1", "C2"]).describe("CEFR-Level passend zum Nutzerprofil und dem Szenario"),
                     tags: z.array(z.string()).min(1).max(3).describe("1–3 Grammatik- oder Themenschwerpunkte"),
                 }),
@@ -393,8 +434,9 @@ REGELN:
 - Orientiere dich stark am Nutzerwunsch, nutze aber die Vokabeln aus "Neu hinzugefügt" und "Gerade am Lernen" als Basis
 - Falls der Nutzerwunsch zu einem Vokabel-Ordner passt (z.B. "Badezimmer"), beziehe die entsprechenden Wörter aktiv ein
 - Gesprächspartner hat einen passenden echten Namen
-- firstAssistantMessage muss auf ${currentLanguage.name} sein
-- targets sind konkrete Gesprächsziele die der Nutzer erreichen soll
+- firstAssistantMessage MUSS das XML-Format (<CONVERSATION>, <EXPLANATION>, <EXAMPLE_ANSWERS>, <GOALS_STATUS>) exakt einhalten — kein reiner Text
+- GOALS_STATUS enthält genau so viele false-Einträge wie targets definiert sind
+- targets sind KONKRETE Aktionen (z.B. "Frage nach einem freien Tisch für zwei"), KEINE vagen Fähigkeitsbeschreibungen
 - Level passend zum Nutzerprofil und der Schwierigkeit des Szenarios wählen`,
             })
 

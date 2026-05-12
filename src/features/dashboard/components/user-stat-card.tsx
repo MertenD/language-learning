@@ -54,17 +54,17 @@ export default function UserStatCard({ title, value, icon, chartColorNumber, isL
     const colors = getColorClasses(chartColorNumber);
 
     return <Card className={colors.card}>
-        <CardContent className="flex items-center justify-between p-6">
-            <div className="space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">{title}</p>
+        <CardContent className="flex items-center justify-between p-4 md:p-6">
+            <div className="space-y-0.5">
+                <p className="text-xs md:text-sm font-medium text-muted-foreground">{title}</p>
                 {isLoading ? (
-                    <div className="h-8 w-32 bg-muted/50 rounded-md animate-pulse mt-2"></div>
+                    <div className="h-7 w-24 bg-muted/50 rounded-md animate-pulse mt-1"></div>
                 ) : (
-                    <p className={`text-3xl font-bold ${colors.text}`}>{value}</p>
+                    <p className={`text-2xl md:text-3xl font-bold ${colors.text}`}>{value}</p>
                 )}
             </div>
-            <div className={`flex h-12 w-12 items-center justify-center rounded-full ${colors.bg}`}>
-                { icon && <span className={`h-6 w-6 ${colors.text}`}>{icon}</span>}
+            <div className={`flex h-9 w-9 md:h-12 md:w-12 items-center justify-center rounded-full ${colors.bg}`}>
+                { icon && <span className={`h-4 w-4 md:h-6 md:w-6 ${colors.text}`}>{icon}</span>}
             </div>
         </CardContent>
     </Card>

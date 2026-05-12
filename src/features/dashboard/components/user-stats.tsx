@@ -8,7 +8,7 @@ export default function UserStats() {
 
     const { data: stats, isLoading } = useLanguageStats()
 
-    return <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+    return <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <UserStatCard
             title="Streak"
             isLoading={isLoading}
