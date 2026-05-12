@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button"
 import {Word, WordProgress} from "@/generated/prisma/client";
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { CreateWordInput, createWordSchema } from "@/features/words/schema/word-crud-schema"
+import { CreateWordInput, createWordSchema, WORD_TYPE_LABELS, WordType } from "@/features/words/schema/word-crud-schema"
+import { WordFormsFields } from "@/features/words/components/word-forms-fields"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -40,7 +41,9 @@ export function WordEditDialog({ word, open, onOpenChange, onSave }: WordEditDia
             secondary: word.secondary,
             secondaryInfo: word.secondaryInfo || "",
             categoryId: word.categoryId || undefined,
-            examples: word.examples ?? []
+            examples: word.examples ?? [],
+            wordType: (word.wordType as WordType) || undefined,
+            forms: (word.forms as Record<string, string>) || {},
         }
     })
 
@@ -52,7 +55,9 @@ export function WordEditDialog({ word, open, onOpenChange, onSave }: WordEditDia
                 secondary: word.secondary,
                 secondaryInfo: word.secondaryInfo || "",
                 categoryId: word.categoryId || undefined,
-                examples: word.examples ?? []
+                examples: word.examples ?? [],
+                wordType: (word.wordType as WordType) || undefined,
+                forms: (word.forms as Record<string, string>) || {},
             })
         }
     }, [isEditing, word, form])
@@ -70,7 +75,10 @@ export function WordEditDialog({ word, open, onOpenChange, onSave }: WordEditDia
                 primaryInfo: data.primaryInfo || null,
                 secondaryInfo: data.secondaryInfo || null,
                 categoryId: data.categoryId === "root" ? null : (data.categoryId || null),
-                examples: data.examples?.filter(e => e.trim().length > 0) ?? []
+                examples: data.examples?.filter(e => e.trim().length > 0) ?? [],
+                wordType: data.wordType || null,
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                forms: (data.forms && Object.values(data.forms).some(Boolean) ? data.forms : null) as any,
             }
             await onSave(updatedWord)
         }
@@ -83,6 +91,7 @@ export function WordEditDialog({ word, open, onOpenChange, onSave }: WordEditDia
     }
 
     const examples = form.watch("examples") ?? []
+    const wordType = form.watch("wordType") as WordType | undefined
 
     const addExample = () => {
         form.setValue("examples", [...examples, ""])
@@ -161,6 +170,30 @@ export function WordEditDialog({ word, open, onOpenChange, onSave }: WordEditDia
                                         </FormItem>
                                     )}
                                 />
+
+                                <FormField
+                                    control={form.control}
+                                    name="wordType"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Word Type</FormLabel>
+                                            <Select onValueChange={field.onChange} value={field.value || ""}>
+                                                <FormControl>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Select type (optional)" />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    {(Object.keys(WORD_TYPE_LABELS) as WordType[]).map(type => (
+                                                        <SelectItem key={type} value={type}>{WORD_TYPE_LABELS[type]}</SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <WordFormsFields control={form.control} wordType={wordType} languageCode={currentLanguage?.code} />
 
                                 <FormField
                                     control={form.control}

@@ -3,6 +3,7 @@
 import {Word, WordProgress} from "@/generated/prisma/client";
 import React, {useState} from "react";
 import {VocabularyEntityItem} from "@/components/entity-components";
+import {WORD_TYPE_COLORS, WORD_TYPE_LABELS, WordType} from "@/features/words/schema/word-crud-schema";
 import {WordEditDialog} from "@/features/words/components/word-edit-dialog";
 import {useRemoveWord, useUpdateWord} from "@/features/words/hooks/use-words";
 import {useLanguage, useNativeLanguage} from "@/features/user/hooks/use-language";
@@ -40,6 +41,37 @@ const LEVEL_BORDER_CLASSES = [
     "border-l-[3px] border-l-green-500",
 ]
 
+function WordTypeBadge({ type }: { type: string }) {
+    const wt = type as WordType
+    return (
+        <span className={cn(
+            "text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0 whitespace-nowrap",
+            WORD_TYPE_COLORS[wt] ?? WORD_TYPE_COLORS.other
+        )}>
+            {WORD_TYPE_LABELS[wt] ?? type}
+        </span>
+    )
+}
+
+type FormsRecord = Record<string, string | undefined>
+
+function buildFormsSummary(wordType: string, forms: FormsRecord): string | null {
+    const f = forms
+    if (wordType === "noun") {
+        const parts = [f.gender, f.plural ? `Pl: ${f.plural}` : undefined].filter(Boolean)
+        return parts.length > 0 ? parts.join(" · ") : null
+    }
+    if (wordType === "verb") {
+        const parts = [f.thirdPersonSingular, f.pastTense, f.pastParticiple].filter(Boolean)
+        return parts.length > 0 ? parts.join(" · ") : null
+    }
+    if (wordType === "adjective") {
+        const parts = [f.comparative, f.superlative].filter(Boolean)
+        return parts.length > 0 ? parts.join(" · ") : null
+    }
+    return null
+}
+
 function LevelChip({ level }: { level: number }) {
     return (
         <span className={cn(
@@ -67,7 +99,10 @@ export default function WordItem({ data }: { data: WordWithProgress }) {
             secondary: updatedWord.secondary,
             secondaryInfo: updatedWord.secondaryInfo || undefined,
             categoryId: updatedWord.categoryId || undefined,
-            examples: updatedWord.examples ?? []
+            examples: updatedWord.examples ?? [],
+            wordType: (updatedWord.wordType as WordType) || null,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            forms: (updatedWord.forms as any) || null,
         })
     }
 
@@ -81,6 +116,9 @@ export default function WordItem({ data }: { data: WordWithProgress }) {
 
     const level = data.progress?.level
     const hasProgress = level != null
+    const formsSummary = data.wordType && data.forms
+        ? buildFormsSummary(data.wordType, data.forms as FormsRecord)
+        : null
 
     return <>
         <VocabularyEntityItem
@@ -90,7 +128,15 @@ export default function WordItem({ data }: { data: WordWithProgress }) {
             secondaryInfo={data.secondaryInfo}
             primaryFlag={<span className="text-2xl">{nativeLanguage?.flagEmoji}</span>}
             secondaryFlag={<span className="text-2xl">{currentLanguage?.flagEmoji}</span>}
-            actions={hasProgress ? <LevelChip level={level} /> : undefined}
+            actions={
+                <div className="flex items-center gap-1.5">
+                    {data.wordType && <WordTypeBadge type={data.wordType} />}
+                    {hasProgress && <LevelChip level={level} />}
+                </div>
+            }
+            footer={formsSummary ? (
+                <p className="text-xs text-muted-foreground">{formsSummary}</p>
+            ) : undefined}
             className={hasProgress ? LEVEL_BORDER_CLASSES[level] : undefined}
             onRemove={handleRemove}
             isRemoving={removeWord.isPending}

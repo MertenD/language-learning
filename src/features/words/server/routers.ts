@@ -2,7 +2,7 @@ import {createTRPCRouter, premiumProcedure, protectedProcedure} from "@/trpc/ini
 import prisma from "@/lib/db";
 import {z} from "zod";
 import {PAGINATION} from "@/config/constants";
-import {createWordSchema, csvWordSchema, CsvWordInput} from "@/features/words/schema/word-crud-schema";
+import {createWordSchema, csvWordSchema, CsvWordInput, wordTypeSchema, wordFormsSchema} from "@/features/words/schema/word-crud-schema";
 import {createCategorySchema, updateCategorySchema} from "@/features/words/schema/category-crud-schema";
 import {trackActivity} from "@/features/user/server/activity-service";
 import {ActivityType} from "@/features/dashboard/model/activity-type";
@@ -24,7 +24,9 @@ export const wordsRouter = createTRPCRouter({
                     examples: input.examples ?? [],
                     userId: ctx.auth.user.id,
                     categoryId: input.categoryId,
-                    languageId: ctx.auth.user.currentLanguageId
+                    languageId: ctx.auth.user.currentLanguageId,
+                    wordType: input.wordType,
+                    forms: input.forms ?? undefined,
                 }
             })
 
@@ -181,7 +183,9 @@ export const wordsRouter = createTRPCRouter({
             secondary: z.string().min(1).optional(),
             secondaryInfo: z.string().min(1).optional(),
             categoryId: z.string().optional().nullable(),
-            examples: z.array(z.string()).optional()
+            examples: z.array(z.string()).optional(),
+            wordType: wordTypeSchema.optional().nullable(),
+            forms: wordFormsSchema.unwrap().optional().nullable(),
         }))
         .mutation(({ ctx, input }) => {
             return prisma.word.update({
@@ -192,7 +196,9 @@ export const wordsRouter = createTRPCRouter({
                     secondary: input.secondary,
                     secondaryInfo: input.secondaryInfo || null,
                     categoryId: input.categoryId || null,
-                    ...(input.examples !== undefined && { examples: input.examples })
+                    ...(input.examples !== undefined && { examples: input.examples }),
+                    ...(input.wordType !== undefined && { wordType: input.wordType }),
+                    ...(input.forms !== undefined && { forms: input.forms ?? undefined }),
                 }
             })
         }),
@@ -291,6 +297,8 @@ export const wordsRouter = createTRPCRouter({
                 secondaryInfo: z.string().optional(),
                 examples: z.array(z.string()).optional(),
                 categoryId: z.string().optional().nullable(),
+                wordType: wordTypeSchema.optional(),
+                forms: z.record(z.any()).optional(),
             })).min(1),
         }))
         .mutation(async ({ ctx, input }) => {
@@ -304,6 +312,8 @@ export const wordsRouter = createTRPCRouter({
                     secondaryInfo: w.secondaryInfo || null,
                     examples: w.examples ?? [],
                     categoryId: w.categoryId ?? null,
+                    wordType: w.wordType,
+                    forms: w.forms ?? undefined,
                     userId,
                     languageId: currentLanguageId,
                 })),
@@ -342,6 +352,7 @@ export const wordsRouter = createTRPCRouter({
         .input(z.object({
             topic: z.string().min(1).max(150),
             count: z.number().int().min(3).max(20).default(10),
+            wordTypes: z.array(wordTypeSchema).min(1).optional(),
         }))
         .mutation(async ({ ctx, input }) => {
             const { currentLanguageId, nativeLanguageId } = ctx.auth.user
@@ -372,6 +383,23 @@ export const wordsRouter = createTRPCRouter({
                         primaryInfo: z.string().optional().describe("Brief grammatical note (optional)"),
                         secondaryInfo: z.string().optional().describe("Brief grammatical note (optional)"),
                         examples: z.array(z.string()).optional().describe(`1–2 short example sentences in ${currentLanguage.name}`),
+                        wordType: z.enum(["noun", "verb", "adjective", "phrase", "other"]).describe("Grammatical word type"),
+                        forms: z.object({
+                            gender: z.string().optional().describe("Grammatical gender, e.g. 'm', 'f', 'n'"),
+                            plural: z.string().optional().describe("Plural form in the learning language"),
+                            firstPersonSingular: z.string().optional().describe("1st person singular present tense"),
+                            secondPersonSingular: z.string().optional().describe("2nd person singular present tense"),
+                            thirdPersonSingular: z.string().optional().describe("3rd person singular present tense"),
+                            firstPersonPlural: z.string().optional().describe("1st person plural present tense"),
+                            secondPersonPlural: z.string().optional().describe("2nd person plural present tense"),
+                            thirdPersonPlural: z.string().optional().describe("3rd person plural present tense"),
+                            pastTense: z.string().optional().describe("Simple past / Präteritum form"),
+                            pastParticiple: z.string().optional().describe("Past participle (Partizip II)"),
+                            auxiliary: z.string().optional().describe("Auxiliary verb: 'haben' or 'sein' (for German verbs)"),
+                            comparative: z.string().optional().describe("Comparative form"),
+                            superlative: z.string().optional().describe("Superlative form"),
+                            feminineForm: z.string().optional().describe("Feminine form (for Romance languages)"),
+                        }).optional(),
                     })),
                 }),
                 prompt: `Generate exactly ${input.count} vocabulary words related to the topic "${input.topic}".
@@ -382,12 +410,17 @@ ${existingList}
 Rules:
 - "primary" must be in ${nativeLanguage.name}
 - "secondary" must be the translation in ${currentLanguage.name}
-- "primaryInfo": very brief grammatical hint in ${nativeLanguage.name}, e.g. "das Nomen" or "(verb)" — optional
+- "primaryInfo": very brief grammatical hint in ${nativeLanguage.name} — optional
 - "secondaryInfo": very brief grammatical hint in ${currentLanguage.name} — optional
 - "examples": 1–2 short, natural example sentences in ${currentLanguage.name} showing the word in context
-- Include a mix of nouns, verbs, and adjectives
+- ONLY generate words of these types: ${input.wordTypes && input.wordTypes.length > 0 ? input.wordTypes.join(", ") : "noun, verb, adjective, phrase, other"} — do not include any other word types
 - Choose practical, commonly used words for this topic
-- Do not repeat words`,
+- Do not repeat words
+- "wordType": classify as one of the allowed types above
+- "forms": fill relevant grammatical forms based on wordType:
+  - noun → gender (e.g. "m", "f", "n") + plural form in ${currentLanguage.name}
+  - verb → all 6 conjugation forms (firstPersonSingular … thirdPersonPlural), pastTense, pastParticiple${currentLanguage.code === "de" ? '; auxiliary ("haben" or "sein")' : ""}
+  - adjective → comparative + superlative; for Romance languages also feminineForm`,
             })
 
             return object.words

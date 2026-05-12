@@ -247,6 +247,7 @@ interface VocabularyEntityItemProps {
     primaryFlag: React.ReactNode
     secondaryFlag: React.ReactNode
     actions?: React.ReactNode
+    footer?: React.ReactNode
     onRemove?: () => void | Promise<void>
     isRemoving?: boolean
     onClick?: () => void
@@ -261,6 +262,7 @@ export function VocabularyEntityItem({
     primaryFlag,
     secondaryFlag,
     actions,
+    footer,
     onRemove,
     isRemoving,
     onClick,
@@ -287,7 +289,8 @@ export function VocabularyEntityItem({
         )}
         onClick={() => !isRemoving && onClick?.()}
     >
-        <CardContent className="flex flex-row items-center justify-between p-0">
+        <CardContent className="flex flex-col p-0 gap-2">
+            <div className="flex flex-row items-center justify-between">
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 flex-1 min-w-0">
                 <div className="flex items-start gap-2 flex-1 min-w-0">
                     <div className="flex-shrink-0 mt-1">{primaryFlag}</div>
@@ -344,6 +347,12 @@ export function VocabularyEntityItem({
                             </DropdownMenuContent>
                         </DropdownMenu>
                     )}
+                </div>
+            )}
+            </div>
+            {footer && (
+                <div className="border-t border-border/50 pt-1.5">
+                    {footer}
                 </div>
             )}
         </CardContent>

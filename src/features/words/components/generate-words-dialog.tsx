@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils"
 import { useGenerateWords, useBulkCreateWords } from "@/features/words/hooks/use-words"
 import { useLanguage, useNativeLanguage } from "@/features/user/hooks/use-language"
 import { useUpgradeModal } from "@/hooks/use-upgrade-modal"
+import { WordType, WORD_TYPE_LABELS, WORD_TYPE_COLORS, wordTypeSchema } from "@/features/words/schema/word-crud-schema"
 
 type GeneratedWord = {
     primary: string
@@ -20,7 +21,11 @@ type GeneratedWord = {
     primaryInfo?: string
     secondaryInfo?: string
     examples?: string[]
+    wordType?: WordType
+    forms?: Record<string, string>
 }
+
+const ALL_WORD_TYPES = Object.keys(WORD_TYPE_LABELS) as WordType[]
 
 const COUNT_OPTIONS = [5, 10, 15, 20]
 
@@ -33,6 +38,7 @@ interface GenerateWordsDialogProps {
 export function GenerateWordsDialog({ open, onOpenChange, categoryId }: GenerateWordsDialogProps) {
     const [topic, setTopic] = useState("")
     const [count, setCount] = useState(10)
+    const [selectedTypes, setSelectedTypes] = useState<Set<WordType>>(new Set(ALL_WORD_TYPES))
     const [generatedWords, setGeneratedWords] = useState<GeneratedWord[]>([])
     const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set())
     const [lastTopic, setLastTopic] = useState("")
@@ -47,11 +53,25 @@ export function GenerateWordsDialog({ open, onOpenChange, categoryId }: Generate
     const isLoading = generateWords.isPending
     const isSaving = bulkCreate.isPending
 
+    const toggleType = (type: WordType) => {
+        setSelectedTypes(prev => {
+            if (prev.size === 1 && prev.has(type)) return prev // keep at least one
+            const next = new Set(prev)
+            if (next.has(type)) next.delete(type)
+            else next.add(type)
+            return next
+        })
+    }
+
     const handleGenerate = () => {
         if (!topic.trim()) return
-        generateWords.mutate({ topic: topic.trim(), count }, {
+        generateWords.mutate({
+            topic: topic.trim(),
+            count,
+            wordTypes: Array.from(selectedTypes),
+        }, {
             onSuccess: (words) => {
-                setGeneratedWords(words)
+                setGeneratedWords(words as GeneratedWord[])
                 setSelectedIndices(new Set(words.map((_, i) => i)))
                 setLastTopic(topic.trim())
             },
@@ -86,6 +106,8 @@ export function GenerateWordsDialog({ open, onOpenChange, categoryId }: Generate
                 secondaryInfo: w.secondaryInfo,
                 examples: w.examples,
                 categoryId: categoryId ?? null,
+                wordType: w.wordType,
+                forms: w.forms,
             }))
 
         bulkCreate.mutate({ words: wordsToSave }, {
@@ -111,6 +133,8 @@ export function GenerateWordsDialog({ open, onOpenChange, categoryId }: Generate
         }
         onOpenChange(open)
     }
+
+    const canGenerate = topic.trim().length > 0 && selectedTypes.size > 0
 
     return (
         <>
@@ -166,10 +190,38 @@ export function GenerateWordsDialog({ open, onOpenChange, categoryId }: Generate
                                 </div>
                             </div>
 
+                            <div className="space-y-2">
+                                <Label>Word types</Label>
+                                <div className="flex flex-wrap gap-2">
+                                    {ALL_WORD_TYPES.map(type => {
+                                        const checked = selectedTypes.has(type)
+                                        return (
+                                            <button
+                                                key={type}
+                                                type="button"
+                                                onClick={() => toggleType(type)}
+                                                className={cn(
+                                                    "flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors",
+                                                    checked
+                                                        ? WORD_TYPE_COLORS[type]
+                                                        : "border-border text-muted-foreground hover:bg-accent"
+                                                )}
+                                            >
+                                                <Checkbox
+                                                    checked={checked}
+                                                    className="h-3 w-3 pointer-events-none"
+                                                />
+                                                {WORD_TYPE_LABELS[type]}
+                                            </button>
+                                        )
+                                    })}
+                                </div>
+                            </div>
+
                             <Button
                                 className="w-full"
                                 onClick={handleGenerate}
-                                disabled={!topic.trim() || isLoading}
+                                disabled={!canGenerate || isLoading}
                             >
                                 {isLoading
                                     ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating…</>
@@ -214,7 +266,15 @@ export function GenerateWordsDialog({ open, onOpenChange, categoryId }: Generate
                                                 className="mt-0.5 flex-shrink-0"
                                             />
                                             <div className="flex-1 min-w-0 space-y-1">
-                                                <div className="flex items-center gap-4">
+                                                <div className="flex items-center gap-4 flex-wrap">
+                                                    {word.wordType && (
+                                                        <span className={cn(
+                                                            "text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0",
+                                                            WORD_TYPE_COLORS[word.wordType] ?? ""
+                                                        )}>
+                                                            {WORD_TYPE_LABELS[word.wordType] ?? word.wordType}
+                                                        </span>
+                                                    )}
                                                     <div className="flex items-center gap-1.5 min-w-0">
                                                         <span className="text-lg">{nativeLanguage?.flagEmoji}</span>
                                                         <div>

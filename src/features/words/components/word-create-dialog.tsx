@@ -2,7 +2,8 @@
 
 import {Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle} from "@/components/ui/dialog"
 import {Button} from "@/components/ui/button"
-import {CreateWordInput, createWordSchema} from "@/features/words/schema/word-crud-schema";
+import {CreateWordInput, createWordSchema, WORD_TYPE_LABELS, WordType} from "@/features/words/schema/word-crud-schema";
+import {WordFormsFields} from "@/features/words/components/word-forms-fields";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
@@ -33,7 +34,9 @@ export function WordCreateDialog({ open, onOpenChange, onCreate, categoryId }: W
             secondary: "",
             secondaryInfo: "",
             categoryId: categoryId || undefined,
-            examples: []
+            examples: [],
+            wordType: undefined,
+            forms: {},
         }
     })
 
@@ -45,7 +48,9 @@ export function WordCreateDialog({ open, onOpenChange, onCreate, categoryId }: W
                 secondary: "",
                 secondaryInfo: "",
                 categoryId: categoryId || undefined,
-                examples: []
+                examples: [],
+                wordType: undefined,
+                forms: {},
             })
         }
     }, [open, categoryId, form])
@@ -63,6 +68,7 @@ export function WordCreateDialog({ open, onOpenChange, onCreate, categoryId }: W
     }
 
     const examples = form.watch("examples") ?? []
+    const wordType = form.watch("wordType") as WordType | undefined
 
     const addExample = () => {
         form.setValue("examples", [...examples, ""])
@@ -149,6 +155,30 @@ export function WordCreateDialog({ open, onOpenChange, onCreate, categoryId }: W
                                     </FormItem>
                                 )}
                             />
+
+                            <FormField
+                                control={form.control}
+                                name="wordType"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Word Type</FormLabel>
+                                        <Select onValueChange={field.onChange} value={field.value || ""}>
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select type (optional)" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                {(Object.keys(WORD_TYPE_LABELS) as WordType[]).map(type => (
+                                                    <SelectItem key={type} value={type}>{WORD_TYPE_LABELS[type]}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </FormItem>
+                                )}
+                            />
+
+                            <WordFormsFields control={form.control} wordType={wordType} languageCode={currentLanguage?.code} />
 
                             <FormField
                                 control={form.control}
