@@ -12,6 +12,7 @@ import Link from "next/link";
 import {authClient} from "@/lib/auth-client";
 import {toast} from "sonner";
 import Image from "next/image";
+import {useState} from "react";
 
 const loginSchema = z.object({
     email: z.email("Please enter a valid email address"),
@@ -23,6 +24,7 @@ type LoginFormValues = z.infer<typeof loginSchema>
 export default function LoginForm() {
 
     const router = useRouter();
+    const [oauthLoading, setOauthLoading] = useState<'github' | 'google' | null>(null)
     const form = useForm<LoginFormValues>({
         resolver: zodResolver(loginSchema),
         defaultValues: {
@@ -30,6 +32,19 @@ export default function LoginForm() {
             password: ""
         }
     })
+
+    async function signInWith(provider: 'github' | 'google') {
+        setOauthLoading(provider)
+        await authClient.signIn.social({
+            provider,
+            callbackURL: '/',
+        }, {
+            onError: (ctx) => {
+                toast.error(ctx.error.message)
+                setOauthLoading(null)
+            }
+        })
+    }
 
     async function onSubmit(values: LoginFormValues) {
         await authClient.signIn.email({
@@ -46,7 +61,7 @@ export default function LoginForm() {
         })
     }
 
-    const isPending = form.formState.isSubmitting
+    const isPending = form.formState.isSubmitting || oauthLoading !== null
 
     return <div className="flex flex-col gap-6">
         <Card>
@@ -68,18 +83,20 @@ export default function LoginForm() {
                                     className="w-full"
                                     type="button"
                                     disabled={isPending}
+                                    onClick={() => signInWith('github')}
                                 >
                                     <Image src="/logos/github.svg" width={20} height={20} alt="GitHub" />
-                                    Continue with GitHub
+                                    {oauthLoading === 'github' ? 'Redirecting…' : 'Continue with GitHub'}
                                 </Button>
                                 <Button
                                     variant="outline"
                                     className="w-full"
                                     type="button"
                                     disabled={isPending}
+                                    onClick={() => signInWith('google')}
                                 >
-                                    <Image src="/logos/google.svg" width={20} height={20} alt="Goolge" />
-                                    Continue with Google
+                                    <Image src="/logos/google.svg" width={20} height={20} alt="Google" />
+                                    {oauthLoading === 'google' ? 'Redirecting…' : 'Continue with Google'}
                                 </Button>
                             </div>
                             <div className="grid gap-6">

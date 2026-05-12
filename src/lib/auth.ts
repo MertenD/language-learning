@@ -17,15 +17,27 @@ export const auth = betterAuth({
         enabled: true,
         autoSignIn: true
     },
+    socialProviders: {
+        google: {
+            clientId: process.env.GOOGLE_CLIENT_ID!,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+        },
+        github: {
+            clientId: process.env.GITHUB_CLIENT_ID!,
+            clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+        },
+    },
     user: {
         additionalFields: {
             nativeLanguageId: {
                 type: "string",
-                required: true
+                // Not required at Better Auth level — OAuth users get a default via before-hook
+                // Email sign-up enforces this via client-side form validation
+                required: false
             },
             currentLanguageId: {
                 type: "string",
-                required: true
+                required: false
             }
         }
     },
@@ -52,6 +64,22 @@ export const auth = betterAuth({
     databaseHooks: {
         user: {
             create: {
+                before: async (user) => {
+                    // OAuth users don't supply language preferences — default to English
+                    if (!user.nativeLanguageId || !user.currentLanguageId) {
+                        const english = await prisma.language.findFirst({ where: { code: "en" } })
+                            ?? await prisma.language.findFirst()
+                        const defaultId = english?.id
+                        if (!defaultId) throw new Error("No languages seeded in database")
+                        return {
+                            data: {
+                                ...user,
+                                nativeLanguageId: user.nativeLanguageId || defaultId,
+                                currentLanguageId: user.currentLanguageId || defaultId,
+                            }
+                        }
+                    }
+                },
                 after: async (user) => {
                     const targetLanguageId = (user.currentLanguageId || "1") as string
                     let polarCustomer = null

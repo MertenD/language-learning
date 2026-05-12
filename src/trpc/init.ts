@@ -36,7 +36,13 @@ export const protectedProcedure = baseProcedure.use(async ({ ctx, next }) => {
         })
     }
 
-    return next({ ctx: { ...ctx, auth: session } })
+    // before-hook in auth.ts guarantees these are always set; cast to string for downstream type safety
+    const user = {
+        ...session.user,
+        currentLanguageId: session.user.currentLanguageId ?? "",
+        nativeLanguageId: session.user.nativeLanguageId ?? "",
+    }
+    return next({ ctx: { ...ctx, auth: { ...session, user } } })
 })
 export const premiumProcedure = protectedProcedure.use(async ({ ctx, next }) => {
     const customer = await polarClient.customers.getStateExternal({

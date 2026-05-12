@@ -237,9 +237,18 @@ export const scenariosRouter = createTRPCRouter({
                 throw new TRPCError({ code: "BAD_REQUEST", message: "Language not found" })
             }
 
-            const knownWordsText = learningContext.masteredWords.length > 0
-                ? learningContext.masteredWords.map(w => `${w.primary} → ${w.secondary}`).join(", ")
-                : "noch keine Vokabeln gespeichert"
+            const fmt = (words: Array<{ primary: string; secondary: string }>, max = 60) =>
+                words.length > 0
+                    ? words.slice(0, max).map(w => `${w.primary} → ${w.secondary}`).join(", ")
+                    : "keine"
+
+            const categoriesText = learningContext.categories.length > 0
+                ? learningContext.categories.map(c => `${c.name} (${c.wordCount} Wörter)`).join(", ")
+                : "keine Ordner angelegt"
+
+            const pastTitlesText = learningContext.pastScenarioTitles.length > 0
+                ? learningContext.pastScenarioTitles.join(", ")
+                : "keine"
 
             const { object } = await generateObject({
                 model: openrouter(AI_MODEL),
@@ -259,14 +268,26 @@ export const scenariosRouter = createTRPCRouter({
                 }),
                 prompt: `Erstelle 5 Konversationsszenarien zum Üben von ${currentLanguage.name}.
 
-NUTZERPROFIL:
-- Sprachlevel: ${learningContext.level}
-- Bekannte Vokabeln: ${knownWordsText}
-- Grammatikkenntnisse: ${learningContext.grammarNotes.map(g => g.title).join(", ") || "keine gespeichert"}
+LERNSTAND DES NUTZERS:
+- CEFR-Level: ${learningContext.level} (Gesamtvokabular: ${learningContext.totalWords} Wörter)
+- Grammatik: ${learningContext.grammarNotes.map(g => g.title).join(", ") || "keine gespeichert"}
 
-AUFTRAG:
-- 3 "consolidation" Szenarien: Situationen, wo die bekannten Vokabeln natürlich vorkommen und geübt werden (orientiere dich also an dem aktuellen Stand des Nutzers)
-- 2 "stretch" Szenarien: Völlig neue Themen die zum Niveau passen, aber neue Vokabeln einführen
+VOKABULAR-STATUS:
+- Neu hinzugefügt, noch nicht geübt (${learningContext.newWords.length} Wörter): ${fmt(learningContext.newWords, 50)}
+- Gerade am Lernen, Level 1–2 (${learningContext.learningWords.length} Wörter): ${fmt(learningContext.learningWords, 40)}
+- Gefestigt, Level 3–5 (${learningContext.masteredWords.length} Wörter): ${fmt(learningContext.masteredWords, 40)}
+- Zuletzt hinzugefügt (letzte 2 Wochen): ${fmt(learningContext.recentWords, 30)}
+
+VOKABEL-ORDNER DES NUTZERS (nach Größe):
+${categoriesText}
+
+BEREITS GENERIERTE SZENARIEN (diese Themen bitte nicht wiederholen):
+${pastTitlesText}
+
+AUFTRAG — GENAU 5 SZENARIEN:
+- 3 "consolidation" Szenarien: Szenarien, in denen die Wörter aus "Neu hinzugefügt" und "Gerade am Lernen" auf natürliche Weise vorkommen und geübt werden.
+  WICHTIG: Wenn Vokabel-Ordner existieren (z.B. "Badezimmer", "Reisen"), baue mindestens ein Szenario direkt um dieses Thema — die Wörter des Ordners sollen im Gespräch konkret vorkommen.
+- 2 "stretch" Szenarien: Neue Themen passend zum Niveau, die noch nicht im Vokabular abgedeckt sind.
 
 LEVEL-ZUWEISUNG (CEFR):
 - consolidation-Szenarien: aktuelles Level (${learningContext.level}) oder eine Stufe darunter
@@ -328,9 +349,14 @@ REGELN:
                 throw new TRPCError({ code: "BAD_REQUEST", message: "Language not found" })
             }
 
-            const knownWordsText = learningContext.masteredWords.length > 0
-                ? learningContext.masteredWords.map(w => `${w.primary} → ${w.secondary}`).join(", ")
-                : "noch keine Vokabeln gespeichert"
+            const fmt = (words: Array<{ primary: string; secondary: string }>, max = 40) =>
+                words.length > 0
+                    ? words.slice(0, max).map(w => `${w.primary} → ${w.secondary}`).join(", ")
+                    : "keine"
+
+            const categoriesText = learningContext.categories.length > 0
+                ? learningContext.categories.map(c => `${c.name} (${c.wordCount} Wörter)`).join(", ")
+                : "keine Ordner angelegt"
 
             const { object } = await generateObject({
                 model: openrouter(AI_MODEL),
@@ -347,16 +373,25 @@ REGELN:
                 }),
                 prompt: `Erstelle ein einzelnes Konversationsszenario zum Üben von ${currentLanguage.name}.
 
-NUTZERPROFIL:
-- Sprachlevel: ${learningContext.level}
-- Bekannte Vokabeln: ${knownWordsText}
-- Grammatikkenntnisse: ${learningContext.grammarNotes.map(g => g.title).join(", ") || "keine gespeichert"}
+LERNSTAND DES NUTZERS:
+- CEFR-Level: ${learningContext.level} (Gesamtvokabular: ${learningContext.totalWords} Wörter)
+- Grammatik: ${learningContext.grammarNotes.map(g => g.title).join(", ") || "keine gespeichert"}
+
+VOKABULAR-STATUS:
+- Neu hinzugefügt, noch nicht geübt: ${fmt(learningContext.newWords)}
+- Gerade am Lernen (Level 1–2): ${fmt(learningContext.learningWords)}
+- Gefestigt (Level 3–5): ${fmt(learningContext.masteredWords)}
+- Zuletzt hinzugefügt (letzte 2 Wochen): ${fmt(learningContext.recentWords)}
+
+VOKABEL-ORDNER DES NUTZERS:
+${categoriesText}
 
 NUTZERWUNSCH:
 ${input.prompt}
 
 REGELN:
-- Orientiere dich stark am Nutzerwunsch, ergänze aber sinnvoll auf Basis des Nutzerprofils
+- Orientiere dich stark am Nutzerwunsch, nutze aber die Vokabeln aus "Neu hinzugefügt" und "Gerade am Lernen" als Basis
+- Falls der Nutzerwunsch zu einem Vokabel-Ordner passt (z.B. "Badezimmer"), beziehe die entsprechenden Wörter aktiv ein
 - Gesprächspartner hat einen passenden echten Namen
 - firstAssistantMessage muss auf ${currentLanguage.name} sein
 - targets sind konkrete Gesprächsziele die der Nutzer erreichen soll

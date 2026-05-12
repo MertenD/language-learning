@@ -12,6 +12,7 @@ import Link from "next/link";
 import {authClient} from "@/lib/auth-client";
 import {toast} from "sonner";
 import Image from "next/image";
+import {useState} from "react";
 import {useTRPC} from "@/trpc/client";
 import {useQuery} from "@tanstack/react-query";
 import {ComboboxLanguage} from "@/components/combobox-language";
@@ -35,6 +36,7 @@ type RegisterFormValues = z.infer<typeof registerSchema>
 export default function RegisterForm() {
 
     const router = useRouter();
+    const [oauthLoading, setOauthLoading] = useState<'github' | 'google' | null>(null)
     const trpc = useTRPC();
     const { data: languages, isLoading: isLanguagesLoading } = useQuery(trpc.user.getAvailableLanguages.queryOptions());
 
@@ -68,7 +70,20 @@ export default function RegisterForm() {
         })
     }
 
-    const isPending = form.formState.isSubmitting
+    async function signInWith(provider: 'github' | 'google') {
+        setOauthLoading(provider)
+        await authClient.signIn.social({
+            provider,
+            callbackURL: '/',
+        }, {
+            onError: (ctx) => {
+                toast.error(ctx.error.message)
+                setOauthLoading(null)
+            }
+        })
+    }
+
+    const isPending = form.formState.isSubmitting || oauthLoading !== null
 
     return <div className="flex flex-col gap-6">
         <Card>
@@ -90,18 +105,20 @@ export default function RegisterForm() {
                                     className="w-full"
                                     type="button"
                                     disabled={isPending}
+                                    onClick={() => signInWith('github')}
                                 >
                                     <Image src="/logos/github.svg" width={20} height={20} alt="GitHub" />
-                                    Continue with GitHub
+                                    {oauthLoading === 'github' ? 'Redirecting…' : 'Continue with GitHub'}
                                 </Button>
                                 <Button
                                     variant="outline"
                                     className="w-full"
                                     type="button"
                                     disabled={isPending}
+                                    onClick={() => signInWith('google')}
                                 >
                                     <Image src="/logos/google.svg" width={20} height={20} alt="Google" />
-                                    Continue with Google
+                                    {oauthLoading === 'google' ? 'Redirecting…' : 'Continue with Google'}
                                 </Button>
                             </div>
                             <div className="grid gap-6">
