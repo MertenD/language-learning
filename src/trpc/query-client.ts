@@ -8,6 +8,11 @@ export function makeQueryClient() {
         defaultOptions: {
             queries: {
                 staleTime: 30 * 1000,
+                gcTime: 7 * 24 * 60 * 60 * 1000,
+                networkMode: 'offlineFirst',
+            },
+            mutations: {
+                networkMode: 'always',
             },
             dehydrate: {
                 serializeData: superjson.serialize,

@@ -5,6 +5,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTRPC } from "@/trpc/client";
 import { usePracticeSession } from "./use-practice-session";
 import { authClient } from "@/lib/auth-client";
+import { enqueueSession } from "@/lib/offline-queue";
+import { toast } from "sonner";
 
 export function useEndGame() {
   const trpc = useTRPC();
@@ -30,6 +32,12 @@ export function useEndGame() {
         queryClient.invalidateQueries(trpc.user.getWordProgressStats.queryOptions());
         queryClient.invalidateQueries(trpc.practice.getDueWords.queryOptions({ limit: 100 }));
         queryClient.invalidateQueries(trpc.practice.getDueWordCount.queryOptions());
+      },
+      onError: async (_error, variables) => {
+        if (!navigator.onLine) {
+          await enqueueSession(variables);
+          toast.info('Offline — Ergebnis wird synchronisiert, sobald du online bist');
+        }
       },
     }),
   );
