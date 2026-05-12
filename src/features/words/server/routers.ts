@@ -298,7 +298,7 @@ export const wordsRouter = createTRPCRouter({
                 examples: z.array(z.string()).optional(),
                 categoryId: z.string().optional().nullable(),
                 wordType: wordTypeSchema.optional(),
-                forms: z.record(z.any()).optional(),
+                forms: z.record(z.string(), z.any()).optional(),
             })).min(1),
         }))
         .mutation(async ({ ctx, input }) => {
