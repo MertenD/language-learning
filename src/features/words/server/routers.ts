@@ -382,7 +382,7 @@ export const wordsRouter = createTRPCRouter({
                         secondary: z.string().describe(`The word/phrase in ${currentLanguage.name}`),
                         primaryInfo: z.string().optional().describe("Brief grammatical note (optional)"),
                         secondaryInfo: z.string().optional().describe("Brief grammatical note (optional)"),
-                        examples: z.array(z.string()).optional().describe(`1–2 short example sentences in ${currentLanguage.name}`),
+                        examples: z.array(z.string()).min(2).max(2).describe(`Exactly 2 natural example sentences in ${currentLanguage.name} showing the word in context`),
                         wordType: z.enum(["noun", "verb", "adjective", "phrase", "other"]).describe("Grammatical word type"),
                         forms: z.object({
                             gender: z.string().optional().describe("Grammatical gender, e.g. 'm', 'f', 'n'"),
@@ -399,7 +399,7 @@ export const wordsRouter = createTRPCRouter({
                             comparative: z.string().optional().describe("Comparative form"),
                             superlative: z.string().optional().describe("Superlative form"),
                             feminineForm: z.string().optional().describe("Feminine form (for Romance languages)"),
-                        }).optional(),
+                        }).describe("Grammatical forms — MUST be filled for every word based on its type"),
                     })),
                 }),
                 prompt: `Generate exactly ${input.count} vocabulary words related to the topic "${input.topic}".
@@ -412,15 +412,16 @@ Rules:
 - "secondary" must be the translation in ${currentLanguage.name}
 - "primaryInfo": very brief grammatical hint in ${nativeLanguage.name} — optional
 - "secondaryInfo": very brief grammatical hint in ${currentLanguage.name} — optional
-- "examples": 1–2 short, natural example sentences in ${currentLanguage.name} showing the word in context
+- "examples": ALWAYS exactly 2 natural example sentences in ${currentLanguage.name} — no exceptions, never 0 or 1
 - ONLY generate words of these types: ${input.wordTypes && input.wordTypes.length > 0 ? input.wordTypes.join(", ") : "noun, verb, adjective, phrase, other"} — do not include any other word types
 - Choose practical, commonly used words for this topic
 - Do not repeat words
 - "wordType": classify as one of the allowed types above
-- "forms": fill relevant grammatical forms based on wordType:
+- "forms": MUST be filled for every word — only leave a field empty if it genuinely does not exist in ${currentLanguage.name}:
   - noun → gender (e.g. "m", "f", "n") + plural form in ${currentLanguage.name}
   - verb → all 6 conjugation forms (firstPersonSingular … thirdPersonPlural), pastTense, pastParticiple${currentLanguage.code === "de" ? '; auxiliary ("haben" or "sein")' : ""}
-  - adjective → comparative + superlative; for Romance languages also feminineForm`,
+  - adjective → comparative + superlative; for Romance languages also feminineForm
+  - phrase → no forms needed`,
             })
 
             return object.words
