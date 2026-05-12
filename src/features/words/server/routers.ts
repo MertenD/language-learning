@@ -387,19 +387,16 @@ export const wordsRouter = createTRPCRouter({
                         forms: z.object({
                             gender: z.string().optional().describe("Grammatical gender, e.g. 'm', 'f', 'n'"),
                             plural: z.string().optional().describe("Plural form in the learning language"),
-                            firstPersonSingular: z.string().optional().describe("1st person singular present tense"),
-                            secondPersonSingular: z.string().optional().describe("2nd person singular present tense"),
-                            thirdPersonSingular: z.string().optional().describe("3rd person singular present tense"),
-                            firstPersonPlural: z.string().optional().describe("1st person plural present tense"),
-                            secondPersonPlural: z.string().optional().describe("2nd person plural present tense"),
-                            thirdPersonPlural: z.string().optional().describe("3rd person plural present tense"),
-                            pastTense: z.string().optional().describe("Simple past / Präteritum form"),
-                            pastParticiple: z.string().optional().describe("Past participle (Partizip II)"),
-                            auxiliary: z.string().optional().describe("Auxiliary verb: 'haben' or 'sein' (for German verbs)"),
+                            firstPersonSingular: z.string().describe("1st person singular present tense — REQUIRED for verbs"),
+                            secondPersonSingular: z.string().describe("2nd person singular present tense — REQUIRED for verbs"),
+                            thirdPersonSingular: z.string().describe("3rd person singular present tense — REQUIRED for verbs"),
+                            firstPersonPlural: z.string().describe("1st person plural present tense — REQUIRED for verbs"),
+                            secondPersonPlural: z.string().describe("2nd person plural present tense — REQUIRED for verbs"),
+                            thirdPersonPlural: z.string().describe("3rd person plural present tense — REQUIRED for verbs"),
                             comparative: z.string().optional().describe("Comparative form"),
                             superlative: z.string().optional().describe("Superlative form"),
                             feminineForm: z.string().optional().describe("Feminine form (for Romance languages)"),
-                        }).describe("Grammatical forms — MUST be filled for every word based on its type"),
+                        }).describe("Grammatical forms — fill based on wordType; for verbs ALL 6 conjugation fields are required"),
                     })),
                 }),
                 prompt: `Generate exactly ${input.count} vocabulary words related to the topic "${input.topic}".
@@ -419,7 +416,7 @@ Rules:
 - "wordType": classify as one of the allowed types above
 - "forms": MUST be filled for every word — only leave a field empty if it genuinely does not exist in ${currentLanguage.name}:
   - noun → gender (e.g. "m", "f", "n") + plural form in ${currentLanguage.name}
-  - verb → all 6 conjugation forms (firstPersonSingular … thirdPersonPlural), pastTense, pastParticiple${currentLanguage.code === "de" ? '; auxiliary ("haben" or "sein")' : ""}
+  - verb → all 6 conjugation forms (firstPersonSingular … thirdPersonPlural)${currentLanguage.code === "de" ? '; auxiliary ("haben" or "sein")' : ""}
   - adjective → comparative + superlative; for Romance languages also feminineForm
   - phrase → no forms needed`,
             })
