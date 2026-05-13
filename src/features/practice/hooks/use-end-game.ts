@@ -13,12 +13,13 @@ export function useEndGame() {
   const queryClient = useQueryClient();
   const { data: session } = authClient.useSession();
 
-  const { endGame, wordResults, gameType, score, gameStartedAt } =
+  const { endGame, wordResults, gameType, score, gameStartedAt, setSessionResult } =
     usePracticeSession();
 
   const completeSession = useMutation(
     trpc.practice.completeSession.mutationOptions({
-      onSuccess: () => {
+      onSuccess: (data) => {
+        latestRef.current.setSessionResult(data);
         const languageId = session?.user?.currentLanguageId;
         if (languageId) {
           queryClient.invalidateQueries(
@@ -52,8 +53,9 @@ export function useEndGame() {
     score,
     gameStartedAt,
     completeSession,
+    setSessionResult,
   });
-  latestRef.current = { endGame, wordResults, gameType, score, gameStartedAt, completeSession };
+  latestRef.current = { endGame, wordResults, gameType, score, gameStartedAt, completeSession, setSessionResult };
 
   return useCallback(() => {
     const { endGame, wordResults, gameType, score, gameStartedAt, completeSession } =

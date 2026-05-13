@@ -96,11 +96,16 @@ export function TrueFalseGame() {
             </div>
 
             {hasAnswered && (
-                <div className="text-center font-medium animate-in fade-in slide-in-from-bottom-2">
+                <div className="text-center font-medium animate-in fade-in slide-in-from-bottom-2 space-y-1">
                     {userAnswer === isCorrectMatch ? (
-                        <span className="text-green-600 text-lg">Correct!</span>
+                        <span className="text-green-600 text-lg">Richtig! ✓</span>
                     ) : (
-                        <span className="text-red-600 text-lg">Wrong! It was {isCorrectMatch ? "True" : "False"}</span>
+                        <>
+                            <p className="text-red-600 text-lg">Falsch! Es war {isCorrectMatch ? "Wahr" : "Falsch"}</p>
+                            <p className="text-muted-foreground text-sm">
+                                {currentWord.primary} = <span className="font-semibold text-foreground">{currentWord.secondary}</span>
+                            </p>
+                        </>
                     )}
                 </div>
             )}

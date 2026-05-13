@@ -36,17 +36,21 @@ export function FlashcardsGame() {
             </div>
 
             <div
-                className="relative w-full min-h-40 sm:h-64 cursor-pointer perspective-1000"
+                className="relative w-full h-64 cursor-pointer"
+                style={{ perspective: "1000px" }}
                 onClick={() => setIsFlipped(!isFlipped)}
             >
                 <motion.div
-                    className="w-full h-full relative preserve-3d"
+                    className="w-full h-full relative"
                     animate={{ rotateY: isFlipped ? 180 : 0 }}
                     transition={{ duration: 0.6 }}
                     style={{ transformStyle: "preserve-3d" }}
                 >
                     {/* Front */}
-                    <Card className="absolute w-full h-full backface-hidden flex items-center justify-center">
+                    <Card
+                        className="absolute inset-0 flex items-center justify-center"
+                        style={{ backfaceVisibility: "hidden" }}
+                    >
                         <CardContent className="text-center p-6">
                             <h2 className="text-3xl font-bold mb-2">{currentWord.primary}</h2>
                             {currentWord.primaryInfo && (
@@ -58,8 +62,8 @@ export function FlashcardsGame() {
 
                     {/* Back */}
                     <Card
-                        className="absolute w-full h-full backface-hidden flex items-center justify-center"
-                        style={{ transform: "rotateY(180deg)" }}
+                        className="absolute inset-0 flex items-center justify-center"
+                        style={{ transform: "rotateY(180deg)", backfaceVisibility: "hidden" }}
                     >
                         <CardContent className="text-center p-6">
                             <h2 className="text-3xl font-bold mb-2">{currentWord.secondary}</h2>

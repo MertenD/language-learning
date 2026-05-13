@@ -15,6 +15,7 @@ const GAME_XP_MULTIPLIERS: Record<string, number> = {
   memory: 1.2,
   matching: 1.2,
   listening: 1.0,
+  mixed: 1.3,
 };
 
 function calculateLevel(totalXp: number): number {
@@ -52,7 +53,14 @@ export const practiceRouter = createTRPCRouter({
       const { gameType, wordResults, totalScore } = input;
       const { id: userId, currentLanguageId } = ctx.auth.user;
 
-      // 1. Update WordProgress for each tracked word
+      // 1. Update WordProgress for each tracked word, collecting before/after levels
+      const wordUpdates: Array<{
+        wordId: string;
+        levelBefore: number | null;
+        levelAfter: number;
+        correct: boolean;
+      }> = [];
+
       for (const result of wordResults) {
         const existing = await prisma.wordProgress.findUnique({
           where: { wordId: result.wordId },
@@ -78,11 +86,14 @@ export const practiceRouter = createTRPCRouter({
               totalIncorrect: { increment: result.correct ? 0 : 1 },
             },
           });
+
+          wordUpdates.push({ wordId: result.wordId, levelBefore: existing.level, levelAfter: newLevel, correct: result.correct });
         } else {
+          const newLevel = result.correct ? 1 : 0;
           await prisma.wordProgress.create({
             data: {
               wordId: result.wordId,
-              level: result.correct ? 1 : 0,
+              level: newLevel,
               intervalDays: result.correct ? 2 : 1,
               nextReviewAt: addDays(new Date(), result.correct ? 2 : 1),
               lastReviewedAt: new Date(),
@@ -91,6 +102,8 @@ export const practiceRouter = createTRPCRouter({
               totalIncorrect: result.correct ? 0 : 1,
             },
           });
+
+          wordUpdates.push({ wordId: result.wordId, levelBefore: null, levelAfter: newLevel, correct: result.correct });
         }
       }
 
@@ -109,13 +122,14 @@ export const practiceRouter = createTRPCRouter({
       });
 
       if (userLanguage?.stats) {
-        const newXp = userLanguage.stats.xp + xpEarned;
-        const oldLevel = userLanguage.stats.level;
-        const newLevel = calculateLevel(newXp);
+        const xpBefore = userLanguage.stats.xp;
+        const xpAfter = xpBefore + xpEarned;
+        const levelBefore = userLanguage.stats.level;
+        const levelAfter = calculateLevel(xpAfter);
 
         await prisma.userLanguageStats.update({
           where: { id: userLanguage.stats.id },
-          data: { xp: newXp, level: newLevel },
+          data: { xp: xpAfter, level: levelAfter },
         });
 
         // 4. Track activities
@@ -125,12 +139,30 @@ export const practiceRouter = createTRPCRouter({
           ActivityType.PRACTICE_COMPLETED,
         );
 
-        if (newLevel > oldLevel) {
+        if (levelAfter > levelBefore) {
           await trackActivity(userId, currentLanguageId, ActivityType.LEVEL_UP);
         }
+
+        return {
+          xpEarned,
+          xpBefore,
+          xpAfter,
+          levelBefore,
+          levelAfter,
+          leveledUp: levelAfter > levelBefore,
+          wordUpdates,
+        };
       }
 
-      return { xpEarned };
+      return {
+        xpEarned,
+        xpBefore: 0,
+        xpAfter: xpEarned,
+        levelBefore: 1,
+        levelAfter: 1,
+        leveledUp: false,
+        wordUpdates,
+      };
     }),
 
   getDueWords: protectedProcedure

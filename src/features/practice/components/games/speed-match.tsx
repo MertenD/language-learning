@@ -15,6 +15,7 @@ export function SpeedMatchGame() {
     const [score, setLocalScore] = useState(0);
     const [gameOver, setGameOver] = useState(false);
     const [round, setRound] = useState(0);
+    const [wrongFeedback, setWrongFeedback] = useState<{ primary: string; correct: string } | null>(null);
 
     const maxRounds = 20;
 
@@ -64,17 +65,22 @@ export function SpeedMatchGame() {
     };
 
     const handleAnswer = (answer: boolean) => {
-        if (!currentPair || gameOver) return;
+        if (!currentPair || gameOver || wrongFeedback) return;
 
         const correct = answer === currentPair.isMatch;
         recordResult(currentPair.wordId, correct);
         if (correct) {
             setLocalScore(s => s + 1);
             incrementScore();
+            generatePair();
         } else {
             setTimeLeft(prev => Math.max(0, prev - 20));
+            setWrongFeedback({ primary: currentPair.primary, correct: currentPair.isMatch ? currentPair.secondary : currentPair.primary });
+            setTimeout(() => {
+                setWrongFeedback(null);
+                generatePair();
+            }, 1500);
         }
-        generatePair();
     };
 
     useEffect(() => {
@@ -105,6 +111,13 @@ export function SpeedMatchGame() {
 
             <Card className="text-center py-8 relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-full h-1 bg-primary animate-pulse" />
+                {wrongFeedback && (
+                    <div className="absolute inset-0 bg-red-50 dark:bg-red-950/50 flex flex-col items-center justify-center rounded-lg z-10 animate-in fade-in duration-200">
+                        <p className="text-red-600 font-bold text-lg">Falsch! ✗</p>
+                        <p className="text-muted-foreground text-sm mt-2">Richtige Übersetzung:</p>
+                        <p className="font-bold text-xl mt-1">{wrongFeedback.correct}</p>
+                    </div>
+                )}
                 <CardContent className="space-y-6 pt-6">
                     <div className="text-center space-y-4">
                         <div className="p-6 bg-secondary/20 rounded-lg">

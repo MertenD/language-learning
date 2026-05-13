@@ -3,7 +3,7 @@
 import {Card, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
 import {Badge} from "@/components/ui/badge";
 import {GameType, usePracticeSession} from "../hooks/use-practice-session";
-import {CheckSquare, Grid, Keyboard, Layers, Puzzle, Shuffle, Check, HelpCircle, Zap, ArrowLeftRight} from "lucide-react";
+import {CheckSquare, Grid, Keyboard, Layers, Puzzle, Shuffle, Check, HelpCircle, Zap, ArrowLeftRight, Dices} from "lucide-react";
 import {cn} from "@/lib/utils";
 
 const MIN_WORDS: Partial<Record<GameType, number>> = {
@@ -15,7 +15,14 @@ const MIN_WORDS: Partial<Record<GameType, number>> = {
     'memory': 2,
 };
 
-const GAMES: { type: GameType; title: string; description: string; icon: any }[] = [
+const GAMES: { type: GameType; title: string; description: string; icon: any; highlight?: boolean }[] = [
+    {
+        type: 'mixed',
+        title: 'Mix-Modus',
+        description: 'Alle Spielmodi gemischt — jede Frage ist eine Überraschung.',
+        icon: Dices,
+        highlight: true,
+    },
     {
         type: 'flashcards',
         title: 'Flashcards',
@@ -100,14 +107,20 @@ export function GameSelector() {
                             "transition-colors",
                             isDisabled
                                 ? "opacity-50 cursor-not-allowed"
-                                : "cursor-pointer hover:border-primary"
+                                : "cursor-pointer hover:border-primary",
+                            game.highlight && !isDisabled && "border-primary/50 bg-primary/5"
                         )}
                         onClick={() => handleSelectGame(game.type)}
                     >
                         <CardHeader>
                             <div className="flex items-center gap-2">
-                                <game.icon className="h-5 w-5 text-primary" />
+                                <game.icon className={cn("h-5 w-5", game.highlight ? "text-primary" : "text-primary")} />
                                 <CardTitle className="text-lg">{game.title}</CardTitle>
+                                {game.highlight && !isDisabled && (
+                                    <Badge className="ml-auto text-xs bg-primary/20 text-primary hover:bg-primary/20">
+                                        Neu
+                                    </Badge>
+                                )}
                                 {isDisabled && (
                                     <Badge variant="secondary" className="ml-auto text-xs">
                                         {min}+ words

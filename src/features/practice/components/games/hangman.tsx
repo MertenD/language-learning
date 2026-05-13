@@ -116,8 +116,13 @@ export function HangmanGame() {
             {isFinished && (
                 <div className="text-center space-y-4 animate-in fade-in zoom-in duration-300">
                     <div className={`text-xl font-bold ${isWon ? "text-green-600" : "text-red-600"}`}>
-                        {isWon ? "You got it!" : "Out of attempts!"}
+                        {isWon ? "Gewonnen! ✓" : "Keine Versuche mehr!"}
                     </div>
+                    {!isWon && (
+                        <p className="text-muted-foreground">
+                            Die Antwort war: <span className="font-bold text-foreground text-lg">{currentWord.secondary}</span>
+                        </p>
+                    )}
                     <Button size="lg" onClick={handleNext}>
                         {currentWordIndex < selectedWords.length - 1 ? "Next Word" : "Finish Game"}
                     </Button>

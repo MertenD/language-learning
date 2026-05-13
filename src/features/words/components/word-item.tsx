@@ -21,9 +21,9 @@ import {cn} from "@/lib/utils";
 
 type WordWithProgress = Word & { progress?: WordProgress | null }
 
-const LEVEL_LABELS = ["New", "Learning", "Learning", "Advanced", "Advanced", "Mastered"]
+export const LEVEL_LABELS = ["New", "Learning", "Learning", "Advanced", "Advanced", "Mastered"]
 
-const LEVEL_CHIP_CLASSES = [
+export const LEVEL_CHIP_CLASSES = [
     "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400",
     "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400",
     "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400",

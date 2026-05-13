@@ -11,9 +11,25 @@ export type GameType =
     | 'true-false'
     | 'hangman'
     | 'listening'
-    | 'reverse-choice';
+    | 'reverse-choice'
+    | 'mixed';
 
 export type WordResult = { wordId: string; correct: boolean };
+
+export type SessionResult = {
+    xpEarned: number;
+    xpBefore: number;
+    xpAfter: number;
+    levelBefore: number;
+    levelAfter: number;
+    leveledUp: boolean;
+    wordUpdates: Array<{
+        wordId: string;
+        levelBefore: number | null;
+        levelAfter: number;
+        correct: boolean;
+    }>;
+};
 
 interface PracticeState {
     selectedWords: Word[];
@@ -24,6 +40,7 @@ interface PracticeState {
     isGameFinished: boolean;
     wordResults: WordResult[];
     gameStartedAt: Date | null;
+    sessionResult: SessionResult | null;
 
     setWords: (words: Word[]) => void;
     setGameType: (type: GameType | null) => void;
@@ -33,6 +50,7 @@ interface PracticeState {
     incrementScore: () => void;
     nextWord: () => void;
     resetSession: () => void;
+    setSessionResult: (result: SessionResult) => void;
 }
 
 export const usePracticeSession = create<PracticeState>((set) => ({
@@ -44,6 +62,7 @@ export const usePracticeSession = create<PracticeState>((set) => ({
     isGameFinished: false,
     wordResults: [],
     gameStartedAt: null,
+    sessionResult: null,
 
     setWords: (words) => set({ selectedWords: words }),
     setGameType: (type) => set({ gameType: type }),
@@ -54,6 +73,7 @@ export const usePracticeSession = create<PracticeState>((set) => ({
         currentWordIndex: 0,
         wordResults: [],
         gameStartedAt: new Date(),
+        sessionResult: null,
     }),
     endGame: () => set({ isGameActive: false, isGameFinished: true }),
     recordResult: (wordId, correct) => set((state) => ({
@@ -71,5 +91,7 @@ export const usePracticeSession = create<PracticeState>((set) => ({
         isGameFinished: false,
         wordResults: [],
         gameStartedAt: null,
-    })
+        sessionResult: null,
+    }),
+    setSessionResult: (result) => set({ sessionResult: result }),
 }));
