@@ -13,18 +13,19 @@ import {authClient} from "@/lib/auth-client";
 import {toast} from "sonner";
 import Image from "next/image";
 import {useState} from "react";
-
-const loginSchema = z.object({
-    email: z.email("Please enter a valid email address"),
-    password: z.string().min(1, "Password is required")
-})
-
-type LoginFormValues = z.infer<typeof loginSchema>
+import {useTranslations} from "next-intl";
 
 export default function LoginForm() {
-
     const router = useRouter();
     const [oauthLoading, setOauthLoading] = useState<'github' | 'google' | null>(null)
+    const t = useTranslations('auth.login');
+
+    const loginSchema = z.object({
+        email: z.email(t('validation.emailInvalid')),
+        password: z.string().min(1, t('validation.passwordRequired')),
+    })
+    type LoginFormValues = z.infer<typeof loginSchema>
+
     const form = useForm<LoginFormValues>({
         resolver: zodResolver(loginSchema),
         defaultValues: {
@@ -67,10 +68,10 @@ export default function LoginForm() {
         <Card>
             <CardHeader className="text-center">
                 <CardTitle>
-                    Welcome back
+                    {t('title')}
                 </CardTitle>
                 <CardDescription>
-                    Login to continue
+                    {t('description')}
                 </CardDescription>
             </CardHeader>
             <CardContent>
@@ -86,7 +87,7 @@ export default function LoginForm() {
                                     onClick={() => signInWith('github')}
                                 >
                                     <Image src="/logos/github.svg" width={20} height={20} alt="GitHub" />
-                                    {oauthLoading === 'github' ? 'Redirecting…' : 'Continue with GitHub'}
+                                    {oauthLoading === 'github' ? t('redirecting') : t('continueWithGithub')}
                                 </Button>
                                 <Button
                                     variant="outline"
@@ -96,7 +97,7 @@ export default function LoginForm() {
                                     onClick={() => signInWith('google')}
                                 >
                                     <Image src="/logos/google.svg" width={20} height={20} alt="Google" />
-                                    {oauthLoading === 'google' ? 'Redirecting…' : 'Continue with Google'}
+                                    {oauthLoading === 'google' ? t('redirecting') : t('continueWithGoogle')}
                                 </Button>
                             </div>
                             <div className="grid gap-6">
@@ -105,7 +106,7 @@ export default function LoginForm() {
                                     name="email"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Email</FormLabel>
+                                            <FormLabel>{t('emailLabel')}</FormLabel>
                                             <FormControl>
                                                 <Input
                                                     type="email"
@@ -122,7 +123,7 @@ export default function LoginForm() {
                                     name="password"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Password</FormLabel>
+                                            <FormLabel>{t('passwordLabel')}</FormLabel>
                                             <FormControl>
                                                 <Input
                                                     type="password"
@@ -135,13 +136,13 @@ export default function LoginForm() {
                                     )}
                                 />
                                 <Button type="submit" className="w-full" disabled={isPending}>
-                                    Login
+                                    {t('submitButton')}
                                 </Button>
                             </div>
                             <div className="text-center text-sm">
-                                Don&apos;t have an account?{" "}
+                                {t('noAccount')}{" "}
                                 <Link href="/signup" className="underline underline-offset-4">
-                                    Sign up
+                                    {t('signUpLink')}
                                 </Link>
                             </div>
                         </div>

@@ -1,0 +1,302 @@
+{
+  "sidebar": {
+    "groupTitle": "Language Learning",
+    "nav": {
+      "dashboard": "Dashboard",
+      "vocabulary": "Vocabulary",
+      "grammar": "Grammar",
+      "practice": "Practice",
+      "chat": "Chat"
+    }
+  },
+  "auth": {
+    "layout": {
+      "brand": "Language Learning"
+    },
+    "login": {
+      "title": "Welcome back",
+      "description": "Login to continue",
+      "continueWithGithub": "Continue with GitHub",
+      "continueWithGoogle": "Continue with Google",
+      "redirecting": "Redirecting…",
+      "emailLabel": "Email",
+      "passwordLabel": "Password",
+      "submitButton": "Login",
+      "noAccount": "Don't have an account?",
+      "signUpLink": "Sign up",
+      "validation": {
+        "emailInvalid": "Please enter a valid email address",
+        "passwordRequired": "Password is required"
+      }
+    },
+    "register": {
+      "title": "Get Started",
+      "description": "Register to get started",
+      "continueWithGithub": "Continue with GitHub",
+      "continueWithGoogle": "Continue with Google",
+      "redirecting": "Redirecting…",
+      "emailLabel": "Email",
+      "passwordLabel": "Password",
+      "confirmPasswordLabel": "Confirm Password",
+      "nativeLanguageLabel": "Native Language",
+      "nativeLanguagePlaceholder": "Select native language...",
+      "targetLanguageLabel": "Learning Language",
+      "targetLanguagePlaceholder": "Select target language...",
+      "submitButton": "Sign up",
+      "alreadyHaveAccount": "Already have an account?",
+      "loginLink": "Login",
+      "validation": {
+        "emailInvalid": "Please enter a valid email address",
+        "passwordRequired": "Password is required",
+        "passwordMinLength": "Password must be at least 8 characters long",
+        "passwordsMismatch": "Passwords do not match",
+        "nativeLanguageRequired": "Please select your native language",
+        "targetLanguageRequired": "Please select the language you want to learn",
+        "languagesSame": "Native and target languages must be different"
+      }
+    },
+    "userInfo": {
+      "upgradeLabel": "Upgrade to Pro",
+      "billingLabel": "Billing Portal",
+      "logoutLabel": "Logout",
+      "level": "Level {level}"
+    }
+  },
+  "dashboard": {
+    "welcome": "Welcome back!",
+    "subtitle": "You're making great progress. Keep it up!",
+    "stats": {
+      "streak": "Streak",
+      "xp": "XP Points",
+      "level": "Level",
+      "vocabulary": "Vocabulary"
+    },
+    "wordProgress": {
+      "title": "Vocabulary Progress",
+      "description": "Your learning statistics overview",
+      "viewVocabularyButton": "View Vocabulary",
+      "dueForReview": "{count, plural, one {# word due for review} other {# words due for review}}",
+      "noDueToday": "No words due today",
+      "reviewedToday": "{count, plural, one {You've already reviewed # word today. Keep it up!} other {You've already reviewed # words today. Keep it up!}}",
+      "startPractice": "Start a practice session to review your vocabulary.",
+      "allCaughtUp": "Great job — you're all caught up!"
+    },
+    "dailyGoal": {
+      "startNow": "Start now",
+      "wordsReviewedToday": "{current} / {target} words reviewed today",
+      "goal": "Goal: {target}"
+    },
+    "recentActivity": {
+      "title": "Recent Activities",
+      "description": "Your latest learning achievements",
+      "empty": "No recent activities.",
+      "types": {
+        "VOCABULARY_ADDED": "Vocabulary expanded",
+        "VOCABULARY_IMPORTED": "Vocabulary imported",
+        "NEW_VOCABULARY_LEARNED": "New vocabulary learned",
+        "SCENARIO_STARTED": "Scenario started",
+        "CHAT_INITIATED": "Chat initiated",
+        "LEVEL_UP": "Level up",
+        "VOCABULARY_MASTERED": "Vocabulary mastered",
+        "LANGUAGE_STARTED": "Language started",
+        "default": "Activity"
+      }
+    },
+    "scenarios": {
+      "title": "Suggested Scenarios",
+      "aiGenerated": "AI generated",
+      "description": "Based on your recently learned vocabulary.",
+      "noSuggestionsTitle": "No suggestions yet",
+      "noSuggestionsBody": "Generate AI scenarios tailored to your vocabulary and learning progress.",
+      "generateButton": "Generate Scenarios",
+      "showAll": "Show all",
+      "saveLabel": "Save",
+      "startLabel": "Start"
+    },
+    "quickActions": {
+      "addVocabulary": "Add vocabulary",
+      "addVocabularyDesc": "Expand your vocabulary",
+      "startChat": "Start a chat",
+      "startChatDesc": "Ask the AI anything",
+      "playMinigames": "Play minigames",
+      "playMinigamesDesc": "Learn vocabulary"
+    }
+  },
+  "words": {
+    "title": "Vocabulary",
+    "stats": {
+      "total": "{count} words",
+      "learning": "{count} learning",
+      "mastered": "{count} mastered"
+    },
+    "sort": {
+      "label": "Sort",
+      "updatedAt": "Last Updated",
+      "createdAt": "Date Added",
+      "primary": "Primary (A–Z)",
+      "secondary": "Secondary (A–Z)",
+      "ascending": "↑ Ascending",
+      "descending": "↓ Descending"
+    },
+    "toolbar": {
+      "newFolder": "New Folder",
+      "generateWithAI": "Generate with AI",
+      "importCSV": "Import CSV",
+      "exportCSV": "Export CSV",
+      "addWord": "Add Word",
+      "exporting": "Exporting...",
+      "importing": "Importing...",
+      "exportSuccess": "Exported vocabulary"
+    },
+    "empty": {
+      "folderTitle": "This folder is empty",
+      "noVocabTitle": "No vocabulary yet",
+      "folderBody": "Add your first word to this folder to get started.",
+      "noVocabBody": "Add words manually or let AI generate a set for a topic you want to learn.",
+      "generateButton": "Generate with AI",
+      "addButton": "Add Word"
+    },
+    "bulkSelect": {
+      "selected": "{count} selected",
+      "selectAll": "Select all {count}",
+      "move": "Move {count}",
+      "delete": "Delete {count}"
+    },
+    "deleteConfirm": {
+      "title": "{count, plural, one {Delete # word?} other {Delete # words?}}",
+      "description": "This action cannot be undone. All selected vocabulary will be permanently deleted.",
+      "cancel": "Cancel",
+      "confirm": "{count, plural, one {Delete # word} other {Delete # words}}"
+    },
+    "wordItem": {
+      "deleteTitle": "Delete vocabulary?",
+      "deleteDescription": "“{word}” will be permanently deleted.",
+      "cancel": "Cancel",
+      "confirm": "Delete"
+    },
+    "levels": {
+      "0": "New",
+      "1": "Learning",
+      "2": "Learning",
+      "3": "Advanced",
+      "4": "Advanced",
+      "5": "Mastered",
+      "unknown": "Unknown"
+    },
+    "editDialog": {
+      "title": "Vocabulary Details",
+      "description": "View and edit vocabulary.",
+      "additionalInfoPlaceholder": "Additional info (optional)",
+      "wordTypeLabel": "Word Type",
+      "wordTypePlaceholder": "Select type (optional)",
+      "categoryLabel": "Category",
+      "categoryPlaceholder": "Select a category",
+      "noCategory": "No Category",
+      "examplesLabel": "Examples",
+      "examplePlaceholder": "Example sentence",
+      "addExampleButton": "Add Example",
+      "cancelButton": "Cancel",
+      "saveButton": "Save",
+      "editButton": "Edit",
+      "examplesSection": "Examples",
+      "categoryInfo": "Category: {name}",
+      "unknownCategory": "Unknown",
+      "createdAt": "Created: {date}",
+      "updatedAt": "Updated: {date}",
+      "practiceStats": "Practice Stats",
+      "levelLabel": "Level",
+      "repetitionsLabel": "Repetitions",
+      "correctLabel": "Correct",
+      "incorrectLabel": "Incorrect",
+      "nextReviewLabel": "Next Review",
+      "forms": {
+        "grammarLabel": "Grammar",
+        "conjugationLabel": "Conjugation",
+        "comparisonLabel": "Comparison",
+        "genderLabel": "Gender",
+        "pluralLabel": "Plural",
+        "pastTenseLabel": "Past Tense",
+        "participleLabel": "Participle II",
+        "auxiliaryLabel": "Auxiliary",
+        "comparativeLabel": "Comparative",
+        "superlativeLabel": "Superlative",
+        "feminineLabel": "Feminine"
+      }
+    }
+  },
+  "practice": {
+    "header": {
+      "title": "Practice Vocabulary",
+      "description": "Select words to start your learning session."
+    },
+    "gameSelection": {
+      "title": "Choose a Game",
+      "description": "Select how you want to practice these {count} words."
+    },
+    "activeGame": {
+      "quitButton": "Quit Game"
+    },
+    "games": {
+      "mixed": {
+        "title": "Mix Mode",
+        "description": "All game modes mixed — every question is a surprise.",
+        "badge": "New"
+      },
+      "flashcards": {
+        "title": "Flashcards",
+        "description": "Classic flip cards to test your memory."
+      },
+      "multiple-choice": {
+        "title": "Multiple Choice",
+        "description": "Select the correct translation from options."
+      },
+      "typing": {
+        "title": "Typing Practice",
+        "description": "Type the correct translation to improve spelling."
+      },
+      "matching": {
+        "title": "Matching Pairs",
+        "description": "Match primary words with their secondary translations."
+      },
+      "memory": {
+        "title": "Memory Game",
+        "description": "Find matching pairs in a grid of face-down cards."
+      },
+      "scramble": {
+        "title": "Word Scramble",
+        "description": "Unscramble the letters to form the correct word."
+      },
+      "true-false": {
+        "title": "True or False",
+        "description": "Decide if the translation is correct or not."
+      },
+      "hangman": {
+        "title": "Hangman",
+        "description": "Guess the word letter by letter before you run out of attempts."
+      },
+      "listening": {
+        "title": "Speed Match",
+        "description": "Quickly decide if the word pair matches."
+      },
+      "reverse-choice": {
+        "title": "Reverse Choice",
+        "description": "Select the primary word for the given secondary translation."
+      },
+      "minWords": "{min}+ words"
+    },
+    "summary": {
+      "savingResult": "Saving result…",
+      "sessionComplete": "Session complete!",
+      "scoreLabel": "Score",
+      "resultLabel": "Result",
+      "correctPercent": "correct",
+      "levelUp": "Level Up!",
+      "levelUpDetail": "Level {from} → Level {to}",
+      "wordsThisRound": "Words this round",
+      "wordNew": "New",
+      "playAgain": "Play again",
+      "chooseOtherWords": "Choose other words",
+      "backToDashboard": "Back to Dashboard"
+    }
+  }
+}

@@ -7,20 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { usePracticeSession } from "../hooks/use-practice-session";
 import { cn } from "@/lib/utils";
-import { LEVEL_LABELS, LEVEL_CHIP_CLASSES } from "@/features/words/components/word-item";
-
-const GAME_LABELS: Record<string, string> = {
-    flashcards: "Karteikarten",
-    "multiple-choice": "Multiple Choice",
-    typing: "Tippen",
-    matching: "Zuordnen",
-    memory: "Memory",
-    scramble: "Buchstaben-Puzzle",
-    "true-false": "Wahr/Falsch",
-    hangman: "Galgenmännchen",
-    listening: "Speed Match",
-    "reverse-choice": "Umgekehrte Wahl",
-};
+import { LEVEL_CHIP_CLASSES, LevelChip } from "@/features/words/components/word-item";
+import {useTranslations} from "next-intl";
 
 function xpStartOfLevel(level: number): number {
     return ((level - 1) * level / 2) * 100;
@@ -28,17 +16,6 @@ function xpStartOfLevel(level: number): number {
 
 function xpNeededForLevel(level: number): number {
     return level * 100;
-}
-
-function LevelChip({ level }: { level: number }) {
-    return (
-        <span className={cn(
-            "text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0 whitespace-nowrap",
-            LEVEL_CHIP_CLASSES[level] ?? LEVEL_CHIP_CLASSES[0]
-        )}>
-            {LEVEL_LABELS[level] ?? "Unbekannt"} {level}/5
-        </span>
-    );
 }
 
 function XpBar({ xpBefore, xpAfter, levelBefore, levelAfter, xpEarned }: {
@@ -87,9 +64,23 @@ function XpBar({ xpBefore, xpAfter, levelBefore, levelAfter, xpEarned }: {
     );
 }
 
+function NewWordBadge() {
+    const t = useTranslations('practice.summary');
+    return (
+        <span className={cn(
+            "text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0 whitespace-nowrap",
+            LEVEL_CHIP_CLASSES[0]
+        )}>
+            {t('wordNew')}
+        </span>
+    );
+}
+
 export function SessionSummary() {
     const { selectedWords, gameType, score, sessionResult, setGameType, resetSession } = usePracticeSession();
     const router = useRouter();
+    const t = useTranslations('practice.summary');
+    const tGames = useTranslations('practice.games');
 
     const totalWords = selectedWords.length;
     const percentage = totalWords > 0 ? Math.round((score / totalWords) * 100) : 0;
@@ -100,7 +91,7 @@ export function SessionSummary() {
                 <div className="flex justify-center">
                     <div className="h-12 w-12 rounded-full border-4 border-primary border-t-transparent animate-spin" />
                 </div>
-                <p className="text-muted-foreground">Ergebnis wird gespeichert…</p>
+                <p className="text-muted-foreground">{t('savingResult')}</p>
             </div>
         );
     }
@@ -114,6 +105,10 @@ export function SessionSummary() {
         const scoreB = (b.levelBefore === null ? 1 : 0) + (b.levelAfter > (b.levelBefore ?? -1) ? 2 : 0) - (b.levelAfter < (b.levelBefore ?? 0) ? 1 : 0);
         return scoreB - scoreA;
     });
+
+    const gameLabel = gameType
+        ? tGames(`${gameType}.title` as Parameters<typeof tGames>[0])
+        : "";
 
     const container = {
         hidden: {},
@@ -143,10 +138,8 @@ export function SessionSummary() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.25 }}
                 >
-                    <h2 className="text-2xl font-bold">Session abgeschlossen!</h2>
-                    <p className="text-muted-foreground text-sm mt-1">
-                        {gameType ? GAME_LABELS[gameType] ?? gameType : ""}
-                    </p>
+                    <h2 className="text-2xl font-bold">{t('sessionComplete')}</h2>
+                    <p className="text-muted-foreground text-sm mt-1">{gameLabel}</p>
                 </motion.div>
             </div>
 
@@ -159,12 +152,12 @@ export function SessionSummary() {
                 <Card>
                     <CardContent className="pt-5 pb-5 flex items-center justify-between">
                         <div>
-                            <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Ergebnis</p>
+                            <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">{t('resultLabel')}</p>
                             <p className="text-4xl font-bold text-primary">{score} <span className="text-2xl text-muted-foreground font-normal">/ {totalWords}</span></p>
                         </div>
                         <div className="text-right">
                             <p className="text-3xl font-bold">{percentage}%</p>
-                            <p className="text-xs text-muted-foreground">richtig</p>
+                            <p className="text-xs text-muted-foreground">{t('correctPercent')}</p>
                         </div>
                     </CardContent>
                 </Card>
@@ -212,9 +205,9 @@ export function SessionSummary() {
                                     ))}
                                 </div>
                                 <div>
-                                    <p className="font-bold text-yellow-700 dark:text-yellow-400">Level Up!</p>
+                                    <p className="font-bold text-yellow-700 dark:text-yellow-400">{t('levelUp')}</p>
                                     <p className="text-sm text-yellow-600 dark:text-yellow-500">
-                                        Level {levelBefore} → Level {levelAfter}
+                                        {t('levelUpDetail', { from: levelBefore, to: levelAfter })}
                                     </p>
                                 </div>
                             </CardContent>
@@ -231,7 +224,7 @@ export function SessionSummary() {
                 className="space-y-2"
             >
                 <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide px-1">
-                    Wörter in dieser Runde
+                    {t('wordsThisRound')}
                 </p>
                 {sortedWordUpdates.map((wu) => {
                     const word = wordMap.get(wu.wordId);
@@ -265,9 +258,7 @@ export function SessionSummary() {
                             <div className="flex items-center gap-1.5 flex-shrink-0">
                                 {isNew ? (
                                     <>
-                                        <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400">
-                                            Neu
-                                        </span>
+                                        <NewWordBadge />
                                         <ArrowRight className="h-3 w-3 text-muted-foreground" />
                                         <LevelChip level={wu.levelAfter} />
                                     </>
@@ -295,13 +286,13 @@ export function SessionSummary() {
                 transition={{ delay: 0.9 + sortedWordUpdates.length * 0.08 + 0.2 }}
             >
                 <Button size="lg" onClick={() => setGameType(null)} className="w-full">
-                    <RotateCcw className="mr-2 h-4 w-4" /> Nochmal spielen
+                    <RotateCcw className="mr-2 h-4 w-4" /> {t('playAgain')}
                 </Button>
                 <Button variant="outline" size="lg" onClick={resetSession} className="w-full">
-                    <ArrowLeft className="mr-2 h-4 w-4" /> Andere Wörter wählen
+                    <ArrowLeft className="mr-2 h-4 w-4" /> {t('chooseOtherWords')}
                 </Button>
                 <Button variant="ghost" size="lg" onClick={() => router.push("/dashboard")} className="w-full">
-                    <LayoutDashboard className="mr-2 h-4 w-4" /> Zurück zum Dashboard
+                    <LayoutDashboard className="mr-2 h-4 w-4" /> {t('backToDashboard')}
                 </Button>
             </motion.div>
         </div>

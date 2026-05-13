@@ -15,10 +15,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useSuspenseAllCategories } from "@/features/words/hooks/use-categories"
 import { useLanguage, useNativeLanguage } from "@/features/user/hooks/use-language"
 import { PlusIcon, Trash2Icon } from "lucide-react"
+import { useTranslations, useFormatter } from "next-intl"
+import { LEVEL_CHIP_CLASSES } from "@/features/words/components/word-item"
 
 type WordWithProgress = Word & { progress?: WordProgress | null }
 
-const LEVEL_LABELS = ["New", "Learning", "Learning", "Advanced", "Advanced", "Mastered"]
 const LEVEL_COLORS = ["text-muted-foreground", "text-amber-500", "text-amber-600", "text-blue-500", "text-blue-600", "text-green-500"]
 
 type FormsRecord = Record<string, string | undefined | null>
@@ -34,6 +35,7 @@ function FormRow({ label, value }: { label: string; value?: string | null }) {
 }
 
 function WordFormsDisplay({ wordType, forms }: { wordType: string; forms: FormsRecord }) {
+    const t = useTranslations('words.editDialog.forms')
     const f = forms
 
     const pronouns = [
@@ -56,16 +58,16 @@ function WordFormsDisplay({ wordType, forms }: { wordType: string; forms: FormsR
                     {WORD_TYPE_LABELS[wordType as WordType] ?? wordType}
                 </span>
                 <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                    {wordType === "noun" && "Grammatik"}
-                    {wordType === "verb" && "Konjugation"}
-                    {wordType === "adjective" && "Steigerung"}
+                    {wordType === "noun" && t('grammarLabel')}
+                    {wordType === "verb" && t('conjugationLabel')}
+                    {wordType === "adjective" && t('comparisonLabel')}
                 </span>
             </div>
 
             {wordType === "noun" && (
                 <div className="space-y-1.5">
-                    <FormRow label="Geschlecht" value={f.gender} />
-                    <FormRow label="Plural" value={f.plural} />
+                    <FormRow label={t('genderLabel')} value={f.gender} />
+                    <FormRow label={t('pluralLabel')} value={f.plural} />
                 </div>
             )}
 
@@ -85,9 +87,9 @@ function WordFormsDisplay({ wordType, forms }: { wordType: string; forms: FormsR
                     )}
                     {(f.pastTense || f.pastParticiple || f.auxiliary) && (
                         <div className="space-y-1.5 pt-1 border-t border-border/50">
-                            <FormRow label="Vergangenheit" value={f.pastTense} />
-                            <FormRow label="Partizip II" value={f.pastParticiple} />
-                            <FormRow label="Hilfsverb" value={f.auxiliary} />
+                            <FormRow label={t('pastTenseLabel')} value={f.pastTense} />
+                            <FormRow label={t('participleLabel')} value={f.pastParticiple} />
+                            <FormRow label={t('auxiliaryLabel')} value={f.auxiliary} />
                         </div>
                     )}
                 </div>
@@ -95,9 +97,9 @@ function WordFormsDisplay({ wordType, forms }: { wordType: string; forms: FormsR
 
             {wordType === "adjective" && (
                 <div className="space-y-1.5">
-                    <FormRow label="Komparativ" value={f.comparative} />
-                    <FormRow label="Superlativ" value={f.superlative} />
-                    <FormRow label="Feminin" value={f.feminineForm} />
+                    <FormRow label={t('comparativeLabel')} value={f.comparative} />
+                    <FormRow label={t('superlativeLabel')} value={f.superlative} />
+                    <FormRow label={t('feminineLabel')} value={f.feminineForm} />
                 </div>
             )}
         </div>
@@ -116,6 +118,9 @@ export function WordEditDialog({ word, open, onOpenChange, onSave }: WordEditDia
     const categories = useSuspenseAllCategories()
     const { currentLanguage } = useLanguage()
     const { data: nativeLanguage } = useNativeLanguage()
+    const t = useTranslations('words.editDialog')
+    const tLevels = useTranslations('words.levels')
+    const format = useFormatter()
 
     const form = useForm<CreateWordInput>({
         resolver: zodResolver(createWordSchema),
@@ -146,7 +151,6 @@ export function WordEditDialog({ word, open, onOpenChange, onSave }: WordEditDia
         }
     }, [isEditing, word, form])
 
-    // Reset edit mode when dialog closes
     useEffect(() => {
         if (!open) setIsEditing(false)
     }, [open])
@@ -185,12 +189,17 @@ export function WordEditDialog({ word, open, onOpenChange, onSave }: WordEditDia
         form.setValue("examples", examples.filter((_, i) => i !== index))
     }
 
+    const getLevelLabel = (level: number) => {
+        const key = String(level) as Parameters<typeof tLevels>[0]
+        return ['0','1','2','3','4','5'].includes(String(level)) ? tLevels(key) : tLevels('unknown')
+    }
+
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle>Vocabulary Details</DialogTitle>
-                    <DialogDescription>View and edit vocabulary.</DialogDescription>
+                    <DialogTitle>{t('title')}</DialogTitle>
+                    <DialogDescription>{t('description')}</DialogDescription>
                 </DialogHeader>
 
                 <div className="space-y-6 mt-4">
@@ -219,7 +228,7 @@ export function WordEditDialog({ word, open, onOpenChange, onSave }: WordEditDia
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormControl>
-                                                <Input placeholder="Additional info (optional)" {...field} value={field.value || ""} />
+                                                <Input placeholder={t('additionalInfoPlaceholder')} {...field} value={field.value || ""} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -248,7 +257,7 @@ export function WordEditDialog({ word, open, onOpenChange, onSave }: WordEditDia
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormControl>
-                                                <Input placeholder="Additional info (optional)" {...field} value={field.value || ""} />
+                                                <Input placeholder={t('additionalInfoPlaceholder')} {...field} value={field.value || ""} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -260,11 +269,11 @@ export function WordEditDialog({ word, open, onOpenChange, onSave }: WordEditDia
                                     name="wordType"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Word Type</FormLabel>
+                                            <FormLabel>{t('wordTypeLabel')}</FormLabel>
                                             <Select onValueChange={field.onChange} value={field.value || ""}>
                                                 <FormControl>
                                                     <SelectTrigger>
-                                                        <SelectValue placeholder="Select type (optional)" />
+                                                        <SelectValue placeholder={t('wordTypePlaceholder')} />
                                                     </SelectTrigger>
                                                 </FormControl>
                                                 <SelectContent>
@@ -284,15 +293,15 @@ export function WordEditDialog({ word, open, onOpenChange, onSave }: WordEditDia
                                     name="categoryId"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Category</FormLabel>
+                                            <FormLabel>{t('categoryLabel')}</FormLabel>
                                             <Select onValueChange={field.onChange} defaultValue={field.value || undefined} value={field.value || undefined}>
                                                 <FormControl>
                                                     <SelectTrigger>
-                                                        <SelectValue placeholder="Select a category" />
+                                                        <SelectValue placeholder={t('categoryPlaceholder')} />
                                                     </SelectTrigger>
                                                 </FormControl>
                                                 <SelectContent>
-                                                    <SelectItem value="root">No Category</SelectItem>
+                                                    <SelectItem value="root">{t('noCategory')}</SelectItem>
                                                     {categories.data.map((category) => (
                                                         <SelectItem key={category.id} value={category.id}>
                                                             {category.name}
@@ -306,7 +315,7 @@ export function WordEditDialog({ word, open, onOpenChange, onSave }: WordEditDia
                                 />
 
                                 <div className="space-y-2">
-                                    <FormLabel>Examples</FormLabel>
+                                    <FormLabel>{t('examplesLabel')}</FormLabel>
                                     {examples.map((_, index) => (
                                         <FormField
                                             key={index}
@@ -316,7 +325,7 @@ export function WordEditDialog({ word, open, onOpenChange, onSave }: WordEditDia
                                                 <FormItem>
                                                     <div className="flex gap-2">
                                                         <FormControl>
-                                                            <Input placeholder="Example sentence" {...field} />
+                                                            <Input placeholder={t('examplePlaceholder')} {...field} />
                                                         </FormControl>
                                                         <Button
                                                             type="button"
@@ -334,15 +343,15 @@ export function WordEditDialog({ word, open, onOpenChange, onSave }: WordEditDia
                                     ))}
                                     <Button type="button" variant="outline" size="sm" onClick={addExample} className="w-full">
                                         <PlusIcon className="size-4 mr-2" />
-                                        Add Example
+                                        {t('addExampleButton')}
                                     </Button>
                                 </div>
 
                                 <div className="flex gap-2 justify-end">
                                     <Button type="button" variant="outline" onClick={handleCancel}>
-                                        Cancel
+                                        {t('cancelButton')}
                                     </Button>
-                                    <Button type="submit">Save</Button>
+                                    <Button type="submit">{t('saveButton')}</Button>
                                 </div>
                             </form>
                         </Form>
@@ -387,7 +396,7 @@ export function WordEditDialog({ word, open, onOpenChange, onSave }: WordEditDia
 
                                 {word.examples && word.examples.length > 0 && (
                                     <div className="space-y-1 pt-2">
-                                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Examples</p>
+                                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t('examplesSection')}</p>
                                         <ul className="space-y-1">
                                             {word.examples.map((ex, i) => (
                                                 <li key={i} className="text-sm text-muted-foreground border-l-2 border-border pl-3">{ex}</li>
@@ -398,37 +407,39 @@ export function WordEditDialog({ word, open, onOpenChange, onSave }: WordEditDia
 
                                 {word.categoryId && (
                                     <div className="text-sm text-muted-foreground">
-                                        Category: {categories.data.find(c => c.id === word.categoryId)?.name || "Unknown"}
+                                        {t('categoryInfo', { name: categories.data.find(c => c.id === word.categoryId)?.name || t('unknownCategory') })}
                                     </div>
                                 )}
                             </div>
 
                             {word.progress && (
                                 <div className="rounded-lg border bg-muted/30 p-4 space-y-3">
-                                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Practice Stats</p>
+                                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t('practiceStats')}</p>
                                     <div className="grid grid-cols-2 gap-3 text-sm">
                                         <div>
-                                            <p className="text-muted-foreground text-xs">Level</p>
+                                            <p className="text-muted-foreground text-xs">{t('levelLabel')}</p>
                                             <p className={`font-semibold ${LEVEL_COLORS[word.progress.level] ?? ""}`}>
-                                                {LEVEL_LABELS[word.progress.level] ?? "Unknown"} ({word.progress.level}/5)
+                                                {getLevelLabel(word.progress.level)} ({word.progress.level}/5)
                                             </p>
                                         </div>
                                         <div>
-                                            <p className="text-muted-foreground text-xs">Repetitions</p>
+                                            <p className="text-muted-foreground text-xs">{t('repetitionsLabel')}</p>
                                             <p className="font-semibold">{word.progress.repititions}</p>
                                         </div>
                                         <div>
-                                            <p className="text-muted-foreground text-xs">Correct</p>
+                                            <p className="text-muted-foreground text-xs">{t('correctLabel')}</p>
                                             <p className="font-semibold text-green-600">{word.progress.totalCorrect}</p>
                                         </div>
                                         <div>
-                                            <p className="text-muted-foreground text-xs">Incorrect</p>
+                                            <p className="text-muted-foreground text-xs">{t('incorrectLabel')}</p>
                                             <p className="font-semibold text-red-500">{word.progress.totalIncorrect}</p>
                                         </div>
                                         {word.progress.nextReviewAt && (
                                             <div className="col-span-2">
-                                                <p className="text-muted-foreground text-xs">Next Review</p>
-                                                <p className="font-semibold">{word.progress.nextReviewAt.toLocaleDateString("de-DE")}</p>
+                                                <p className="text-muted-foreground text-xs">{t('nextReviewLabel')}</p>
+                                                <p className="font-semibold">
+                                                    {format.dateTime(word.progress.nextReviewAt, { dateStyle: 'medium' })}
+                                                </p>
                                             </div>
                                         )}
                                     </div>
@@ -436,15 +447,15 @@ export function WordEditDialog({ word, open, onOpenChange, onSave }: WordEditDia
                             )}
 
                             <div className="flex items-center justify-between text-xs text-muted-foreground pt-4 border-t">
-                                <span>Created: {word.createdAt.toLocaleDateString("de-DE")}</span>
+                                <span>{t('createdAt', { date: format.dateTime(word.createdAt, { dateStyle: 'medium' }) })}</span>
                                 {word.updatedAt.getTime() !== word.createdAt.getTime() && (
-                                    <span>Updated: {word.updatedAt.toLocaleDateString("de-DE")}</span>
+                                    <span>{t('updatedAt', { date: format.dateTime(word.updatedAt, { dateStyle: 'medium' }) })}</span>
                                 )}
                             </div>
 
                             <div className="flex gap-2 justify-end">
                                 <Button variant="outline" onClick={() => setIsEditing(true)}>
-                                    Edit
+                                    {t('editButton')}
                                 </Button>
                             </div>
                         </>

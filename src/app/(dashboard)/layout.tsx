@@ -3,6 +3,7 @@ import {SidebarInset, SidebarProvider} from "@/components/ui/sidebar";
 import AppSidebar from "@/components/app-sidebar";
 import {requireAuth} from "@/lib/auth-utils";
 import {HydrateClient, prefetch, trpc} from "@/trpc/server";
+import {LocaleSetter} from "@/components/locale-setter";
 
 export default async function Layout({ children}: { children: React.ReactNode }) {
     const session = await requireAuth()
@@ -17,6 +18,9 @@ export default async function Layout({ children}: { children: React.ReactNode })
         <SidebarProvider>
             <AppSidebar username={session.user.name.split("@")[0]} />
             <SidebarInset className="bg-background overflow-y-auto">
+                {session.user.nativeLanguageId && (
+                    <LocaleSetter nativeLanguageId={session.user.nativeLanguageId} />
+                )}
                 {children}
             </SidebarInset>
         </SidebarProvider>

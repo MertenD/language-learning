@@ -2,11 +2,10 @@
 
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
 import {ActivityIcon, BookOpenIcon, ClockIcon, MessageSquareIcon, StarIcon, TrophyIcon} from "lucide-react";
-import {formatDistanceToNow} from "date-fns";
-import {de} from "date-fns/locale";
 import {useRecentActivities} from "@/features/user/hooks/use-recent-activities";
 import React from "react";
 import {ActivityType} from "@/features/dashboard/model/activity-type";
+import {useTranslations, useFormatter} from "next-intl";
 
 const getActivityIcon = (type: ActivityType) => {
     switch (type) {
@@ -27,37 +26,25 @@ const getActivityIcon = (type: ActivityType) => {
     }
 };
 
-const getActivityTitle = (type: ActivityType) => {
-    switch (type) {
-        case ActivityType.VOCABULARY_ADDED:
-            return "Wortschatz erweitert";
-        case ActivityType.VOCABULARY_IMPORTED:
-            return "Wortschatz importiert";
-        case ActivityType.NEW_VOCABULARY_LEARNED:
-            return "Neue Vokabeln gelernt";
-        case ActivityType.SCENARIO_STARTED:
-            return "Szenario begonnen";
-        case ActivityType.CHAT_INITIATED:
-            return "Chat gestartet";
-        case ActivityType.LEVEL_UP:
-            return "Level aufgestiegen";
-        case ActivityType.VOCABULARY_MASTERED:
-            return "Vokabel gemeistert";
-        case ActivityType.LANGUAGE_STARTED:
-            return "Sprache begonnen";
-        default:
-            return "Aktivität";
-    }
-};
-
 export default function RecentActivityCard() {
     const { data: activities, isLoading } = useRecentActivities();
+    const t = useTranslations('dashboard.recentActivity');
+    const format = useFormatter();
+
+    const getActivityTitle = (type: ActivityType) => {
+        const key = `types.${type}` as Parameters<typeof t>[0];
+        try {
+            return t(key);
+        } catch {
+            return t('types.default');
+        }
+    };
 
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Kürzliche Aktivitäten</CardTitle>
-                <CardDescription>Deine letzten Lernerfolge</CardDescription>
+                <CardTitle>{t('title')}</CardTitle>
+                <CardDescription>{t('description')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
                 {isLoading ? (
@@ -81,13 +68,13 @@ export default function RecentActivityCard() {
                                 </p>
                                 <div className="flex items-center gap-1 text-xs text-muted-foreground">
                                     <ClockIcon className="h-3 w-3" />
-                                    {formatDistanceToNow(new Date(activity.timestamp), { addSuffix: true, locale: de })}
+                                    {format.relativeTime(new Date(activity.timestamp))}
                                 </div>
                             </div>
                         </div>
                     ))
                 ) : (
-                    <p className="text-sm text-muted-foreground">Keine kürzlichen Aktivitäten.</p>
+                    <p className="text-sm text-muted-foreground">{t('empty')}</p>
                 )}
             </CardContent>
         </Card>

@@ -8,6 +8,7 @@ import WordsLevelCountCard from "@/features/dashboard/components/words-level-cou
 import DailyGoal from "@/features/dashboard/components/daily-goal-card";
 import {useWordProgressStats} from "@/features/user/hooks/use-stats";
 import {useState, useEffect} from "react";
+import {useTranslations} from "next-intl";
 
 const DAILY_GOAL_KEY = "daily-goal-target"
 const DEFAULT_DAILY_GOAL = 20
@@ -19,6 +20,7 @@ type WordProgressProps = {
 export default function WordProgressCard({ className }: WordProgressProps) {
     const { data: stats, isLoading } = useWordProgressStats()
     const [dailyGoalTarget, setDailyGoalTarget] = useState(DEFAULT_DAILY_GOAL)
+    const t = useTranslations('dashboard.wordProgress');
 
     useEffect(() => {
         const stored = localStorage.getItem(DAILY_GOAL_KEY)
@@ -45,26 +47,26 @@ export default function WordProgressCard({ className }: WordProgressProps) {
         : []
 
     const dailyGoalTitle = stats?.dueCount
-        ? `${stats.dueCount} word${stats.dueCount !== 1 ? "s" : ""} due for review`
-        : "No words due today"
+        ? t('dueForReview', { count: stats.dueCount })
+        : t('noDueToday')
 
     const dailyGoalDescription = stats?.reviewedTodayCount
-        ? `You've already reviewed ${stats.reviewedTodayCount} word${stats.reviewedTodayCount !== 1 ? "s" : ""} today. Keep it up!`
+        ? t('reviewedToday', { count: stats.reviewedTodayCount })
         : stats?.dueCount
-            ? "Start a practice session to review your vocabulary."
-            : "Great job — you're all caught up!"
+            ? t('startPractice')
+            : t('allCaughtUp')
 
     return <Card className={className}>
         <CardHeader>
             <div className="flex items-center justify-between">
                 <div className="space-y-1">
-                    <CardTitle className="text-2xl">Vocabulary Progress</CardTitle>
-                    <CardDescription>Your learning statistics overview</CardDescription>
+                    <CardTitle className="text-2xl">{t('title')}</CardTitle>
+                    <CardDescription>{t('description')}</CardDescription>
                 </div>
                 <Link href="/words" prefetch>
                     <Button variant="outline" size="sm">
                         <BookOpenIcon className="mr-2 h-4 w-4" />
-                        View Vocabulary
+                        {t('viewVocabularyButton')}
                     </Button>
                 </Link>
             </div>

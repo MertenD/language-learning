@@ -6,6 +6,7 @@ import {Button} from "@/components/ui/button";
 import Link from "next/link";
 import {Input} from "@/components/ui/input";
 import {Progress} from "@/components/ui/progress";
+import {useTranslations} from "next-intl";
 
 type DailyGoalProps = {
     title: string
@@ -19,6 +20,7 @@ type DailyGoalProps = {
 export default function DailyGoal({ title, description, href, current, target, onTargetChange }: DailyGoalProps) {
     const [isEditingTarget, setIsEditingTarget] = useState(false)
     const [editValue, setEditValue] = useState(String(target ?? 20))
+    const t = useTranslations('dashboard.dailyGoal');
 
     const hasProgress = current !== undefined && target !== undefined
     const progress = hasProgress ? Math.min(Math.round((current / target) * 100), 100) : 0
@@ -43,14 +45,14 @@ export default function DailyGoal({ title, description, href, current, target, o
                 </div>
             </div>
             <Link href={href} prefetch>
-                <Button>Start now</Button>
+                <Button>{t('startNow')}</Button>
             </Link>
         </div>
 
         {hasProgress && (
             <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span>{current} / {target} words reviewed today</span>
+                    <span>{t('wordsReviewedToday', { current, target })}</span>
                     {isEditingTarget ? (
                         <div className="flex items-center gap-1">
                             <Input
@@ -70,7 +72,7 @@ export default function DailyGoal({ title, description, href, current, target, o
                             className="flex items-center gap-1 hover:text-foreground transition-colors"
                         >
                             <PencilIcon className="h-3 w-3" />
-                            Goal: {target}
+                            {t('goal', { target })}
                         </button>
                     )}
                 </div>

@@ -18,10 +18,9 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import {cn} from "@/lib/utils";
+import {useTranslations} from "next-intl";
 
 type WordWithProgress = Word & { progress?: WordProgress | null }
-
-export const LEVEL_LABELS = ["New", "Learning", "Learning", "Advanced", "Advanced", "Mastered"]
 
 export const LEVEL_CHIP_CLASSES = [
     "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400",
@@ -53,14 +52,16 @@ function WordTypeBadge({ type }: { type: string }) {
     )
 }
 
-
-function LevelChip({ level }: { level: number }) {
+export function LevelChip({ level }: { level: number }) {
+    const t = useTranslations('words.levels');
+    const key = String(level) as Parameters<typeof t>[0];
+    const label = ['0','1','2','3','4','5'].includes(String(level)) ? t(key) : t('unknown');
     return (
         <span className={cn(
             "text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0 whitespace-nowrap",
             LEVEL_CHIP_CLASSES[level] ?? LEVEL_CHIP_CLASSES[0]
         )}>
-            {LEVEL_LABELS[level] ?? "Unknown"}
+            {label}
         </span>
     )
 }
@@ -72,6 +73,7 @@ export default function WordItem({ data }: { data: WordWithProgress }) {
     const [isConfirmOpen, setIsConfirmOpen] = useState(false)
     const { currentLanguage } = useLanguage()
     const { data: nativeLanguage } = useNativeLanguage()
+    const t = useTranslations('words.wordItem');
 
     const handleSave = async (updatedWord: Word) => {
         updateWord.mutate({
@@ -123,15 +125,15 @@ export default function WordItem({ data }: { data: WordWithProgress }) {
         <AlertDialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
             <AlertDialogContent>
                 <AlertDialogHeader>
-                    <AlertDialogTitle>Delete vocabulary?</AlertDialogTitle>
+                    <AlertDialogTitle>{t('deleteTitle')}</AlertDialogTitle>
                     <AlertDialogDescription>
-                        "{data.primary}" will be permanently deleted.
+                        {t('deleteDescription', { word: data.primary })}
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
                     <AlertDialogAction onClick={confirmRemove} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                        Delete
+                        {t('confirm')}
                     </AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>

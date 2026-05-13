@@ -9,6 +9,7 @@ import { useAiSuggestions, useGenerateScenarios, useSaveAiScenario } from "@/fea
 import { useCreateChatFromScenario } from "@/features/chat/hooks/use-chat"
 import { useUpgradeModal } from "@/hooks/use-upgrade-modal"
 import { useRouter } from "next/navigation"
+import {useTranslations} from "next-intl";
 
 export default function ScenarioSuggestionCard() {
     const { data: suggestions, isLoading } = useAiSuggestions()
@@ -17,6 +18,7 @@ export default function ScenarioSuggestionCard() {
     const createChat = useCreateChatFromScenario()
     const { handleError, modal } = useUpgradeModal()
     const router = useRouter()
+    const t = useTranslations('dashboard.scenarios');
 
     const handleCreateScenario = (scenarioId: string) => {
         createChat.mutate({ scenarioId }, {
@@ -39,13 +41,13 @@ export default function ScenarioSuggestionCard() {
                     <div className="flex flex-col sm:flex-row gap-3 sm:gap-0 items-start sm:items-center justify-between">
                         <div className="space-y-1">
                             <div className="flex items-center gap-2 flex-wrap">
-                                <CardTitle className="text-2xl">Suggested Scenarios</CardTitle>
+                                <CardTitle className="text-2xl">{t('title')}</CardTitle>
                                 <Badge variant="secondary" className="gap-1">
                                     <SparklesIcon className="h-3 w-3" />
-                                    AI generated
+                                    {t('aiGenerated')}
                                 </Badge>
                             </div>
-                            <CardDescription>Based on your recently learned vocabulary.</CardDescription>
+                            <CardDescription>{t('description')}</CardDescription>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
                             {items.length > 0 && (
@@ -63,7 +65,7 @@ export default function ScenarioSuggestionCard() {
                             )}
                             <Link href="/chat?tab=scenarios" prefetch>
                                 <Button variant="ghost" size="sm">
-                                    Show all
+                                    {t('showAll')}
                                     <ChevronRight className="ml-1 h-4 w-4" />
                                 </Button>
                             </Link>
@@ -81,9 +83,9 @@ export default function ScenarioSuggestionCard() {
                                 <SparklesIcon className="size-6 text-muted-foreground" />
                             </div>
                             <div>
-                                <p className="font-medium">No suggestions yet</p>
+                                <p className="font-medium">{t('noSuggestionsTitle')}</p>
                                 <p className="text-sm text-muted-foreground mt-1 max-w-xs">
-                                    Generate AI scenarios tailored to your vocabulary and learning progress.
+                                    {t('noSuggestionsBody')}
                                 </p>
                             </div>
                             <Button
@@ -91,7 +93,7 @@ export default function ScenarioSuggestionCard() {
                                 disabled={generateScenarios.isPending}
                             >
                                 {generateScenarios.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                Generate Scenarios
+                                {t('generateButton')}
                             </Button>
                         </div>
                     ) : (
@@ -137,16 +139,16 @@ export default function ScenarioSuggestionCard() {
                                                         saveAiScenario.mutate({ id: scenario.id }, { onError: handleError })
                                                     }}
                                                     disabled={saveAiScenario.isPending}
-                                                    title="Zu meinen Szenarien hinzufügen"
+                                                    title={t('saveLabel')}
                                                 >
                                                     {saveAiScenario.isPending
                                                         ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
                                                         : <BookmarkIcon className="h-3.5 w-3.5" />
                                                     }
-                                                    Merken
+                                                    {t('saveLabel')}
                                                 </Button>
                                                 <Button size="sm" variant="ghost" className="gap-1 group-hover:gap-2 transition-all">
-                                                    Start
+                                                    {t('startLabel')}
                                                     <ChevronRight className="h-4 w-4" />
                                                 </Button>
                                             </div>

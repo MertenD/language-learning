@@ -1,0 +1,302 @@
+{
+  "sidebar": {
+    "groupTitle": "Sprachen lernen",
+    "nav": {
+      "dashboard": "Dashboard",
+      "vocabulary": "Vokabeln",
+      "grammar": "Grammatik",
+      "practice": "Üben",
+      "chat": "Chat"
+    }
+  },
+  "auth": {
+    "layout": {
+      "brand": "EasyLingu"
+    },
+    "login": {
+      "title": "Willkommen zurück",
+      "description": "Melde dich an, um weiterzumachen",
+      "continueWithGithub": "Mit GitHub fortfahren",
+      "continueWithGoogle": "Mit Google fortfahren",
+      "redirecting": "Wird weitergeleitet…",
+      "emailLabel": "E-Mail",
+      "passwordLabel": "Passwort",
+      "submitButton": "Anmelden",
+      "noAccount": "Noch kein Konto?",
+      "signUpLink": "Registrieren",
+      "validation": {
+        "emailInvalid": "Bitte gib eine gültige E-Mail-Adresse ein",
+        "passwordRequired": "Passwort ist erforderlich"
+      }
+    },
+    "register": {
+      "title": "Jetzt starten",
+      "description": "Registriere dich, um loszulegen",
+      "continueWithGithub": "Mit GitHub fortfahren",
+      "continueWithGoogle": "Mit Google fortfahren",
+      "redirecting": "Wird weitergeleitet…",
+      "emailLabel": "E-Mail",
+      "passwordLabel": "Passwort",
+      "confirmPasswordLabel": "Passwort bestätigen",
+      "nativeLanguageLabel": "Muttersprache",
+      "nativeLanguagePlaceholder": "Muttersprache wählen...",
+      "targetLanguageLabel": "Lernsprache",
+      "targetLanguagePlaceholder": "Zielsprache wählen...",
+      "submitButton": "Registrieren",
+      "alreadyHaveAccount": "Bereits ein Konto?",
+      "loginLink": "Anmelden",
+      "validation": {
+        "emailInvalid": "Bitte gib eine gültige E-Mail-Adresse ein",
+        "passwordRequired": "Passwort ist erforderlich",
+        "passwordMinLength": "Das Passwort muss mindestens 8 Zeichen lang sein",
+        "passwordsMismatch": "Die Passwörter stimmen nicht überein",
+        "nativeLanguageRequired": "Bitte wähle deine Muttersprache aus",
+        "targetLanguageRequired": "Bitte wähle die Sprache aus, die du lernen möchtest",
+        "languagesSame": "Mutter- und Zielsprache müssen unterschiedlich sein"
+      }
+    },
+    "userInfo": {
+      "upgradeLabel": "Auf Pro upgraden",
+      "billingLabel": "Abrechnungsportal",
+      "logoutLabel": "Abmelden",
+      "level": "Level {level}"
+    }
+  },
+  "dashboard": {
+    "welcome": "Willkommen zurück!",
+    "subtitle": "Du machst großartige Fortschritte. Weiter so!",
+    "stats": {
+      "streak": "Streak",
+      "xp": "XP-Punkte",
+      "level": "Level",
+      "vocabulary": "Vokabeln"
+    },
+    "wordProgress": {
+      "title": "Vokabelfortschritt",
+      "description": "Übersicht deiner Lernstatistiken",
+      "viewVocabularyButton": "Vokabeln ansehen",
+      "dueForReview": "{count, plural, one {# Wort zur Wiederholung fällig} other {# Wörter zur Wiederholung fällig}}",
+      "noDueToday": "Heute keine Wörter fällig",
+      "reviewedToday": "{count, plural, one {Du hast heute bereits # Wort wiederholt. Weiter so!} other {Du hast heute bereits # Wörter wiederholt. Weiter so!}}",
+      "startPractice": "Starte eine Übungssitzung, um deine Vokabeln zu wiederholen.",
+      "allCaughtUp": "Super — du bist auf dem neuesten Stand!"
+    },
+    "dailyGoal": {
+      "startNow": "Jetzt starten",
+      "wordsReviewedToday": "{current} / {target} Wörter heute wiederholt",
+      "goal": "Ziel: {target}"
+    },
+    "recentActivity": {
+      "title": "Kürzliche Aktivitäten",
+      "description": "Deine letzten Lernerfolge",
+      "empty": "Keine kürzlichen Aktivitäten.",
+      "types": {
+        "VOCABULARY_ADDED": "Wortschatz erweitert",
+        "VOCABULARY_IMPORTED": "Wortschatz importiert",
+        "NEW_VOCABULARY_LEARNED": "Neue Vokabeln gelernt",
+        "SCENARIO_STARTED": "Szenario begonnen",
+        "CHAT_INITIATED": "Chat gestartet",
+        "LEVEL_UP": "Level aufgestiegen",
+        "VOCABULARY_MASTERED": "Vokabel gemeistert",
+        "LANGUAGE_STARTED": "Sprache begonnen",
+        "default": "Aktivität"
+      }
+    },
+    "scenarios": {
+      "title": "Vorgeschlagene Szenarien",
+      "aiGenerated": "KI-generiert",
+      "description": "Basierend auf deinen zuletzt gelernten Vokabeln.",
+      "noSuggestionsTitle": "Noch keine Vorschläge",
+      "noSuggestionsBody": "Generiere KI-Szenarien, die auf deinen Wortschatz und Lernfortschritt zugeschnitten sind.",
+      "generateButton": "Szenarien generieren",
+      "showAll": "Alle anzeigen",
+      "saveLabel": "Merken",
+      "startLabel": "Starten"
+    },
+    "quickActions": {
+      "addVocabulary": "Vokabeln hinzufügen",
+      "addVocabularyDesc": "Erweitere deinen Wortschatz",
+      "startChat": "Chat starten",
+      "startChatDesc": "Frag die KI alles",
+      "playMinigames": "Minispiele spielen",
+      "playMinigamesDesc": "Vokabeln lernen"
+    }
+  },
+  "words": {
+    "title": "Vokabeln",
+    "stats": {
+      "total": "{count} Wörter",
+      "learning": "{count} in Bearbeitung",
+      "mastered": "{count} gemeistert"
+    },
+    "sort": {
+      "label": "Sortieren",
+      "updatedAt": "Zuletzt aktualisiert",
+      "createdAt": "Hinzugefügt am",
+      "primary": "Primär (A–Z)",
+      "secondary": "Sekundär (A–Z)",
+      "ascending": "↑ Aufsteigend",
+      "descending": "↓ Absteigend"
+    },
+    "toolbar": {
+      "newFolder": "Neuer Ordner",
+      "generateWithAI": "Mit KI generieren",
+      "importCSV": "CSV importieren",
+      "exportCSV": "CSV exportieren",
+      "addWord": "Wort hinzufügen",
+      "exporting": "Wird exportiert...",
+      "importing": "Wird importiert...",
+      "exportSuccess": "Vokabeln exportiert"
+    },
+    "empty": {
+      "folderTitle": "Dieser Ordner ist leer",
+      "noVocabTitle": "Noch keine Vokabeln",
+      "folderBody": "Füge dein erstes Wort zu diesem Ordner hinzu, um loszulegen.",
+      "noVocabBody": "Füge Wörter manuell hinzu oder lass die KI eine Auswahl für ein Thema generieren.",
+      "generateButton": "Mit KI generieren",
+      "addButton": "Wort hinzufügen"
+    },
+    "bulkSelect": {
+      "selected": "{count} ausgewählt",
+      "selectAll": "Alle {count} auswählen",
+      "move": "{count} verschieben",
+      "delete": "{count} löschen"
+    },
+    "deleteConfirm": {
+      "title": "{count, plural, one {# Wort löschen?} other {# Wörter löschen?}}",
+      "description": "Diese Aktion kann nicht rückgängig gemacht werden. Alle ausgewählten Vokabeln werden dauerhaft gelöscht.",
+      "cancel": "Abbrechen",
+      "confirm": "{count, plural, one {# Wort löschen} other {# Wörter löschen}}"
+    },
+    "wordItem": {
+      "deleteTitle": "Vokabel löschen?",
+      "deleteDescription": "„{word}“ wird dauerhaft gelöscht.",
+      "cancel": "Abbrechen",
+      "confirm": "Löschen"
+    },
+    "levels": {
+      "0": "Neu",
+      "1": "In Bearbeitung",
+      "2": "In Bearbeitung",
+      "3": "Fortgeschritten",
+      "4": "Fortgeschritten",
+      "5": "Gemeistert",
+      "unknown": "Unbekannt"
+    },
+    "editDialog": {
+      "title": "Vokabeldetails",
+      "description": "Vokabel anzeigen und bearbeiten.",
+      "additionalInfoPlaceholder": "Zusatzinfo (optional)",
+      "wordTypeLabel": "Wortart",
+      "wordTypePlaceholder": "Typ auswählen (optional)",
+      "categoryLabel": "Kategorie",
+      "categoryPlaceholder": "Kategorie auswählen",
+      "noCategory": "Keine Kategorie",
+      "examplesLabel": "Beispiele",
+      "examplePlaceholder": "Beispielsatz",
+      "addExampleButton": "Beispiel hinzufügen",
+      "cancelButton": "Abbrechen",
+      "saveButton": "Speichern",
+      "editButton": "Bearbeiten",
+      "examplesSection": "Beispiele",
+      "categoryInfo": "Kategorie: {name}",
+      "unknownCategory": "Unbekannt",
+      "createdAt": "Erstellt: {date}",
+      "updatedAt": "Aktualisiert: {date}",
+      "practiceStats": "Übungsstatistiken",
+      "levelLabel": "Level",
+      "repetitionsLabel": "Wiederholungen",
+      "correctLabel": "Richtig",
+      "incorrectLabel": "Falsch",
+      "nextReviewLabel": "Nächste Wiederholung",
+      "forms": {
+        "grammarLabel": "Grammatik",
+        "conjugationLabel": "Konjugation",
+        "comparisonLabel": "Steigerung",
+        "genderLabel": "Geschlecht",
+        "pluralLabel": "Plural",
+        "pastTenseLabel": "Vergangenheit",
+        "participleLabel": "Partizip II",
+        "auxiliaryLabel": "Hilfsverb",
+        "comparativeLabel": "Komparativ",
+        "superlativeLabel": "Superlativ",
+        "feminineLabel": "Feminin"
+      }
+    }
+  },
+  "practice": {
+    "header": {
+      "title": "Vokabeln üben",
+      "description": "Wähle Wörter aus, um deine Lernsitzung zu starten."
+    },
+    "gameSelection": {
+      "title": "Spiel auswählen",
+      "description": "Wähle, wie du diese {count} Wörter üben möchtest."
+    },
+    "activeGame": {
+      "quitButton": "Spiel beenden"
+    },
+    "games": {
+      "mixed": {
+        "title": "Mix-Modus",
+        "description": "Alle Spielmodi gemischt — jede Frage ist eine Überraschung.",
+        "badge": "Neu"
+      },
+      "flashcards": {
+        "title": "Karteikarten",
+        "description": "Klassische Lernkarten zum Testen deines Gedächtnisses."
+      },
+      "multiple-choice": {
+        "title": "Multiple Choice",
+        "description": "Wähle die richtige Übersetzung aus den Optionen."
+      },
+      "typing": {
+        "title": "Tippen",
+        "description": "Tippe die richtige Übersetzung ein, um die Rechtschreibung zu üben."
+      },
+      "matching": {
+        "title": "Zuordnen",
+        "description": "Ordne primäre Wörter ihren sekundären Übersetzungen zu."
+      },
+      "memory": {
+        "title": "Memory",
+        "description": "Finde zusammengehörige Paare in einem Raster verdeckter Karten."
+      },
+      "scramble": {
+        "title": "Buchstaben-Puzzle",
+        "description": "Bringe die Buchstaben in die richtige Reihenfolge."
+      },
+      "true-false": {
+        "title": "Wahr oder Falsch",
+        "description": "Entscheide, ob die Übersetzung korrekt ist oder nicht."
+      },
+      "hangman": {
+        "title": "Galgenmännchen",
+        "description": "Errate das Wort Buchstabe für Buchstabe, bevor du keine Versuche mehr hast."
+      },
+      "listening": {
+        "title": "Speed Match",
+        "description": "Entscheide schnell, ob das Wortpaar übereinstimmt."
+      },
+      "reverse-choice": {
+        "title": "Umgekehrte Wahl",
+        "description": "Wähle das primäre Wort für die gegebene sekundäre Übersetzung."
+      },
+      "minWords": "{min}+ Wörter"
+    },
+    "summary": {
+      "savingResult": "Ergebnis wird gespeichert…",
+      "sessionComplete": "Session abgeschlossen!",
+      "scoreLabel": "Punktzahl",
+      "resultLabel": "Ergebnis",
+      "correctPercent": "richtig",
+      "levelUp": "Level auf!",
+      "levelUpDetail": "Level {from} → Level {to}",
+      "wordsThisRound": "Wörter in dieser Runde",
+      "wordNew": "Neu",
+      "playAgain": "Nochmal spielen",
+      "chooseOtherWords": "Andere Wörter wählen",
+      "backToDashboard": "Zurück zum Dashboard"
+    }
+  }
+}

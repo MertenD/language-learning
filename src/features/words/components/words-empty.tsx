@@ -9,6 +9,7 @@ import { useCreateWord } from "@/features/words/hooks/use-words"
 import { useWordsParams } from "@/features/words/hooks/use-words-params"
 import { useUpgradeModal } from "@/hooks/use-upgrade-modal"
 import type { CreateWordInput } from "@/features/words/schema/word-crud-schema"
+import {useTranslations} from "next-intl";
 
 export default function WordsEmpty() {
     const createWord = useCreateWord()
@@ -16,6 +17,7 @@ export default function WordsEmpty() {
     const [params] = useWordsParams()
     const [isAddOpen, setIsAddOpen] = useState(false)
     const [isGenerateOpen, setIsGenerateOpen] = useState(false)
+    const t = useTranslations('words.empty');
 
     const isInFolder = !!params.categoryId
 
@@ -31,21 +33,19 @@ export default function WordsEmpty() {
                     <BookOpenIcon className="size-8 text-muted-foreground" />
                 </div>
                 <h3 className="text-lg font-semibold">
-                    {isInFolder ? "This folder is empty" : "No vocabulary yet"}
+                    {isInFolder ? t('folderTitle') : t('noVocabTitle')}
                 </h3>
                 <p className="mt-2 text-sm text-muted-foreground max-w-xs">
-                    {isInFolder
-                        ? "Add your first word to this folder to get started."
-                        : "Add words manually or let AI generate a set for a topic you want to learn."}
+                    {isInFolder ? t('folderBody') : t('noVocabBody')}
                 </p>
                 <div className="mt-6 flex gap-2">
                     <Button variant="outline" onClick={() => setIsGenerateOpen(true)}>
                         <SparklesIcon className="mr-1.5 h-4 w-4" />
-                        Generate with AI
+                        {t('generateButton')}
                     </Button>
                     <Button onClick={() => setIsAddOpen(true)}>
                         <PlusIcon className="mr-1.5 h-4 w-4" />
-                        Add Word
+                        {t('addButton')}
                     </Button>
                 </div>
             </div>

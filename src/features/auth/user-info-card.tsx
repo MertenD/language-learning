@@ -6,6 +6,7 @@ import {authClient} from "@/lib/auth-client";
 import {useRouter} from "next/navigation";
 import {useHasActiveSubscription} from "@/features/subscriptions/hooks/use-subscription";
 import {useLanguageStats} from "@/features/user/hooks/use-stats";
+import {useTranslations} from "next-intl";
 
 type UserInfoCardProps = {
     username: string
@@ -15,6 +16,7 @@ export default function UserInfoCard({ username }: UserInfoCardProps) {
     const router = useRouter()
     const { hasActiveSubscription, isLoading } = useHasActiveSubscription()
     const { data: stats, isLoading: isStatsLoading } = useLanguageStats()
+    const t = useTranslations('auth.userInfo');
 
     return <div className="rounded-lg border bg-linear-to-br from-chart-1/10 to-chart-2/10 p-4">
         <div className="space-y-3">
@@ -24,10 +26,10 @@ export default function UserInfoCard({ username }: UserInfoCardProps) {
                 </div>
                 <div className="flex-1">
                     <p className="text-sm font-semibold">{username}</p>
-                    <p className="text-xs text-muted-foreground">Level {
+                    <p className="text-xs text-muted-foreground">{
                         !stats || isStatsLoading ? (
                             <span className="inline-block h-3 w-6 animate-pulse rounded-xl bg-chart-1/10" />
-                        ) : stats.level
+                        ) : t('level', { level: stats.level })
                     }</p>
                 </div>
             </div>
@@ -41,7 +43,7 @@ export default function UserInfoCard({ username }: UserInfoCardProps) {
                         onClick={() => authClient.checkout({ slug: "pro" })}
                     >
                         <StarIcon className="h-4 w-4" />
-                        Upgrade to Pro
+                        {t('upgradeLabel')}
                     </Button>
                 )}
                 <Button
@@ -51,7 +53,7 @@ export default function UserInfoCard({ username }: UserInfoCardProps) {
                     onClick={() => authClient.customer.portal()}
                 >
                     <CreditCardIcon className="h-4 w-4" />
-                    Billing Portal
+                    {t('billingLabel')}
                 </Button>
                 <Button
                     variant="ghost"
@@ -66,7 +68,7 @@ export default function UserInfoCard({ username }: UserInfoCardProps) {
                     })}
                 >
                     <LogOutIcon className="h-4 w-4" />
-                    Logout
+                    {t('logoutLabel')}
                 </Button>
             </div>
         </div>

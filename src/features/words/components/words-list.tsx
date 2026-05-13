@@ -16,12 +16,14 @@ import {
     AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
     AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import {useTranslations} from "next-intl";
 
 export default function WordsList() {
     const [params] = useWordsParams()
     const words = useSuspenseWords()
     const categories = useSuspenseCategoriesByParent(params.categoryId || null)
     const bulkDelete = useBulkDeleteWords()
+    const t = useTranslations('words');
 
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
     const [isConfirmOpen, setIsConfirmOpen] = useState(false)
@@ -53,6 +55,8 @@ export default function WordsList() {
         return <WordsEmpty />
     }
 
+    const count = selectedIds.size
+
     return (
         <div className="space-y-4">
             {/* Folder chips */}
@@ -71,14 +75,14 @@ export default function WordsList() {
                         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={clearSelection}>
                             <XIcon className="h-4 w-4" />
                         </Button>
-                        <span className="text-sm font-medium">{selectedIds.size} selected</span>
+                        <span className="text-sm font-medium">{t('bulkSelect.selected', { count })}</span>
                         <Button
                             variant="ghost"
                             size="sm"
                             className="h-7 text-xs"
                             onClick={() => setSelectedIds(new Set(words.data.items.map(w => w.id)))}
                         >
-                            Select all {words.data.items.length}
+                            {t('bulkSelect.selectAll', { count: words.data.items.length })}
                         </Button>
                     </div>
                     <div className="flex items-center gap-2">
@@ -88,7 +92,7 @@ export default function WordsList() {
                             onClick={() => setIsMoveOpen(true)}
                         >
                             <FolderInputIcon className="mr-2 h-4 w-4" />
-                            Move {selectedIds.size}
+                            {t('bulkSelect.move', { count })}
                         </Button>
                         <Button
                             variant="destructive"
@@ -97,7 +101,7 @@ export default function WordsList() {
                             disabled={bulkDelete.isPending}
                         >
                             <Trash2Icon className="mr-2 h-4 w-4" />
-                            Delete {selectedIds.size}
+                            {t('bulkSelect.delete', { count })}
                         </Button>
                     </div>
                 </div>
@@ -152,18 +156,18 @@ export default function WordsList() {
             <AlertDialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Delete {selectedIds.size} word{selectedIds.size !== 1 ? "s" : ""}?</AlertDialogTitle>
+                        <AlertDialogTitle>{t('deleteConfirm.title', { count })}</AlertDialogTitle>
                         <AlertDialogDescription>
-                            This action cannot be undone. All selected vocabulary will be permanently deleted.
+                            {t('deleteConfirm.description')}
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogCancel>{t('deleteConfirm.cancel')}</AlertDialogCancel>
                         <AlertDialogAction
                             onClick={handleBulkDelete}
                             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                         >
-                            Delete {selectedIds.size} word{selectedIds.size !== 1 ? "s" : ""}
+                            {t('deleteConfirm.confirm', { count })}
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>

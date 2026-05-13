@@ -2,28 +2,30 @@ import Link from "next/link";
 import {Button} from "@/components/ui/button";
 import {BookOpenIcon, BotMessageSquareIcon, LucideProps, TargetIcon} from "lucide-react";
 import {ForwardRefExoticComponent, RefAttributes} from "react";
+import {getTranslations} from "next-intl/server";
 
-export default function QuickActions() {
+export default async function QuickActions() {
+    const t = await getTranslations('dashboard.quickActions');
 
     return <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <QuickActionCard
             icon={BookOpenIcon}
-            title="Add vocabulary"
-            description="Expand your vocabulary"
+            title={t('addVocabulary')}
+            description={t('addVocabularyDesc')}
             href="/words"
         />
 
         <QuickActionCard
             icon={BotMessageSquareIcon}
-            title="Start a chat"
-            description="Ask the AI anything"
+            title={t('startChat')}
+            description={t('startChatDesc')}
             href="/chat/new"
         />
 
         <QuickActionCard
             icon={TargetIcon}
-            title="Play minigames"
-            description="Learn vocabulary"
+            title={t('playMinigames')}
+            description={t('playMinigamesDesc')}
             href="/practice"
         />
     </div>

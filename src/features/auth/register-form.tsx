@@ -16,29 +16,30 @@ import {useState} from "react";
 import {useTRPC} from "@/trpc/client";
 import {useQuery} from "@tanstack/react-query";
 import {ComboboxLanguage} from "@/components/combobox-language";
-
-const registerSchema = z.object({
-    email: z.email("Please enter a valid email address"),
-    password: z.string().min(1, "Password is required").min(8, "Password must be at least 8 characters long"),
-    confirmPassword: z.string(),
-    nativeLanguageId: z.string().min(1, "Please select your native language"),
-    targetLanguageId: z.string().min(1, "Please select the language you want to learn")
-}).refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"]
-}).refine((data) => data.nativeLanguageId !== data.targetLanguageId, {
-    message: "Native and target languages must be different",
-    path: ["targetLanguageId"]
-})
-
-type RegisterFormValues = z.infer<typeof registerSchema>
+import {useTranslations} from "next-intl";
 
 export default function RegisterForm() {
-
     const router = useRouter();
     const [oauthLoading, setOauthLoading] = useState<'github' | 'google' | null>(null)
     const trpc = useTRPC();
     const { data: languages, isLoading: isLanguagesLoading } = useQuery(trpc.user.getAvailableLanguages.queryOptions());
+    const t = useTranslations('auth.register');
+
+    const registerSchema = z.object({
+        email: z.email(t('validation.emailInvalid')),
+        password: z.string().min(1, t('validation.passwordRequired')).min(8, t('validation.passwordMinLength')),
+        confirmPassword: z.string(),
+        nativeLanguageId: z.string().min(1, t('validation.nativeLanguageRequired')),
+        targetLanguageId: z.string().min(1, t('validation.targetLanguageRequired'))
+    }).refine((data) => data.password === data.confirmPassword, {
+        message: t('validation.passwordsMismatch'),
+        path: ["confirmPassword"]
+    }).refine((data) => data.nativeLanguageId !== data.targetLanguageId, {
+        message: t('validation.languagesSame'),
+        path: ["targetLanguageId"]
+    })
+
+    type RegisterFormValues = z.infer<typeof registerSchema>
 
     const form = useForm<RegisterFormValues>({
         resolver: zodResolver(registerSchema),
@@ -61,7 +62,6 @@ export default function RegisterForm() {
             currentLanguageId: values.targetLanguageId
         }, {
             onSuccess: () => {
-                // User language creation is handled by database hook in auth.ts
                 router.push("/")
             },
             onError: (context) => {
@@ -89,10 +89,10 @@ export default function RegisterForm() {
         <Card>
             <CardHeader className="text-center">
                 <CardTitle>
-                    Get Started
+                    {t('title')}
                 </CardTitle>
                 <CardDescription>
-                    Register to get started
+                    {t('description')}
                 </CardDescription>
             </CardHeader>
             <CardContent>
@@ -108,7 +108,7 @@ export default function RegisterForm() {
                                     onClick={() => signInWith('github')}
                                 >
                                     <Image src="/logos/github.svg" width={20} height={20} alt="GitHub" />
-                                    {oauthLoading === 'github' ? 'Redirecting…' : 'Continue with GitHub'}
+                                    {oauthLoading === 'github' ? t('redirecting') : t('continueWithGithub')}
                                 </Button>
                                 <Button
                                     variant="outline"
@@ -118,7 +118,7 @@ export default function RegisterForm() {
                                     onClick={() => signInWith('google')}
                                 >
                                     <Image src="/logos/google.svg" width={20} height={20} alt="Google" />
-                                    {oauthLoading === 'google' ? 'Redirecting…' : 'Continue with Google'}
+                                    {oauthLoading === 'google' ? t('redirecting') : t('continueWithGoogle')}
                                 </Button>
                             </div>
                             <div className="grid gap-6">
@@ -127,7 +127,7 @@ export default function RegisterForm() {
                                     name="email"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Email</FormLabel>
+                                            <FormLabel>{t('emailLabel')}</FormLabel>
                                             <FormControl>
                                                 <Input
                                                     type="email"
@@ -144,7 +144,7 @@ export default function RegisterForm() {
                                     name="password"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Password</FormLabel>
+                                            <FormLabel>{t('passwordLabel')}</FormLabel>
                                             <FormControl>
                                                 <Input
                                                     type="password"
@@ -161,7 +161,7 @@ export default function RegisterForm() {
                                     name="confirmPassword"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Confirm Password</FormLabel>
+                                            <FormLabel>{t('confirmPasswordLabel')}</FormLabel>
                                             <FormControl>
                                                 <Input
                                                     type="password"
@@ -179,13 +179,13 @@ export default function RegisterForm() {
                                     name="nativeLanguageId"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Native Language</FormLabel>
+                                            <FormLabel>{t('nativeLanguageLabel')}</FormLabel>
                                             <FormControl>
                                                 <ComboboxLanguage
                                                     languages={languages || []}
                                                     value={field.value}
                                                     onChange={field.onChange}
-                                                    placeholder="Select native language..."
+                                                    placeholder={t('nativeLanguagePlaceholder')}
                                                     disabled={isLanguagesLoading}
                                                 />
                                             </FormControl>
@@ -198,13 +198,13 @@ export default function RegisterForm() {
                                     name="targetLanguageId"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Learning Language</FormLabel>
+                                            <FormLabel>{t('targetLanguageLabel')}</FormLabel>
                                             <FormControl>
                                                 <ComboboxLanguage
                                                     languages={languages || []}
                                                     value={field.value}
                                                     onChange={field.onChange}
-                                                    placeholder="Select target language..."
+                                                    placeholder={t('targetLanguagePlaceholder')}
                                                     disabled={isLanguagesLoading}
                                                 />
                                             </FormControl>
@@ -214,13 +214,13 @@ export default function RegisterForm() {
                                 />
 
                                 <Button type="submit" className="w-full" disabled={isPending}>
-                                    Sign up
+                                    {t('submitButton')}
                                 </Button>
                             </div>
                             <div className="text-center text-sm">
-                                Already have an account?{" "}
+                                {t('alreadyHaveAccount')}{" "}
                                 <Link href="/login" className="underline underline-offset-4">
-                                    Login
+                                    {t('loginLink')}
                                 </Link>
                             </div>
                         </div>

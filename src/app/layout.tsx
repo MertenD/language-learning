@@ -8,6 +8,8 @@ import React from "react";
 import {NuqsAdapter} from "nuqs/adapters/next/app";
 import {LanguageProvider} from "@/features/user/hooks/use-language";
 import {OfflineBanner} from "@/components/offline-banner";
+import {NextIntlClientProvider} from "next-intl";
+import {getLocale, getMessages} from "next-intl/server";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,27 +38,32 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
-    <html lang="en">
+    <html lang={locale}>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning
       >
-        <TRPCReactProvider>
-          <NuqsAdapter>
-            <LanguageProvider>
-            {children}
-            <Toaster />
-            <OfflineBanner />
-            { process.env.NODE_ENV !== "production" && <ReactQueryDevtools /> }
-            </LanguageProvider>
-          </NuqsAdapter>
-        </TRPCReactProvider>
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <TRPCReactProvider>
+            <NuqsAdapter>
+              <LanguageProvider>
+              {children}
+              <Toaster />
+              <OfflineBanner />
+              { process.env.NODE_ENV !== "production" && <ReactQueryDevtools /> }
+              </LanguageProvider>
+            </NuqsAdapter>
+          </TRPCReactProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

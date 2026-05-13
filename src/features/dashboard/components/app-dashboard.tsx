@@ -3,13 +3,15 @@ import RecentActivityCard from "@/features/dashboard/components/recent-activity-
 import ScenarioSuggestionCard from "@/features/dashboard/components/scenario-suggestion-card";
 import QuickActions from "@/features/dashboard/components/quick-actions";
 import UserStats from "@/features/dashboard/components/user-stats";
+import {getTranslations} from "next-intl/server";
 
-export default function AppDashboard() {
+export default async function AppDashboard() {
+    const t = await getTranslations('dashboard');
 
     return <div className="h-full max-w-7xl mx-auto p-4 md:px-10 md:py-6 space-y-8">
         <div className="space-y-2">
-            <h1 className="text-2xl md:text-4xl font-bold">Willkommen zurück!</h1>
-            <p className="text-base md:text-lg text-muted-foreground text-pretty">Du macht großartige Fortschritte. Weiter so!</p>
+            <h1 className="text-2xl md:text-4xl font-bold">{t('welcome')}</h1>
+            <p className="text-base md:text-lg text-muted-foreground text-pretty">{t('subtitle')}</p>
         </div>
 
         <UserStats />

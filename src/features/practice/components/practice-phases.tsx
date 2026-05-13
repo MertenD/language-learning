@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import PracticeHeader from "@/features/practice/components/practice-header";
 import { SessionSummary } from "./session-summary";
+import {useTranslations} from "next-intl";
 
 export function PracticePhases() {
     const {
@@ -28,6 +29,7 @@ export function PracticePhases() {
         resetSession,
         setGameType
     } = usePracticeSession();
+    const t = useTranslations('practice');
 
     // 1. Selection Phase
     if (selectedWords.length === 0) {
@@ -48,8 +50,8 @@ export function PracticePhases() {
                         <ArrowLeft className="h-4 w-4" />
                     </Button>
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight">Choose a Game</h1>
-                        <p className="text-muted-foreground">Select how you want to practice these {selectedWords.length} words.</p>
+                        <h1 className="text-2xl font-bold tracking-tight">{t('gameSelection.title')}</h1>
+                        <p className="text-muted-foreground">{t('gameSelection.description', { count: selectedWords.length })}</p>
                     </div>
                 </div>
                 <GameSelector/>
@@ -68,11 +70,8 @@ export function PracticePhases() {
             <div className="space-y-6">
                 <div className="flex items-center justify-between">
                     <Button variant="ghost" size="sm" onClick={() => setGameType(null)}>
-                        <ArrowLeft className="mr-2 h-4 w-4" /> Quit Game
+                        <ArrowLeft className="mr-2 h-4 w-4" /> {t('activeGame.quitButton')}
                     </Button>
-                    <div className="text-sm font-medium text-muted-foreground">
-                        Playing: {gameType.replace('-', ' ').toUpperCase()}
-                    </div>
                 </div>
 
                 <div className="py-8">

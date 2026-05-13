@@ -20,6 +20,7 @@ import {
 import { toast } from "sonner"
 import { SORT_BY_OPTIONS } from "@/features/words/params"
 import type { CreateWordInput } from "@/features/words/schema/word-crud-schema"
+import {useTranslations} from "next-intl";
 
 type WordsHeaderProps = {
     disabled?: boolean
@@ -38,6 +39,7 @@ export default function WordsHeader({ disabled }: WordsHeaderProps) {
     const [isGenerateOpen, setIsGenerateOpen] = useState(false)
     const [params, setParams] = useWordsParams()
     const fileInputRef = useRef<HTMLInputElement>(null)
+    const t = useTranslations('words');
 
     const handleCreateWord = (newWord: CreateWordInput) => {
         createWord.mutate(newWord, {
@@ -54,7 +56,7 @@ export default function WordsHeader({ disabled }: WordsHeaderProps) {
     }
 
     const handleExport = async () => {
-        const toastId = toast.loading("Exporting...")
+        const toastId = toast.loading(t('toolbar.exporting'))
         exportWords.mutate({ categoryId: params.categoryId }, {
             onSuccess: (csv) => {
                 const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
@@ -66,7 +68,7 @@ export default function WordsHeader({ disabled }: WordsHeaderProps) {
                 link.click()
                 document.body.removeChild(link)
                 toast.dismiss(toastId)
-                toast.success("Exported vocabulary")
+                toast.success(t('toolbar.exportSuccess'))
             },
             onError: (error) => { toast.dismiss(toastId); handleError(error) },
         })
@@ -79,7 +81,7 @@ export default function WordsHeader({ disabled }: WordsHeaderProps) {
         reader.onload = async (e) => {
             const text = e.target?.result
             if (typeof text !== "string") return
-            const toastId = toast.loading("Importing...")
+            const toastId = toast.loading(t('toolbar.importing'))
             importWords.mutate({ csv: text, categoryId: params.categoryId }, {
                 onSuccess: () => toast.dismiss(toastId),
                 onError: (error) => { toast.dismiss(toastId); handleError(error) },
@@ -90,10 +92,10 @@ export default function WordsHeader({ disabled }: WordsHeaderProps) {
     }
 
     const SORT_LABELS: Record<string, string> = {
-        updatedAt: "Last Updated",
-        createdAt: "Date Added",
-        primary: "Primary (A–Z)",
-        secondary: "Secondary (A–Z)",
+        updatedAt: t('sort.updatedAt'),
+        createdAt: t('sort.createdAt'),
+        primary: t('sort.primary'),
+        secondary: t('sort.secondary'),
     }
 
     return (
@@ -104,20 +106,20 @@ export default function WordsHeader({ disabled }: WordsHeaderProps) {
             {/* Title row */}
             <div className="flex items-start justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight">Vocabulary</h1>
+                    <h1 className="text-2xl font-bold tracking-tight">{t('title')}</h1>
                     {stats && (
                         <div className="flex items-center gap-3 mt-1.5 text-sm text-muted-foreground">
-                            <span>{stats.total} words</span>
+                            <span>{t('stats.total', { count: stats.total })}</span>
                             {stats.learning > 0 && (
                                 <>
                                     <span className="text-border">·</span>
-                                    <span className="text-amber-600 dark:text-amber-400">{stats.learning} learning</span>
+                                    <span className="text-amber-600 dark:text-amber-400">{t('stats.learning', { count: stats.learning })}</span>
                                 </>
                             )}
                             {stats.mastered > 0 && (
                                 <>
                                     <span className="text-border">·</span>
-                                    <span className="text-green-600 dark:text-green-400">{stats.mastered} mastered</span>
+                                    <span className="text-green-600 dark:text-green-400">{t('stats.mastered', { count: stats.mastered })}</span>
                                 </>
                             )}
                         </div>
@@ -150,20 +152,20 @@ export default function WordsHeader({ disabled }: WordsHeaderProps) {
                             <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => setIsCategoryOpen(true)}>
                                 <FolderPlusIcon className="mr-2 h-4 w-4" />
-                                New Folder
+                                {t('toolbar.newFolder')}
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => setIsGenerateOpen(true)}>
                                 <SparklesIcon className="mr-2 h-4 w-4" />
-                                Generate with AI
+                                {t('toolbar.generateWithAI')}
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => fileInputRef.current?.click()}>
                                 <Upload className="mr-2 h-4 w-4" />
-                                Import CSV
+                                {t('toolbar.importCSV')}
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={handleExport}>
                                 <Download className="mr-2 h-4 w-4" />
-                                Export CSV
+                                {t('toolbar.exportCSV')}
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
@@ -177,7 +179,7 @@ export default function WordsHeader({ disabled }: WordsHeaderProps) {
                                         ? <ArrowUpAZIcon className="mr-1.5 h-4 w-4" />
                                         : <ArrowDownAZIcon className="mr-1.5 h-4 w-4" />
                                     }
-                                    {SORT_LABELS[params.sortBy] ?? "Sort"}
+                                    {SORT_LABELS[params.sortBy] ?? t('sort.label')}
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
@@ -192,14 +194,14 @@ export default function WordsHeader({ disabled }: WordsHeaderProps) {
                                 ))}
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem onClick={() => setParams({ sortOrder: params.sortOrder === "asc" ? "desc" : "asc" })}>
-                                    {params.sortOrder === "asc" ? "↓ Descending" : "↑ Ascending"}
+                                    {params.sortOrder === "asc" ? t('sort.descending') : t('sort.ascending')}
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
 
                         <Button variant="outline" size="sm" onClick={() => setIsCategoryOpen(true)} disabled={disabled}>
                             <FolderPlusIcon className="mr-1.5 h-4 w-4" />
-                            New Folder
+                            {t('toolbar.newFolder')}
                         </Button>
 
                         <DropdownMenu>
@@ -211,16 +213,16 @@ export default function WordsHeader({ disabled }: WordsHeaderProps) {
                             <DropdownMenuContent align="end">
                                 <DropdownMenuItem onClick={() => setIsGenerateOpen(true)}>
                                     <SparklesIcon className="mr-2 h-4 w-4" />
-                                    Generate with AI
+                                    {t('toolbar.generateWithAI')}
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem onClick={() => fileInputRef.current?.click()}>
                                     <Upload className="mr-2 h-4 w-4" />
-                                    Import CSV
+                                    {t('toolbar.importCSV')}
                                 </DropdownMenuItem>
                                 <DropdownMenuItem onClick={handleExport}>
                                     <Download className="mr-2 h-4 w-4" />
-                                    Export CSV
+                                    {t('toolbar.exportCSV')}
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
@@ -229,7 +231,7 @@ export default function WordsHeader({ disabled }: WordsHeaderProps) {
                     {/* Primary CTA — always visible */}
                     <Button onClick={() => setIsWordOpen(true)} disabled={disabled}>
                         <Plus className="h-4 w-4" />
-                        <span className="hidden sm:inline ml-1.5">Add Word</span>
+                        <span className="hidden sm:inline ml-1.5">{t('toolbar.addWord')}</span>
                     </Button>
                 </div>
             </div>

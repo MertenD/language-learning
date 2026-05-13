@@ -5,6 +5,7 @@ import {Badge} from "@/components/ui/badge";
 import {GameType, usePracticeSession} from "../hooks/use-practice-session";
 import {CheckSquare, Grid, Keyboard, Layers, Puzzle, Shuffle, Check, HelpCircle, Zap, ArrowLeftRight, Dices} from "lucide-react";
 import {cn} from "@/lib/utils";
+import {useTranslations} from "next-intl";
 
 const MIN_WORDS: Partial<Record<GameType, number>> = {
     'multiple-choice': 2,
@@ -15,78 +16,28 @@ const MIN_WORDS: Partial<Record<GameType, number>> = {
     'memory': 2,
 };
 
-const GAMES: { type: GameType; title: string; description: string; icon: any; highlight?: boolean }[] = [
-    {
-        type: 'mixed',
-        title: 'Mix-Modus',
-        description: 'Alle Spielmodi gemischt — jede Frage ist eine Überraschung.',
-        icon: Dices,
-        highlight: true,
-    },
-    {
-        type: 'flashcards',
-        title: 'Flashcards',
-        description: 'Classic flip cards to test your memory.',
-        icon: Layers
-    },
-    {
-        type: 'multiple-choice',
-        title: 'Multiple Choice',
-        description: 'Select the correct translation from options.',
-        icon: CheckSquare
-    },
-    {
-        type: 'typing',
-        title: 'Typing Practice',
-        description: 'Type the correct translation to improve spelling.',
-        icon: Keyboard
-    },
-    {
-        type: 'matching',
-        title: 'Matching Pairs',
-        description: 'Match primary words with their secondary translations.',
-        icon: Puzzle
-    },
-    {
-        type: 'memory',
-        title: 'Memory Game',
-        description: 'Find matching pairs in a grid of face-down cards.',
-        icon: Grid
-    },
-    {
-        type: 'scramble',
-        title: 'Word Scramble',
-        description: 'Unscramble the letters to form the correct word.',
-        icon: Shuffle
-    },
-    {
-        type: 'true-false',
-        title: 'True or False',
-        description: 'Decide if the translation is correct or not.',
-        icon: Check
-    },
-    {
-        type: 'hangman',
-        title: 'Hangman',
-        description: 'Guess the word letter by letter before you run out of attempts.',
-        icon: HelpCircle
-    },
-    {
-        type: 'listening', // Using 'listening' type for Speed Match as per plan adjustment
-        title: 'Speed Match',
-        description: 'Quickly decide if the word pair matches.',
-        icon: Zap
-    },
-    {
-        type: 'reverse-choice',
-        title: 'Reverse Choice',
-        description: 'Select the primary word for the given secondary translation.',
-        icon: ArrowLeftRight
-    }
-];
+const GAME_ICONS: Record<GameType, React.ElementType> = {
+    mixed: Dices,
+    flashcards: Layers,
+    'multiple-choice': CheckSquare,
+    typing: Keyboard,
+    matching: Puzzle,
+    memory: Grid,
+    scramble: Shuffle,
+    'true-false': Check,
+    hangman: HelpCircle,
+    listening: Zap,
+    'reverse-choice': ArrowLeftRight,
+}
+
+const GAME_TYPES: GameType[] = [
+    'mixed', 'flashcards', 'multiple-choice', 'typing', 'matching',
+    'memory', 'scramble', 'true-false', 'hangman', 'listening', 'reverse-choice'
+]
 
 export function GameSelector() {
     const { setGameType, startGame, selectedWords } = usePracticeSession();
+    const t = useTranslations('practice.games');
 
     const handleSelectGame = (type: GameType) => {
         const min = MIN_WORDS[type] ?? 1;
@@ -97,37 +48,41 @@ export function GameSelector() {
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {GAMES.map((game) => {
-                const min = MIN_WORDS[game.type] ?? 1;
+            {GAME_TYPES.map((gameType) => {
+                const min = MIN_WORDS[gameType] ?? 1;
                 const isDisabled = selectedWords.length < min;
+                const isHighlight = gameType === 'mixed';
+                const Icon = GAME_ICONS[gameType];
+                const titleKey = `${gameType}.title` as Parameters<typeof t>[0];
+                const descKey = `${gameType}.description` as Parameters<typeof t>[0];
                 return (
                     <Card
-                        key={game.type}
+                        key={gameType}
                         className={cn(
                             "transition-colors",
                             isDisabled
                                 ? "opacity-50 cursor-not-allowed"
                                 : "cursor-pointer hover:border-primary",
-                            game.highlight && !isDisabled && "border-primary/50 bg-primary/5"
+                            isHighlight && !isDisabled && "border-primary/50 bg-primary/5"
                         )}
-                        onClick={() => handleSelectGame(game.type)}
+                        onClick={() => handleSelectGame(gameType)}
                     >
                         <CardHeader>
                             <div className="flex items-center gap-2">
-                                <game.icon className={cn("h-5 w-5", game.highlight ? "text-primary" : "text-primary")} />
-                                <CardTitle className="text-lg">{game.title}</CardTitle>
-                                {game.highlight && !isDisabled && (
+                                <Icon className="h-5 w-5 text-primary" />
+                                <CardTitle className="text-lg">{t(titleKey)}</CardTitle>
+                                {isHighlight && !isDisabled && (
                                     <Badge className="ml-auto text-xs bg-primary/20 text-primary hover:bg-primary/20">
-                                        Neu
+                                        {t('mixed.badge')}
                                     </Badge>
                                 )}
                                 {isDisabled && (
                                     <Badge variant="secondary" className="ml-auto text-xs">
-                                        {min}+ words
+                                        {t('minWords', { min })}
                                     </Badge>
                                 )}
                             </div>
-                            <CardDescription>{game.description}</CardDescription>
+                            <CardDescription>{t(descKey)}</CardDescription>
                         </CardHeader>
                     </Card>
                 );

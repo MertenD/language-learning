@@ -17,39 +17,7 @@ import {usePathname} from "next/navigation";
 import {cn} from "@/lib/utils";
 import UserInfoCard from "@/features/auth/user-info-card";
 import {LanguageSwitcher} from "@/components/language-switch";
-
-export const menuItems = [
-    {
-        title: "Language Learning",
-        items: [
-            {
-                title: "Dashboard",
-                icon: HomeIcon,
-                url: "/dashboard"
-            },
-            {
-                title: "Vocabulary",
-                icon: BookOpenIcon,
-                url: "/words"
-            },
-            {
-                title: "Grammar",
-                icon: BrainIcon,
-                url: "/grammar"
-            },
-            {
-                title: "Practice",
-                icon: TargetIcon,
-                url: "/practice"
-            },
-            {
-                title: "Chat",
-                icon: BotMessageSquareIcon,
-                url: "/chat"
-            }
-        ]
-    }
-]
+import {useTranslations} from "next-intl";
 
 type AppSidebarProps = {
     username: string
@@ -57,6 +25,20 @@ type AppSidebarProps = {
 
 export default function AppSidebar({ username }: AppSidebarProps) {
     const pathName = usePathname()
+    const t = useTranslations('sidebar');
+
+    const menuItems = [
+        {
+            title: t('groupTitle'),
+            items: [
+                { title: t('nav.dashboard'), icon: HomeIcon, url: "/dashboard" },
+                { title: t('nav.vocabulary'), icon: BookOpenIcon, url: "/words" },
+                { title: t('nav.grammar'), icon: BrainIcon, url: "/grammar" },
+                { title: t('nav.practice'), icon: TargetIcon, url: "/practice" },
+                { title: t('nav.chat'), icon: BotMessageSquareIcon, url: "/chat" },
+            ]
+        }
+    ]
 
     return <Sidebar>
         <SidebarHeader className="bg-card">
