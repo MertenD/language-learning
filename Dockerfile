@@ -1,5 +1,5 @@
 # ---- deps ----
-FROM node:22-alpine AS deps
+FROM node:20-alpine AS deps
 WORKDIR /app
 
 # For Prisma (und optional native deps)
@@ -8,14 +8,14 @@ RUN apk add --no-cache libc6-compat openssl
 COPY package.json package-lock.json* pnpm-lock.yaml* yarn.lock* ./
 
 # Install dependencies based on the lockfile
-RUN npm install -g npm@11 && \
+RUN \
   if [ -f package-lock.json ]; then npm ci; \
   elif [ -f pnpm-lock.yaml ]; then corepack enable && pnpm i --frozen-lockfile; \
   elif [ -f yarn.lock ]; then yarn install --frozen-lockfile; \
   else echo "No lockfile found" && exit 1; fi
 
 # ---- builder ----
-FROM node:22-alpine AS builder
+FROM node:20-alpine AS builder
 WORKDIR /app
 RUN apk add --no-cache libc6-compat openssl
 
@@ -35,7 +35,7 @@ RUN npm run prisma:generate
 RUN npm run build
 
 # ---- runner ----
-FROM node:22-alpine AS runner
+FROM node:20-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 
