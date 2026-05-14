@@ -123,18 +123,18 @@ export const scenariosRouter = createTRPCRouter({
                         type: z.enum(["consolidation", "stretch"]),
                         title: z.string().describe("Kurzer prägnanter Titel des Szenarios"),
                         description: z.string().describe("1-2 Sätze Beschreibung was in diesem Szenario passiert"),
-                        image: z.string().describe("Ein einzelnes passendes Emoji"),
+                        image: z.string().describe("NUR ein einzelnes Emoji-Zeichen (z.B. 🍕, 🏥, ✈️) — KEINE URLs, KEINE Wörter, KEIN Text, ausschließlich ein Emoji"),
                         assistantName: z.string().describe("Name des Gesprächspartners (z.B. 'Maria', 'Kellner', 'Arzt')"),
                         assistantInstructions: z.string().describe("Kurze Systemanweisung für den Assistenten: welche Rolle spielt er, wie verhält er sich"),
                         firstAssistantMessage: z.string().describe(`Erste Nachricht MUSS exakt diesem XML-Format folgen — keine Ausnahmen, keine Markdown-Formatierung außerhalb der Tags:
 <CONVERSATION>
-[Gesprächseröffnung auf ${currentLanguage.name} — 1-3 Sätze]
+[Gesprächseröffnung AUSSCHLIESSLICH auf ${currentLanguage.name} — max. 1-2 kurze Sätze, strikt dem CEFR-Level des Szenarios entsprechend. KEINE deutschen Wörter, KEINE Übersetzungen, KEINE Erklärungen in Klammern — ausschließlich reiner Zielsprachentext. A1: max. 5–6 Wörter pro Satz, nur Präsens, einfachste Alltagswörter. A2: max. 8–10 Wörter. B1+: steigend komplexer.]
 </CONVERSATION>
 <EXPLANATION>
-[Deutsche Übersetzung + 2-3 neue Vokabeln mit Bedeutung]
+[Deutsche Übersetzung des CONVERSATION-Texts + 2-3 neue Vokabeln mit Bedeutung. ALLE Übersetzungen gehören hierher — NIEMALS in den CONVERSATION-Tag.]
 </EXPLANATION>
 <EXAMPLE_ANSWERS>
-[3 mögliche Antworten auf ${currentLanguage.name}, jeweils mit deutscher Übersetzung in Klammern]
+[3 mögliche Antworten auf ${currentLanguage.name}, jeweils mit deutscher Übersetzung in Klammern, ebenfalls dem CEFR-Level entsprechend]
 </EXAMPLE_ANSWERS>
 <GOALS_STATUS>
 [JSON-Array mit genau so vielen false-Einträgen wie targets, z.B. [false, false, false] für 3 targets]
@@ -188,7 +188,9 @@ REGELN:
 - firstAssistantMessage MUSS das XML-Format (<CONVERSATION>, <EXPLANATION>, <EXAMPLE_ANSWERS>, <GOALS_STATUS>) exakt einhalten — kein reiner Text
 - GOALS_STATUS enthält genau so viele false-Einträge wie targets definiert sind
 - targets sind KONKRETE Aktionen (z.B. "Frage nach einem freien Tisch für zwei"), KEINE vagen Fähigkeitsbeschreibungen
-- Nicht zu einfach, nicht zu schwer — herausfordernd aber erreichbar`,
+- Nicht zu einfach, nicht zu schwer — herausfordernd aber erreichbar
+- SPRACHNIVEAU im CONVERSATION-Tag: MUSS dem CEFR-Level des Szenarios entsprechen. A1 = max. 5–6 Wörter/Satz, nur Präsens, Grundvokabular. A2 = max. 8–10 Wörter, einfache Vergangenheit. B1 = mittelkomplexe Sätze. B2+ = steigend komplexer.
+- KONVERSATIONSSPRACHE: Das CONVERSATION-Tag enthält AUSSCHLIESSLICH ${currentLanguage.name} — keine deutschen Wörter, keine Übersetzungen, keine Klammern mit Erklärungen. Alle deutschen Inhalte kommen ausschließlich in den EXPLANATION-Tag`,
             })
 
             await prisma.scenario.deleteMany({
@@ -252,13 +254,13 @@ REGELN:
                     assistantInstructions: z.string().describe("Systemanweisung für den Assistenten: welche Rolle spielt er, wie verhält er sich"),
                     firstAssistantMessage: z.string().describe(`Erste Nachricht MUSS exakt diesem XML-Format folgen — keine Ausnahmen, keine Markdown-Formatierung außerhalb der Tags:
 <CONVERSATION>
-[Gesprächseröffnung auf ${currentLanguage.name} — 1-3 Sätze]
+[Gesprächseröffnung AUSSCHLIESSLICH auf ${currentLanguage.name} — max. 1-2 kurze Sätze, strikt dem CEFR-Level des Szenarios entsprechend. KEINE deutschen Wörter, KEINE Übersetzungen, KEINE Erklärungen in Klammern — ausschließlich reiner Zielsprachentext. A1: max. 5–6 Wörter pro Satz, nur Präsens, einfachste Alltagswörter. A2: max. 8–10 Wörter. B1+: steigend komplexer.]
 </CONVERSATION>
 <EXPLANATION>
-[Deutsche Übersetzung + 2-3 neue Vokabeln mit Bedeutung]
+[Deutsche Übersetzung des CONVERSATION-Texts + 2-3 neue Vokabeln mit Bedeutung. ALLE Übersetzungen gehören hierher — NIEMALS in den CONVERSATION-Tag.]
 </EXPLANATION>
 <EXAMPLE_ANSWERS>
-[3 mögliche Antworten auf ${currentLanguage.name}, jeweils mit deutscher Übersetzung in Klammern]
+[3 mögliche Antworten auf ${currentLanguage.name}, jeweils mit deutscher Übersetzung in Klammern, ebenfalls dem CEFR-Level entsprechend]
 </EXAMPLE_ANSWERS>
 <GOALS_STATUS>
 [JSON-Array mit genau so vielen false-Einträgen wie targets, z.B. [false, false, false] für 3 targets]
@@ -300,7 +302,9 @@ REGELN:
 - firstAssistantMessage MUSS das XML-Format (<CONVERSATION>, <EXPLANATION>, <EXAMPLE_ANSWERS>, <GOALS_STATUS>) exakt einhalten — kein reiner Text
 - GOALS_STATUS enthält genau so viele false-Einträge wie targets definiert sind
 - targets sind KONKRETE Aktionen (z.B. "Frage nach einem freien Tisch für zwei"), KEINE vagen Fähigkeitsbeschreibungen
-- Level passend zum Nutzerprofil und der Schwierigkeit des Szenarios wählen`,
+- Level passend zum Nutzerprofil und der Schwierigkeit des Szenarios wählen
+- SPRACHNIVEAU im CONVERSATION-Tag: MUSS dem CEFR-Level des Szenarios entsprechen. A1 = max. 5–6 Wörter/Satz, nur Präsens, Grundvokabular. A2 = max. 8–10 Wörter, einfache Vergangenheit. B1 = mittelkomplexe Sätze. B2+ = steigend komplexer.
+- KONVERSATIONSSPRACHE: Das CONVERSATION-Tag enthält AUSSCHLIESSLICH ${currentLanguage.name} — keine deutschen Wörter, keine Übersetzungen, keine Klammern mit Erklärungen. Alle deutschen Inhalte kommen ausschließlich in den EXPLANATION-Tag`,
             })
 
             return object

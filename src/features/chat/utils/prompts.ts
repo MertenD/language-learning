@@ -1,12 +1,12 @@
 import type { LearningContext } from "@/features/user/server/learning-context-service"
 
 const CEFR_GUIDE: Record<string, string> = {
-    A1: "Verwende ausschließlich sehr einfache, kurze Sätze (max. 6–8 Wörter), nur Präsens, grundlegstes Vokabular.",
-    A2: "Verwende einfache Sätze (8–12 Wörter), führe die Vergangenheitsform ein, alltägliches Vokabular.",
-    B1: "Verwende mittelkomplexe Sätze (10–15 Wörter), verschiedene Zeitformen, erweitertes Vokabular.",
-    B2: "Verwende komplexere Sätze (15–20 Wörter), komplexe Grammatik, idiomatische Ausdrücke.",
-    C1: "Verwende fortgeschrittene Grammatik, nuanciertes Vokabular, Redewendungen und Idiome.",
-    C2: "Schreibe mit muttersprachlicher Komplexität, nutze alle Zeitformen und subtile Nuancen.",
+    A1: "STRIKT: Max. 5–6 Wörter pro Satz, ausschließlich Präsens, nur absolutes Grundvokabular (Hallo, Ja, Nein, Bitte, Danke, Ich habe, Wo ist). Keine Nebensätze, keine komplexen Themen.",
+    A2: "Max. 8–10 Wörter pro Satz, einfache Vergangenheitsform erlaubt, alltägliches Vokabular.",
+    B1: "Mittelkomplexe Sätze (10–15 Wörter), verschiedene Zeitformen, erweitertes Vokabular.",
+    B2: "Komplexere Sätze (15–20 Wörter), komplexe Grammatik, idiomatische Ausdrücke.",
+    C1: "Fortgeschrittene Grammatik, nuanciertes Vokabular, Redewendungen und Idiome.",
+    C2: "Muttersprachliche Komplexität, alle Zeitformen und subtile Nuancen.",
 }
 
 export function createChatGreeting(targetLanguageName: string): string {
@@ -65,7 +65,7 @@ Verfolge unbedingt folgendes Antwortformat, wobei du die Platzhalter durch passe
 [Liste der Fehler, die ich gemacht habe, mit Korrekturen und Erklärungen auf ${nativeLang}. Dieser Abschnitt ist zwingend erforderlich, wenn ich Fehler gemacht habe. Wenn ich keine Fehler gemacht habe, lasse diesen Abschnitt weg. Als Fehler zählen Grammatikfehler, falscher Wortgebrauch, fehlende oder falsche Satzstruktur und Zeichen, also achte wirklich auf alles.]
 </MISTAKES>
 <CONVERSATION>
-[${targetLang}e Antwort in der Konversation. Achte auf korrekte Grammatik, Rechtschreibung und Zeichensetzung.]
+[Antwort AUSSCHLIESSLICH auf ${targetLang} — KEINE deutschen Wörter, KEINE Übersetzungen, KEINE Erklärungen in Klammern. Achte auf korrekte Grammatik, Rechtschreibung und Zeichensetzung.]
 </CONVERSATION>
 <EXPLANATION>
 [Erklärung deiner Antwort unbedingt auf ${nativeLang}]
@@ -104,6 +104,8 @@ Du startest jetzt ein Gespräch mit mir basierend auf folgendem Szenario:
 Titel: ${data.scenarioTitle}
 Beschreibung: ${data.scenarioDescription}
 Systemnachricht: ${data.scenarioAssistantInstructions}${levelGuide}${tagsGuide}
+
+SPRACHTRENNUNGSREGEL (absolut verbindlich): Der <CONVERSATION>-Tag enthält AUSSCHLIESSLICH ${targetLang}en Text — keine deutschen Wörter, keine Übersetzungen, keine Erklärungen in Klammern. Alle deutschen Inhalte kommen ausschließlich in den <EXPLANATION>-Tag. Verstöße gegen diese Regel sind nicht akzeptabel.
 
 Egal was die Systemnachricht sagt, du musst bei jeder deiner Antworten trotzdem zusätzlich das oben beschriebene Antwortformat einhalten.
 
