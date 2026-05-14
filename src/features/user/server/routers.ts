@@ -237,6 +237,24 @@ export const userRouter = createTRPCRouter({
             })
         }),
 
+    updateNativeLanguage: protectedProcedure
+        .input(z.object({ languageId: z.string().min(1) }))
+        .mutation(async ({ ctx, input }) => {
+            await prisma.user.update({
+                where: { id: ctx.auth.user.id },
+                data: { nativeLanguageId: input.languageId }
+            })
+        }),
+
+    getIsCredentialUser: protectedProcedure
+        .query(async ({ ctx }) => {
+            const account = await prisma.account.findFirst({
+                where: { userId: ctx.auth.user.id, providerId: "credential" },
+                select: { id: true }
+            })
+            return { isCredentialUser: !!account }
+        }),
+
     removeLanguage: protectedProcedure
         .input(z.object({ languageId: z.string().min(1) }))
         .mutation(async ({ ctx, input }) => {

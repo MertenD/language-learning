@@ -7,6 +7,7 @@ import {useRouter} from "next/navigation";
 import {useHasActiveSubscription} from "@/features/subscriptions/hooks/use-subscription";
 import {useLanguageStats} from "@/features/user/hooks/use-stats";
 import {useTranslations} from "next-intl";
+import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 
 type UserInfoCardProps = {
     username: string
@@ -16,16 +17,23 @@ export default function UserInfoCard({ username }: UserInfoCardProps) {
     const router = useRouter()
     const { hasActiveSubscription, isLoading } = useHasActiveSubscription()
     const { data: stats, isLoading: isStatsLoading } = useLanguageStats()
+    const { data: session } = authClient.useSession()
     const t = useTranslations('auth.userInfo');
+
+    const displayName = session?.user.name?.split("@")[0] ?? username
+    const avatarImage = session?.user.image ?? undefined
 
     return <div className="rounded-lg border bg-linear-to-br from-chart-1/10 to-chart-2/10 p-4">
         <div className="space-y-3">
             <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary">
-                    <span className="text-sm font-bold text-primary-foreground">U</span>
-                </div>
+                <Avatar className="h-8 w-8">
+                    <AvatarImage src={avatarImage} />
+                    <AvatarFallback className="bg-primary text-primary-foreground text-sm font-bold">
+                        {displayName[0]?.toUpperCase() ?? "U"}
+                    </AvatarFallback>
+                </Avatar>
                 <div className="flex-1">
-                    <p className="text-sm font-semibold">{username}</p>
+                    <p className="text-sm font-semibold">{displayName}</p>
                     <p className="text-xs text-muted-foreground">{
                         !stats || isStatsLoading ? (
                             <span className="inline-block h-3 w-6 animate-pulse rounded-xl bg-chart-1/10" />

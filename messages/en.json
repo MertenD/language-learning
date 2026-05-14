@@ -7,7 +7,8 @@
       "grammar": "Grammar",
       "practice": "Practice",
       "chat": "Chat",
-      "scenarios": "Scenarios"
+      "scenarios": "Scenarios",
+      "settings": "Settings"
     }
   },
   "auth": {
