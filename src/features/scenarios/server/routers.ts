@@ -10,6 +10,12 @@ import {trackActivity} from "@/features/user/server/activity-service";
 import {ActivityType} from "@/features/dashboard/model/activity-type";
 import {createSessionFromScenario, loadSession} from "@/features/scenarios/server/session-store";
 
+function extractEmoji(value: string): string {
+    const matches = value.match(/\p{Emoji}/gu)
+    const emoji = matches?.find(m => (m.codePointAt(0) ?? 0) > 127)
+    return emoji ?? "💬"
+}
+
 export const scenariosRouter = createTRPCRouter({
     getMany: protectedProcedure
         .input(z.object({
@@ -123,7 +129,7 @@ export const scenariosRouter = createTRPCRouter({
                         type: z.enum(["consolidation", "stretch"]),
                         title: z.string().describe("Kurzer prägnanter Titel des Szenarios"),
                         description: z.string().describe("1-2 Sätze Beschreibung was in diesem Szenario passiert"),
-                        image: z.string().describe("NUR ein einzelnes Emoji-Zeichen (z.B. 🍕, 🏥, ✈️) — KEINE URLs, KEINE Wörter, KEIN Text, ausschließlich ein Emoji"),
+                        image: z.string().describe("NUR ein einzelnes Emoji-Zeichen (z.B. 🍕, 🏥, ✈️) — KEINE URLs, KEINE Wörter, KEIN Text, ausschließlich ein Emoji").transform(extractEmoji),
                         assistantName: z.string().describe("Name des Gesprächspartners (z.B. 'Maria', 'Kellner', 'Arzt')"),
                         assistantInstructions: z.string().describe("Kurze Systemanweisung für den Assistenten: welche Rolle spielt er, wie verhält er sich"),
                         firstAssistantMessage: z.string().describe(`Erste Nachricht MUSS exakt diesem XML-Format folgen — keine Ausnahmen, keine Markdown-Formatierung außerhalb der Tags:
@@ -152,7 +158,7 @@ export const scenariosRouter = createTRPCRouter({
                         tags: z.array(z.string()).min(1).max(3).describe("1–3 Grammatik- oder Themenschwerpunkte wie 'Vergangenheit', 'Konjugation', 'Präpositionen'"),
                     }))
                 }),
-                prompt: `Erstelle 5 Konversationsszenarien zum Üben von ${currentLanguage.name}.
+                prompt: `Erstelle 5 Konversationsszenarien zum Üben von ${currentLanguage.name}. Nutze für das Image ausschließlich ein Emoji.
 
 LERNSTAND DES NUTZERS:
 - CEFR-Level: ${learningContext.level} (Gesamtvokabular: ${learningContext.totalWords} Wörter)
@@ -249,7 +255,7 @@ REGELN:
                 schema: z.object({
                     title: z.string().describe("Kurzer prägnanter Titel des Szenarios"),
                     description: z.string().describe("1-2 Sätze Beschreibung was in diesem Szenario passiert"),
-                    image: z.string().describe("Ein einzelnes passendes Emoji"),
+                    image: z.string().describe("NUR ein einzelnes Emoji-Zeichen (z.B. 🍕, 🏥, ✈️) — KEINE URLs, KEINE Wörter, KEIN Text, ausschließlich ein Emoji").transform(extractEmoji),
                     assistantName: z.string().describe("Name des Gesprächspartners (z.B. 'Maria', 'Kellner', 'Arzt')"),
                     assistantInstructions: z.string().describe("Systemanweisung für den Assistenten: welche Rolle spielt er, wie verhält er sich"),
                     firstAssistantMessage: z.string().describe(`Erste Nachricht MUSS exakt diesem XML-Format folgen — keine Ausnahmen, keine Markdown-Formatierung außerhalb der Tags:
