@@ -26,13 +26,14 @@ model Language {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  usersNative    User[]         @relation("UserNativeLanguage")
-  usersCurrent   User[]         @relation("UserCurrentLanguage")
-  userLanguages  UserLanguage[]
-  wordCategories WordCategory[]
-  words          Word[]
-  chats          Chat[]
-  scenarios      Scenario[]
+  usersNative      User[]            @relation("UserNativeLanguage")
+  usersCurrent     User[]            @relation("UserCurrentLanguage")
+  userLanguages    UserLanguage[]
+  wordCategories   WordCategory[]
+  words            Word[]
+  chats            Chat[]
+  scenarios        Scenario[]
+  scenarioSessions ScenarioSession[]
 }
 
 /**
@@ -102,6 +103,7 @@ model User {
   wordCategories   WordCategory[]
   grammar          Grammar[]
   chats            Chat[]
+  scenarioSessions ScenarioSession[]
   languages        UserLanguage[]
   scenarios        Scenario[]
   nativeLanguageId String
@@ -282,9 +284,36 @@ model Scenario {
   createdAt             DateTime @default(now())
   updatedAt             DateTime @default(now()) @updatedAt
 
-  chats      Chat[]
+  chats    Chat[]
+  sessions ScenarioSession[]
   languageId String
 
   userId String?
   user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ScenarioSession {
+  id             String   @id @default(cuid())
+  title          String?
+  messages       Json     @default("[]")
+  assistantName  String   @default("Assistant")
+  assistantIcon  String?
+  activeStreamId String?
+  targetsStatus  Boolean[] @default([])
+
+  scenario   Scenario @relation(fields: [scenarioId], references: [id])
+  scenarioId String
+
+  language   Language @relation(fields: [languageId], references: [id])
+  languageId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([scenarioId])
+  @@map("scenario_session")
 }

@@ -1,13 +1,13 @@
 "use client"
 
-import { Badge } from "@/components/ui/badge"
+import {Badge} from "@/components/ui/badge"
 
 interface ExampleAnswerChipProps {
     text: string
     onClick?: (text: string) => void
 }
 
-export function ExampleAnswerChip({ text, onClick }: ExampleAnswerChipProps) {
+export function ExampleAnswerChip({text, onClick}: ExampleAnswerChipProps) {
     return (
         <Badge
             variant="outline"

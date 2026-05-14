@@ -1,23 +1,23 @@
 "use client"
 
-import React, { useState } from "react"
-import { ChatInterface } from "@/features/chat/components/chat/chat-interface"
-import { LearningTargetsSidebar } from "@/features/chat/components/chat/scenario/learning-targets-sidebar"
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
-import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
-import { Target } from "lucide-react"
-import {ChatWithUIMessages} from "@/features/chat/model/chat-model";
-import {Scenario} from "@/generated/prisma/client";
+import React, {useState} from "react"
+import {ChatInterface} from "@/features/chat/components/chat/chat-interface"
+import {LearningTargetsSidebar} from "@/features/scenarios/components/session/learning-targets-sidebar"
+import {ResizableHandle, ResizablePanel, ResizablePanelGroup} from "@/components/ui/resizable"
+import {Button} from "@/components/ui/button"
+import {Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger} from "@/components/ui/sheet"
+import {Target} from "lucide-react"
+import {ScenarioSessionWithUIMessages} from "@/features/scenarios/model/scenario-session-model"
+import {Scenario} from "@/generated/prisma/client"
 
-interface ScenarioChatPageProps {
-    chat: ChatWithUIMessages
+interface ScenarioSessionPageProps {
+    session: ScenarioSessionWithUIMessages
     scenario: Scenario
 }
 
-export default function ScenarioChatPage({ chat, scenario }: ScenarioChatPageProps) {
+export default function ScenarioSessionPage({session, scenario}: ScenarioSessionPageProps) {
     const targets = scenario.targets
-    const [targetsStatus, setTargetsStatus] = useState<boolean[]>(chat.targetsStatus)
+    const [targetsStatus, setTargetsStatus] = useState<boolean[]>(session.targetsStatus)
 
     const done = targetsStatus?.filter(Boolean).length ?? 0
     const total = targets.length
@@ -27,10 +27,11 @@ export default function ScenarioChatPage({ chat, scenario }: ScenarioChatPagePro
             {/* Mobile layout */}
             <div className="flex h-full flex-col md:hidden">
                 <ChatInterface
-                    assistantName={chat.assistantName}
-                    chatId={chat.id}
-                    initialMessages={chat.messages}
+                    assistantName={session.assistantName}
+                    chatId={session.id}
+                    initialMessages={session.messages}
                     onTargetsStatusChange={setTargetsStatus}
+                    api="/api/scenario-session"
                     chatHeaderTail={<div className="sticky top-0 z-10 flex items-center justify-end gap-2 bg-background/80 backdrop-blur p-2">
                         <Sheet>
                             <SheetTrigger asChild>
@@ -58,10 +59,11 @@ export default function ScenarioChatPage({ chat, scenario }: ScenarioChatPagePro
             >
                 <ResizablePanel defaultSize={75} className="min-w-0">
                     <ChatInterface
-                        assistantName={chat.assistantName}
-                        chatId={chat.id}
-                        initialMessages={chat.messages}
+                        assistantName={session.assistantName}
+                        chatId={session.id}
+                        initialMessages={session.messages}
                         onTargetsStatusChange={setTargetsStatus}
+                        api="/api/scenario-session"
                     />
                 </ResizablePanel>
                 <ResizableHandle />

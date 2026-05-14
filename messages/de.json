@@ -6,7 +6,8 @@
       "vocabulary": "Vokabeln",
       "grammar": "Grammatik",
       "practice": "Üben",
-      "chat": "Chat"
+      "chat": "Chat",
+      "scenarios": "Szenarien"
     }
   },
   "auth": {

@@ -1,6 +1,6 @@
 "use client"
 
-import {BookOpenIcon, BotMessageSquareIcon, BrainIcon, HomeIcon, TargetIcon} from "lucide-react";
+import {BookOpenIcon, BotMessageSquareIcon, BrainIcon, HomeIcon, TargetIcon, TheaterIcon} from "lucide-react";
 import {
     Sidebar,
     SidebarContent,
@@ -36,6 +36,7 @@ export default function AppSidebar({ username }: AppSidebarProps) {
                 { title: t('nav.grammar'), icon: BrainIcon, url: "/grammar" },
                 { title: t('nav.practice'), icon: TargetIcon, url: "/practice" },
                 { title: t('nav.chat'), icon: BotMessageSquareIcon, url: "/chat" },
+                { title: t('nav.scenarios'), icon: TheaterIcon, url: "/scenarios" },
             ]
         }
     ]

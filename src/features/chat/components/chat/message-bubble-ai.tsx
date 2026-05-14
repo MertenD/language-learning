@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { BotIcon } from "lucide-react"
 import parseChatAiAnswer from "@/features/chat/utils/prompts-utils"
 import { MessageSection } from "@/features/chat/components/chat/message-section"
-import { ExampleAnswersSection } from "@/features/chat/components/chat/scenario/example-answers-section"
+import { ExampleAnswersSection } from "@/features/chat/components/chat/example-answers-section"
 
 interface MessageBubbleAiProps {
     text: string

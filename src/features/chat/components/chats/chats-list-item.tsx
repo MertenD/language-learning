@@ -2,12 +2,11 @@
 
 import type { Chat } from "@/generated/prisma/client"
 import { useRemoveChat } from "@/features/chat/hooks/use-chat"
-import { CheckCircle2Icon, MessageSquareIcon, MoreVerticalIcon, TargetIcon, TrashIcon } from "lucide-react"
+import { MessageSquareIcon, MoreVerticalIcon, TrashIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 
 type MsgPart = { type: string; text?: string }
 type Msg = { role: string; parts?: MsgPart[] }
@@ -38,11 +37,6 @@ export default function ChatsListItem({ data }: { data: Chat }) {
     const preview = getLastUserMessage(data.messages)
     const messageCount = getUserMessageCount(data.messages)
 
-    const isScenario = !!data.scenarioId
-    const totalTargets = data.targetsStatus?.length ?? 0
-    const doneTargets = data.targetsStatus?.filter(Boolean).length ?? 0
-    const isCompleted = isScenario && totalTargets > 0 && doneTargets === totalTargets
-
     return (
         <Link href={`/chat/${data.id}`} className="block group">
             <div className={cn(
@@ -71,28 +65,12 @@ export default function ChatsListItem({ data }: { data: Chat }) {
                         <p className="text-sm text-muted-foreground/50 mt-1 italic">No messages yet</p>
                     )}
 
-                    {/* Meta row */}
-                    <div className="flex items-center gap-2 mt-2 flex-wrap">
-                        {messageCount > 0 && (
-                            <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                                <MessageSquareIcon className="size-3" />
-                                {messageCount}
-                            </span>
-                        )}
-                        {isScenario && totalTargets > 0 && (
-                            isCompleted ? (
-                                <Badge variant="secondary" className="gap-1 py-0 px-1.5 text-xs text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800">
-                                    <CheckCircle2Icon className="size-3" />
-                                    Abgeschlossen
-                                </Badge>
-                            ) : (
-                                <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                                    <TargetIcon className="size-3" />
-                                    {doneTargets}/{totalTargets} Ziele
-                                </span>
-                            )
-                        )}
-                    </div>
+                    {messageCount > 0 && (
+                        <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
+                            <MessageSquareIcon className="size-3" />
+                            {messageCount}
+                        </div>
+                    )}
                 </div>
 
                 {/* Actions */}

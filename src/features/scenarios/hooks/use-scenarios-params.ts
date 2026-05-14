@@ -1,7 +1,8 @@
+"use client"
+
 import {useQueryStates} from "nuqs";
-import {scenariosParams} from "@/features/chat/params";
+import {scenariosParams} from "@/features/scenarios/params";
 
 export const useScenariosParams = () => {
     return useQueryStates(scenariosParams)
 }
-

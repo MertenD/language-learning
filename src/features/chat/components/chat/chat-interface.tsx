@@ -21,9 +21,10 @@ type ChatInterfaceProps = {
     initialMessages: UIMessage[]
     onTargetsStatusChange?: (updater: (prev: boolean[]) => boolean[]) => void
     chatHeaderTail?: React.ReactNode
+    api?: string
 }
 
-export function ChatInterface({ chatId, assistantName, initialMessages, onTargetsStatusChange, chatHeaderTail }: ChatInterfaceProps) {
+export function ChatInterface({ chatId, assistantName, initialMessages, onTargetsStatusChange, chatHeaderTail, api = "/api/chat" }: ChatInterfaceProps) {
     const scrollAreaRef = useRef<HTMLDivElement>(null)
     const [isOneMessageSent, setIsOneMessageSent] = useState(false)
 
@@ -32,7 +33,7 @@ export function ChatInterface({ chatId, assistantName, initialMessages, onTarget
         messages: initialMessages,
         resume: true,
         transport: new DefaultChatTransport({
-            api: "/api/chat",
+            api,
             // only send the latest message, the server will reconstruct the full history
             prepareSendMessagesRequest: ({ messages, id }) => ({
                 body: {

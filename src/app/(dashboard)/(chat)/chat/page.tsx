@@ -1,36 +1,29 @@
-import { requireAuth } from "@/lib/auth-utils"
-import { HydrateClient } from "@/trpc/server"
-import type { SearchParams } from "nuqs/server"
-import { chatsParamsLoader, scenariosParamsLoader } from "@/features/chat/server/params-loader"
-import { prefetchChats, prefetchScenarios } from "@/features/chat/server/prefetch"
+import {requireAuth} from "@/lib/auth-utils"
+import {HydrateClient} from "@/trpc/server"
+import type {SearchParams} from "nuqs/server"
+import {chatsParamsLoader} from "@/features/chat/server/params-loader"
+import {prefetchChats} from "@/features/chat/server/prefetch"
 import AppHeader from "@/components/app-header"
-import ChatPageTabs from "@/features/chat/components/chat-page-tabs"
+import ChatPageContent from "@/features/chat/components/chat-page-content"
 
 type ChatPageProps = {
     searchParams: Promise<SearchParams>
 }
 
-export default async function ChatPage({ searchParams }: ChatPageProps) {
+export default async function ChatPage({searchParams}: ChatPageProps) {
     await requireAuth()
 
-    const breadcrumbs = [{ title: "Chat", url: "/chat" }]
+    const breadcrumbs = [{title: "Chat", url: "/chat"}]
 
-    const [chatsParams, scenariosParams, resolvedSearch] = await Promise.all([
-        chatsParamsLoader(searchParams),
-        scenariosParamsLoader(searchParams),
-        searchParams,
-    ])
-    prefetchChats(chatsParams)
-    prefetchScenarios(scenariosParams)
-
-    const defaultTab = resolvedSearch.tab === "scenarios" ? "scenarios" : "conversations"
+    const params = await chatsParamsLoader(searchParams)
+    prefetchChats(params)
 
     return (
         <>
             <AppHeader breadcrumbs={breadcrumbs} />
             <main className="flex-1">
                 <HydrateClient>
-                    <ChatPageTabs defaultTab={defaultTab} />
+                    <ChatPageContent />
                 </HydrateClient>
             </main>
         </>

@@ -1,9 +1,10 @@
 import {after, type NextRequest} from "next/server"
 import {convertToModelMessages, createIdGenerator, streamText, type UIMessage} from "ai"
-import {loadChat, saveChat} from "@/features/chat/server/chat-store"
+import {loadSession, saveSession} from "@/features/scenarios/server/session-store"
 import {createResumableStreamContext} from "resumable-stream"
 import {requirePremiumUserFromRequest} from "@/lib/auth-utils"
 import {createOpenRouter} from "@openrouter/ai-sdk-provider"
+import parseChatAiAnswer from "@/features/chat/utils/prompts-utils"
 import {getUserLearningContext} from "@/features/user/server/learning-context-service"
 import {createLearningContextMessage} from "@/features/chat/utils/prompts"
 
@@ -19,14 +20,19 @@ export async function POST(req: NextRequest) {
 
         const {message, id}: {message: UIMessage; id: string} = await req.json()
 
-        const [chat, learningContext] = await Promise.all([
-            loadChat(id, user.id),
+        const [session, learningContext] = await Promise.all([
+            loadSession(id, user.id),
             getUserLearningContext(user.id, (user as any).currentLanguageId),
         ])
 
-        const messages: UIMessage[] = [...chat.messages, message]
+        const messages: UIMessage[] = [...session.messages, message]
 
-        await saveChat({chatId: id, userId: user.id, messages, activeStreamId: null})
+        await saveSession({
+            sessionId: id,
+            userId: user.id,
+            messages,
+            activeStreamId: null,
+        })
 
         const contextMessage: UIMessage = {
             id: "learning-context",
@@ -45,13 +51,32 @@ export async function POST(req: NextRequest) {
             originalMessages: messages,
             generateMessageId,
             async onFinish({messages}) {
-                await saveChat({chatId: id, userId: user.id, messages, activeStreamId: null})
+                const lastAiMessage = messages.slice().reverse().find(m => m.role === "assistant")
+                if (!lastAiMessage) throw new Error("No assistant message found after streaming")
+
+                const text = lastAiMessage.parts.map(p => (p.type === "text" ? p.text : "")).join("")
+                const {targetsStatus} = parseChatAiAnswer(text)
+
+                await saveSession({
+                    sessionId: id,
+                    userId: user.id,
+                    messages,
+                    targetsStatus,
+                    activeStreamId: null,
+                })
             },
             async consumeSseStream({stream}) {
                 const streamId = generateMessageId()
                 const streamContext = createResumableStreamContext({waitUntil: after})
+
                 await streamContext.createNewResumableStream(streamId, () => stream)
-                await saveChat({chatId: id, userId: user.id, messages, activeStreamId: streamId})
+
+                await saveSession({
+                    sessionId: id,
+                    userId: user.id,
+                    messages,
+                    activeStreamId: streamId,
+                })
             },
         })
     } catch (err) {

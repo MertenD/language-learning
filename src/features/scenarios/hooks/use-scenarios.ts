@@ -1,38 +1,26 @@
 "use client"
 
-import { useTRPC } from "@/trpc/client"
-import { useScenariosParams } from "@/features/chat/hooks/use-scenarios-params"
-import { useMutation, useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query"
-import { toast } from "sonner"
+import {useTRPC} from "@/trpc/client"
+import {useScenariosParams} from "@/features/scenarios/hooks/use-scenarios-params"
+import {useMutation, useQuery, useQueryClient, useSuspenseQuery} from "@tanstack/react-query"
+import {toast} from "sonner"
 
-/**
- * Hook to fetch global (non-user) scenarios using suspense
- */
 export const useSuspenseScenarios = () => {
     const trpc = useTRPC()
     const [params] = useScenariosParams()
     return useSuspenseQuery(trpc.scenarios.getMany.queryOptions(params))
 }
 
-/**
- * Hook to fetch AI-generated scenario suggestions for the current user
- */
 export const useAiSuggestions = () => {
     const trpc = useTRPC()
     return useQuery(trpc.scenarios.getAiSuggestions.queryOptions())
 }
 
-/**
- * Hook to fetch user-created scenarios
- */
 export const useUserScenarios = () => {
     const trpc = useTRPC()
     return useQuery(trpc.scenarios.getUserScenarios.queryOptions())
 }
 
-/**
- * Hook to generate AI scenario suggestions
- */
 export const useGenerateScenarios = () => {
     const trpc = useTRPC()
     const queryClient = useQueryClient()
@@ -46,9 +34,6 @@ export const useGenerateScenarios = () => {
     }))
 }
 
-/**
- * Hook to save an AI-generated scenario as a user-owned copy
- */
 export const useSaveAiScenario = () => {
     const trpc = useTRPC()
     const queryClient = useQueryClient()
@@ -63,9 +48,6 @@ export const useSaveAiScenario = () => {
     }))
 }
 
-/**
- * Hook to delete a user scenario
- */
 export const useRemoveUserScenario = () => {
     const trpc = useTRPC()
     const queryClient = useQueryClient()

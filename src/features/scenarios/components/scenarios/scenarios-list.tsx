@@ -3,12 +3,13 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Loader2, PlusIcon, RefreshCwIcon, SparklesIcon } from "lucide-react"
-import ScenariosListItem from "@/features/chat/components/scenarios/scenarios-list-item"
-import ScenariosEmpty from "@/features/chat/components/scenarios/scenarios-empty"
-import { ScenarioEditorDialog } from "@/features/chat/components/scenarios/scenario-editor-dialog"
-import { useAiSuggestions, useGenerateScenarios, useSuspenseScenarios, useUserScenarios } from "@/features/chat/hooks/use-scenarios"
+import ScenariosListItem from "@/features/scenarios/components/scenarios/scenarios-list-item"
+import ScenariosEmpty from "@/features/scenarios/components/scenarios/scenarios-empty"
+import { ScenarioEditorDialog } from "@/features/scenarios/components/scenarios/scenario-editor-dialog"
+import { useAiSuggestions, useGenerateScenarios, useSuspenseScenarios, useUserScenarios } from "@/features/scenarios/hooks/use-scenarios"
 import type { Scenario } from "@/generated/prisma/client"
 import { useUpgradeModal } from "@/hooks/use-upgrade-modal"
+import PastSessionsSection from "@/features/scenarios/components/scenarios/past-sessions-section"
 
 export default function ScenariosList() {
     const globalScenarios = useSuspenseScenarios()
@@ -21,9 +22,7 @@ export default function ScenariosList() {
     const [isCreateOpen, setIsCreateOpen] = useState(false)
 
     const handleGenerate = (force: boolean) => {
-        generate.mutate({ force }, {
-            onError: handleError,
-        })
+        generate.mutate({ force }, { onError: handleError })
     }
 
     const aiScenarios = aiSuggestions.data ?? []
@@ -33,10 +32,7 @@ export default function ScenariosList() {
     return (
         <>
             {modal}
-            <ScenarioEditorDialog
-                open={isCreateOpen}
-                onOpenChange={setIsCreateOpen}
-            />
+            <ScenarioEditorDialog open={isCreateOpen} onOpenChange={setIsCreateOpen} />
             <ScenarioEditorDialog
                 open={!!editScenario}
                 onOpenChange={open => { if (!open) setEditScenario(null) }}
@@ -44,7 +40,8 @@ export default function ScenariosList() {
             />
 
             <div className="space-y-8">
-                {/* Scenarios page action bar */}
+                <PastSessionsSection />
+
                 <div className="flex items-center justify-between h-10">
                     <p className="text-sm text-muted-foreground">
                         Practice conversations in specific situations
@@ -54,6 +51,7 @@ export default function ScenariosList() {
                         Create Scenario
                     </Button>
                 </div>
+
                 {/* AI Suggestions */}
                 <section>
                     <div className="flex items-center justify-between mb-3">

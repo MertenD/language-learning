@@ -3,12 +3,11 @@
 import React from "react"
 import { cn } from "@/lib/utils"
 import { useRouter } from "next/navigation"
-import { useCreateChatFromScenario } from "@/features/chat/hooks/use-chat"
+import { useCreateSession } from "@/features/scenarios/hooks/use-scenario-sessions"
 import { useUpgradeModal } from "@/hooks/use-upgrade-modal"
-import { useRemoveUserScenario, useSaveAiScenario } from "@/features/chat/hooks/use-scenarios"
+import { useRemoveUserScenario, useSaveAiScenario } from "@/features/scenarios/hooks/use-scenarios"
 import { BookmarkIcon, ChevronRightIcon, Loader2Icon, MoreVerticalIcon, PencilIcon, SparklesIcon, Trash2Icon } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
-
 import { Button } from "@/components/ui/button"
 import type { Scenario } from "@/generated/prisma/client"
 import {
@@ -27,20 +26,20 @@ interface ScenariosListItemProps {
 }
 
 export default function ScenariosListItem({ data, isAiGenerated, isUserCreated, onEdit }: ScenariosListItemProps) {
-    const createChat = useCreateChatFromScenario()
+    const createSession = useCreateSession()
     const removeScenario = useRemoveUserScenario()
     const saveAiScenario = useSaveAiScenario()
     const { handleError, modal } = useUpgradeModal()
     const router = useRouter()
 
-    const handleCreateChat = () => {
-        createChat.mutate({ scenarioId: data.id }, {
-            onSuccess: (chatId) => router.push(`/chat/${chatId}`),
+    const handleStart = () => {
+        createSession.mutate({ scenarioId: data.id }, {
+            onSuccess: (sessionId) => router.push(`/scenarios/${sessionId}`),
             onError: handleError,
         })
     }
 
-    const isPending = createChat.isPending
+    const isPending = createSession.isPending
 
     return (
         <>
@@ -50,14 +49,12 @@ export default function ScenariosListItem({ data, isAiGenerated, isUserCreated, 
                     "group flex items-start gap-4 rounded-xl border bg-card p-4 hover:bg-accent/40 transition-colors cursor-pointer",
                     isPending && "opacity-50 pointer-events-none"
                 )}
-                onClick={handleCreateChat}
+                onClick={handleStart}
             >
-                {/* Emoji icon */}
                 <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-muted text-2xl mt-0.5">
                     {data.image}
                 </div>
 
-                {/* Content */}
                 <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2">
                         <div className="flex items-center gap-2 flex-wrap min-w-0">
@@ -70,7 +67,6 @@ export default function ScenariosListItem({ data, isAiGenerated, isUserCreated, 
                             )}
                         </div>
 
-                        {/* Actions */}
                         <div className="flex items-center gap-1 shrink-0" onClick={e => e.stopPropagation()}>
                             {isPending && <Loader2Icon className="size-4 animate-spin text-muted-foreground" />}
                             {isAiGenerated && (
@@ -159,7 +155,6 @@ export default function ScenariosListItem({ data, isAiGenerated, isUserCreated, 
                     )}
                 </div>
 
-                {/* Arrow */}
                 <ChevronRightIcon className="size-4 text-muted-foreground shrink-0 mt-1 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
             </div>
         </>

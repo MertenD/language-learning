@@ -5,8 +5,8 @@ import { Badge } from "@/components/ui/badge"
 import { BookmarkIcon, ChevronRight, Loader2, RefreshCwIcon, SparklesIcon } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { useAiSuggestions, useGenerateScenarios, useSaveAiScenario } from "@/features/chat/hooks/use-scenarios"
-import { useCreateChatFromScenario } from "@/features/chat/hooks/use-chat"
+import { useAiSuggestions, useGenerateScenarios, useSaveAiScenario } from "@/features/scenarios/hooks/use-scenarios"
+import { useCreateSession } from "@/features/scenarios/hooks/use-scenario-sessions"
 import { useUpgradeModal } from "@/hooks/use-upgrade-modal"
 import { useRouter } from "next/navigation"
 import {useTranslations} from "next-intl";
@@ -15,14 +15,14 @@ export default function ScenarioSuggestionCard() {
     const { data: suggestions, isLoading } = useAiSuggestions()
     const generateScenarios = useGenerateScenarios()
     const saveAiScenario = useSaveAiScenario()
-    const createChat = useCreateChatFromScenario()
+    const createSession = useCreateSession()
     const { handleError, modal } = useUpgradeModal()
     const router = useRouter()
     const t = useTranslations('dashboard.scenarios');
 
     const handleCreateScenario = (scenarioId: string) => {
-        createChat.mutate({ scenarioId }, {
-            onSuccess: (chatId) => router.push(`/chat/${chatId}`),
+        createSession.mutate({ scenarioId }, {
+            onSuccess: (sessionId) => router.push(`/scenarios/${sessionId}`),
             onError: handleError,
         })
     }
@@ -63,7 +63,7 @@ export default function ScenarioSuggestionCard() {
                                     }
                                 </Button>
                             )}
-                            <Link href="/chat?tab=scenarios" prefetch>
+                            <Link href="/scenarios" prefetch>
                                 <Button variant="ghost" size="sm">
                                     {t('showAll')}
                                     <ChevronRight className="ml-1 h-4 w-4" />

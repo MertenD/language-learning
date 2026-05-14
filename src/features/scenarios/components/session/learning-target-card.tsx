@@ -1,6 +1,6 @@
-import { CheckCircle2, Circle } from "lucide-react"
-import { Card, CardContent } from "@/components/ui/card"
-import { cn } from "@/lib/utils"
+import {CheckCircle2, Circle} from "lucide-react"
+import {Card, CardContent} from "@/components/ui/card"
+import {cn} from "@/lib/utils"
 
 interface LearningTargetCardProps {
     target: string
@@ -8,7 +8,7 @@ interface LearningTargetCardProps {
     isCompleted: boolean
 }
 
-export function LearningTargetCard({ target, index, isCompleted }: LearningTargetCardProps) {
+export function LearningTargetCard({target, index, isCompleted}: LearningTargetCardProps) {
     return (
         <Card
             className={cn(

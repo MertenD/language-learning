@@ -180,7 +180,6 @@ export function ScenarioEditorDialog({ open, onOpenChange, scenario }: ScenarioE
                         </DialogDescription>
                     </DialogHeader>
 
-                    {/* AI Fill */}
                     <div className="rounded-xl border bg-muted/40 p-4 space-y-3">
                         <div className="flex items-center gap-2 text-sm font-medium">
                             <SparklesIcon className="h-4 w-4 text-primary" />
@@ -248,7 +247,6 @@ export function ScenarioEditorDialog({ open, onOpenChange, scenario }: ScenarioE
                             {errors.assistantName && <p className="text-xs text-destructive">{errors.assistantName.message}</p>}
                         </div>
 
-                        {/* CEFR Level */}
                         <div className="space-y-1.5">
                             <Label>
                                 CEFR Level{" "}
@@ -275,7 +273,6 @@ export function ScenarioEditorDialog({ open, onOpenChange, scenario }: ScenarioE
                             />
                         </div>
 
-                        {/* Topic Tags */}
                         <div className="space-y-2">
                             <Label>
                                 Topic Tags{" "}
