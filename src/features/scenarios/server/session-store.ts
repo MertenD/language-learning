@@ -43,10 +43,18 @@ export async function createSessionFromScenario(args: {
 }): Promise<string> {
     const {scenarioId, userId, nativeLanguageName} = args
 
-    const scenario = await prisma.scenario.findUnique({where: {id: scenarioId}})
+    let scenario = await prisma.scenario.findUnique({where: {id: scenarioId}})
     if (!scenario) {
         throw new Error("Scenario not found")
     }
+
+    if (scenario.isAiGenerated) {
+        const {id: _id, createdAt: _c, updatedAt: _u, generatedAt: _g, isAiGenerated: _ai, ...rest} = scenario
+        scenario = await prisma.scenario.create({
+            data: {...rest, isUserCreated: true},
+        })
+    }
+
     const language = await prisma.language.findUnique({where: {id: scenario.languageId}})
 
     const session = await prisma.scenarioSession.create({
