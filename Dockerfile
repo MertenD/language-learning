@@ -7,6 +7,9 @@ RUN apk add --no-cache libc6-compat openssl
 
 COPY package.json package-lock.json* pnpm-lock.yaml* yarn.lock* ./
 
+# Upgrade npm to match local dev environment (npm 11) before installing
+RUN npm install -g npm@11
+
 # Install dependencies based on the lockfile
 RUN \
   if [ -f package-lock.json ]; then npm ci; \
