@@ -95,10 +95,14 @@
         "VOCABULARY_ADDED": "Vocabulary expanded",
         "VOCABULARY_IMPORTED": "Vocabulary imported",
         "NEW_VOCABULARY_LEARNED": "New vocabulary learned",
+        "PRACTICE_COMPLETED": "Practice completed",
         "SCENARIO_STARTED": "Scenario started",
+        "SCENARIO_COMPLETED": "Scenario completed",
         "CHAT_INITIATED": "Chat initiated",
         "LEVEL_UP": "Level up",
         "VOCABULARY_MASTERED": "Vocabulary mastered",
+        "GRAMMAR_ADDED": "Grammar added",
+        "WORD_CATEGORY_CREATED": "Word category created",
         "LANGUAGE_STARTED": "Language started",
         "default": "Activity"
       }
