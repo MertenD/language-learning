@@ -16,6 +16,8 @@ export type GameType =
 
 export type WordResult = { wordId: string; correct: boolean };
 
+export type Direction = 'forward' | 'reverse' | 'random';
+
 export type SessionResult = {
     xpEarned: number;
     xpBefore: number;
@@ -34,6 +36,7 @@ export type SessionResult = {
 interface PracticeState {
     selectedWords: Word[];
     gameType: GameType | null;
+    direction: Direction;
     score: number;
     currentWordIndex: number;
     isGameActive: boolean;
@@ -44,6 +47,7 @@ interface PracticeState {
 
     setWords: (words: Word[]) => void;
     setGameType: (type: GameType | null) => void;
+    setDirection: (direction: Direction) => void;
     startGame: () => void;
     endGame: () => void;
     recordResult: (wordId: string, correct: boolean) => void;
@@ -56,6 +60,7 @@ interface PracticeState {
 export const usePracticeSession = create<PracticeState>((set) => ({
     selectedWords: [],
     gameType: null,
+    direction: 'forward',
     score: 0,
     currentWordIndex: 0,
     isGameActive: false,
@@ -66,14 +71,34 @@ export const usePracticeSession = create<PracticeState>((set) => ({
 
     setWords: (words) => set({ selectedWords: words }),
     setGameType: (type) => set({ gameType: type }),
-    startGame: () => set({
-        isGameActive: true,
-        isGameFinished: false,
-        score: 0,
-        currentWordIndex: 0,
-        wordResults: [],
-        gameStartedAt: new Date(),
-        sessionResult: null,
+    setDirection: (direction) => set({ direction }),
+    startGame: () => set((state) => {
+        const shuffled = [...state.selectedWords].sort(() => Math.random() - 0.5);
+        const flip = (w: Word): Word => ({
+            ...w,
+            primary: w.secondary,
+            primaryInfo: w.secondaryInfo ?? undefined,
+            secondary: w.primary,
+            secondaryInfo: w.primaryInfo ?? undefined,
+        });
+        let directedWords: Word[];
+        if (state.direction === 'reverse') {
+            directedWords = shuffled.map(flip);
+        } else if (state.direction === 'random') {
+            directedWords = shuffled.map(w => Math.random() > 0.5 ? flip(w) : w);
+        } else {
+            directedWords = shuffled;
+        }
+        return {
+            isGameActive: true,
+            isGameFinished: false,
+            score: 0,
+            currentWordIndex: 0,
+            wordResults: [],
+            gameStartedAt: new Date(),
+            sessionResult: null,
+            selectedWords: directedWords,
+        };
     }),
     endGame: () => set({ isGameActive: false, isGameFinished: true }),
     recordResult: (wordId, correct) => set((state) => ({

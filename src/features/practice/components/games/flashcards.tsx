@@ -18,11 +18,13 @@ export function FlashcardsGame() {
     const handleNext = (correct: boolean) => {
         recordResult(currentWord.id, correct);
         setIsFlipped(false);
-        if (currentWordIndex < selectedWords.length - 1) {
-            nextWord();
-        } else {
-            endGame();
-        }
+        setTimeout(() => {
+            if (currentWordIndex < selectedWords.length - 1) {
+                nextWord();
+            } else {
+                endGame();
+            }
+        }, 600);
     };
 
     if (!currentWord) return null;

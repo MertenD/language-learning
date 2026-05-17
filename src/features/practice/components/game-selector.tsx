@@ -2,10 +2,11 @@
 
 import {Card, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
 import {Badge} from "@/components/ui/badge";
-import {GameType, usePracticeSession} from "../hooks/use-practice-session";
+import {Direction, GameType, usePracticeSession} from "../hooks/use-practice-session";
 import {CheckSquare, Grid, Keyboard, Layers, Puzzle, Shuffle, Check, HelpCircle, Zap, ArrowLeftRight, Dices} from "lucide-react";
 import {cn} from "@/lib/utils";
 import {useTranslations} from "next-intl";
+import {ToggleGroup, ToggleGroupItem} from "@/components/ui/toggle-group";
 
 const MIN_WORDS: Partial<Record<GameType, number>> = {
     'multiple-choice': 2,
@@ -36,7 +37,7 @@ const GAME_TYPES: GameType[] = [
 ]
 
 export function GameSelector() {
-    const { setGameType, startGame, selectedWords } = usePracticeSession();
+    const { setGameType, startGame, selectedWords, direction, setDirection } = usePracticeSession();
     const t = useTranslations('practice.games');
 
     const handleSelectGame = (type: GameType) => {
@@ -47,6 +48,20 @@ export function GameSelector() {
     };
 
     return (
+        <div className="space-y-6">
+            <div className="flex items-center gap-3">
+                <span className="text-sm text-muted-foreground shrink-0">Abfragerichtung:</span>
+                <ToggleGroup
+                    type="single"
+                    variant="outline"
+                    value={direction}
+                    onValueChange={(val) => { if (val) setDirection(val as Direction); }}
+                >
+                    <ToggleGroupItem value="forward">Wort → Übersetzung</ToggleGroupItem>
+                    <ToggleGroupItem value="reverse">Übersetzung → Wort</ToggleGroupItem>
+                    <ToggleGroupItem value="random">Zufällig</ToggleGroupItem>
+                </ToggleGroup>
+            </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {GAME_TYPES.map((gameType) => {
                 const min = MIN_WORDS[gameType] ?? 1;
@@ -87,6 +102,7 @@ export function GameSelector() {
                     </Card>
                 );
             })}
+        </div>
         </div>
     );
 }

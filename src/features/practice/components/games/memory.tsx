@@ -3,9 +3,13 @@
 import { useState, useEffect, useMemo } from "react";
 import { usePracticeSession } from "../../hooks/use-practice-session";
 import { useEndGame } from "../../hooks/use-end-game";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
+
+const WAVE_SIZE = 5;
 
 type MemoryCard = {
     id: string;
@@ -21,16 +25,23 @@ export function MemoryGame() {
     const [cards, setCards] = useState<MemoryCard[]>([]);
     const [flippedIds, setFlippedIds] = useState<string[]>([]);
     const [isProcessing, setIsProcessing] = useState(false);
+    const [currentWaveIndex, setCurrentWaveIndex] = useState(0);
+    const [showWaveComplete, setShowWaveComplete] = useState(false);
+    const [totalMatchedPairs, setTotalMatchedPairs] = useState(0);
 
-    const gridCols = useMemo(() => {
-        const n = cards.length;
-        if (n <= 4) return 'grid-cols-2';
-        if (n <= 6) return 'grid-cols-3';
-        return 'grid-cols-4';
-    }, [cards.length]);
+    const waves = useMemo(() => {
+        const result = [];
+        for (let i = 0; i < selectedWords.length; i += WAVE_SIZE) {
+            result.push(selectedWords.slice(i, i + WAVE_SIZE));
+        }
+        return result;
+    }, [selectedWords]);
+
+    const totalPairs = selectedWords.length;
 
     useEffect(() => {
-        const gameWords = selectedWords;
+        if (waves.length === 0) return;
+        const gameWords = waves[currentWaveIndex];
 
         const newCards: MemoryCard[] = [];
         gameWords.forEach((word: any) => {
@@ -51,7 +62,16 @@ export function MemoryGame() {
         });
 
         setCards(newCards.sort(() => 0.5 - Math.random()));
-    }, [selectedWords]);
+        setFlippedIds([]);
+        setIsProcessing(false);
+    }, [currentWaveIndex, waves]);
+
+    const gridCols = useMemo(() => {
+        const n = cards.length;
+        if (n <= 4) return 'grid-cols-2';
+        if (n <= 6) return 'grid-cols-3';
+        return 'grid-cols-4';
+    }, [cards.length]);
 
     const handleCardClick = (id: string) => {
         if (isProcessing) return;
@@ -74,16 +94,25 @@ export function MemoryGame() {
             if (firstCard && secondCard && firstCard.wordId === secondCard.wordId) {
                 recordResult(firstCard.wordId, true);
                 setTimeout(() => {
-                    setCards(prev => prev.map(c =>
+                    const updatedCards = newCards.map(c =>
                         (c.id === firstId || c.id === secondId)
                             ? { ...c, isMatched: true }
                             : c
-                    ));
+                    );
+                    setCards(updatedCards);
                     setFlippedIds([]);
                     setIsProcessing(false);
 
-                    if (newCards.filter(c => !c.isMatched).length === 2) {
-                        setTimeout(() => endGame(), 500);
+                    const allMatched = updatedCards.every(c => c.isMatched);
+                    if (allMatched) {
+                        const newTotal = totalMatchedPairs + (waves[currentWaveIndex]?.length ?? 0);
+                        setTotalMatchedPairs(newTotal);
+                        const isLastWave = currentWaveIndex >= waves.length - 1;
+                        if (isLastWave) {
+                            setTimeout(() => endGame(), 500);
+                        } else {
+                            setTimeout(() => setShowWaveComplete(true), 500);
+                        }
                     }
                 }, 500);
             } else {
@@ -100,11 +129,52 @@ export function MemoryGame() {
         }
     };
 
+    const handleNextWave = () => {
+        setShowWaveComplete(false);
+        setCurrentWaveIndex(prev => prev + 1);
+    };
+
+    const progressPercent = totalPairs > 0 ? Math.round((totalMatchedPairs / totalPairs) * 100) : 0;
+    const remainingWaves = waves.length - currentWaveIndex - 1;
+
+    if (showWaveComplete) {
+        return (
+            <div className="max-w-md mx-auto text-center flex flex-col items-center gap-6 py-12">
+                <div className="text-5xl">🎉</div>
+                <h2 className="text-2xl font-bold">Runde {currentWaveIndex + 1} geschafft!</h2>
+                <div className="w-full">
+                    <div className="flex justify-between text-sm text-muted-foreground mb-2">
+                        <span>{totalMatchedPairs} von {totalPairs} Paaren gefunden</span>
+                        <span>{progressPercent}%</span>
+                    </div>
+                    <Progress value={progressPercent} className="h-3" />
+                </div>
+                <p className="text-muted-foreground">
+                    Noch {remainingWaves} Runde{remainingWaves !== 1 ? "n" : ""} übrig
+                </p>
+                <Button size="lg" onClick={handleNextWave}>
+                    Weiter →
+                </Button>
+            </div>
+        );
+    }
+
     return (
         <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-8">
+            <div className="text-center mb-6">
                 <h2 className="text-2xl font-bold">Memory Game</h2>
-                <p className="text-muted-foreground">Find matching pairs by flipping cards</p>
+                {waves.length > 1 && (
+                    <p className="text-muted-foreground mt-1">
+                        Runde {currentWaveIndex + 1} von {waves.length}
+                    </p>
+                )}
+                <div className="max-w-sm mx-auto mt-3">
+                    <div className="flex justify-between text-sm text-muted-foreground mb-1">
+                        <span>{totalMatchedPairs} von {totalPairs} Paaren</span>
+                        <span>{progressPercent}%</span>
+                    </div>
+                    <Progress value={progressPercent} className="h-2" />
+                </div>
             </div>
 
             <div className={cn("grid gap-4", gridCols)}>

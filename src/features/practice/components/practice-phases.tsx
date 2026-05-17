@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect } from "react";
 import { usePracticeSession } from "../hooks/use-practice-session";
 import { VocabularySelector } from "./vocabulary-selector";
 import { GameSelector } from "./game-selector";
@@ -30,6 +31,11 @@ export function PracticePhases() {
         setGameType
     } = usePracticeSession();
     const t = useTranslations('practice');
+
+    useEffect(() => {
+        if (isGameFinished) resetSession();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     // 1. Selection Phase
     if (selectedWords.length === 0) {
