@@ -77,9 +77,9 @@ export const usePracticeSession = create<PracticeState>((set) => ({
         const flip = (w: Word): Word => ({
             ...w,
             primary: w.secondary,
-            primaryInfo: w.secondaryInfo ?? undefined,
+            primaryInfo: w.secondaryInfo ?? null,
             secondary: w.primary,
-            secondaryInfo: w.primaryInfo ?? undefined,
+            secondaryInfo: w.primaryInfo ?? null,
         });
         let directedWords: Word[];
         if (state.direction === 'reverse') {
