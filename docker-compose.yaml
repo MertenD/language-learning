@@ -19,10 +19,10 @@ services:
     image: inngest/inngest:v0.27.0
     command: 'inngest dev -u http://app:3000/api/inngest'
     ports:
-      - '8288:8288'
+      - '127.0.0.1:8288:8288'
 
   redis:
     image: redis:8.4.0
     ports:
-      - "6379:6379"
+      - "127.0.0.1:6379:6379"
     restart: unless-stopped
